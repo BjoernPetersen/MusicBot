@@ -1,0 +1,10 @@
+dependencies:
+  override:
+      - mvn --fail-never dependency:go-offline dependency:resolve-plugins || true
+
+test:
+  post:
+    - mvn site -P report
+    - cp -r target/site $CIRCLE_ARTIFACTS/reports
+    - mkdir -p $CIRCLE_TEST_REPORTS/junit/
+    - find . -type f -regex ".*/target/surefire-reports/.*xml" -exec cp {} $CIRCLE_TEST_REPORTS/junit/ \;
