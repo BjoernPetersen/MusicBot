@@ -74,9 +74,9 @@ public final class PlayerState {
   @Override
   public String toString() {
     return "PlayerState{" +
-      "state=" + state +
-      ", song=" + song +
-      '}';
+        "state=" + state +
+        ", song=" + song +
+        '}';
   }
 
   @Nonnull

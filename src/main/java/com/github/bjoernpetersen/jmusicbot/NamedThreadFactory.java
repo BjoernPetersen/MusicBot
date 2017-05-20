@@ -23,10 +23,10 @@ public final class NamedThreadFactory implements ThreadFactory {
   @Override
   public Thread newThread(@Nonnull Runnable runnable) {
     Thread thread = new Thread(
-      group,
-      runnable,
-      prefix + threadNumber.getAndIncrement(),
-      0
+        group,
+        runnable,
+        prefix + threadNumber.getAndIncrement(),
+        0
     );
     if (thread.isDaemon()) {
       thread.setDaemon(false);

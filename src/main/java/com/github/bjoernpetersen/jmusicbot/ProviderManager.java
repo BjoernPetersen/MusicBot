@@ -34,9 +34,9 @@ public final class ProviderManager implements Closeable {
   private final Map<Provider, List<Suggester>> suggestersForProvider;
 
   ProviderManager(@Nonnull Config config,
-    @Nonnull PlaybackFactoryManager playbackFactoryManager,
-    @Nonnull List<Provider> providers,
-    @Nonnull List<Suggester> suggesters) {
+      @Nonnull PlaybackFactoryManager playbackFactoryManager,
+      @Nonnull List<Provider> providers,
+      @Nonnull List<Suggester> suggesters) {
     this.config = config;
     this.playbackFactoryManager = playbackFactoryManager;
 
@@ -55,7 +55,7 @@ public final class ProviderManager implements Closeable {
         result.put(provider.getName(), provider);
       } catch (InitializationException e) {
         log.severe(String.format(
-          "Error while initializing Provider '%s': %s", provider.getReadableName(), e
+            "Error while initializing Provider '%s': %s", provider.getReadableName(), e
         ));
       }
     }
@@ -71,7 +71,7 @@ public final class ProviderManager implements Closeable {
         result.put(suggester.getName(), suggester);
       } catch (InitializationException e) {
         log.severe(String.format(
-          "Error while initializing Suggester '%s': %s", suggester.getReadableName(), e
+            "Error while initializing Suggester '%s': %s", suggester.getReadableName(), e
         ));
       }
     }
@@ -85,9 +85,9 @@ public final class ProviderManager implements Closeable {
       Provider dependency = this.providers.get(dependencyName);
       if (dependency == null) {
         log.severe(String.format(
-          "Missing dependency for suggester '%s': '%s'. This suggester will be deactivated.",
-          suggester.getReadableName(),
-          dependencyName
+            "Missing dependency for suggester '%s': '%s'. This suggester will be deactivated.",
+            suggester.getReadableName(),
+            dependencyName
         ));
         return;
       }

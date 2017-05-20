@@ -26,11 +26,11 @@ class SongTypeAdapter extends TypeAdapter<Song> {
   @Override
   public void write(JsonWriter writer, Song song) throws IOException {
     writer.beginObject()
-      .name("songId").value(song.getId())
-      .name("title").value(song.getTitle())
-      .name("description").value(song.getDescription())
-      .name("provider").value(song.getProviderName())
-      .endObject();
+        .name("songId").value(song.getId())
+        .name("title").value(song.getTitle())
+        .name("description").value(song.getDescription())
+        .name("provider").value(song.getProviderName())
+        .endObject();
   }
 
   @Override
@@ -60,7 +60,7 @@ class SongTypeAdapter extends TypeAdapter<Song> {
     Provider provider = providerLookup.apply(providerName);
     if (provider == null) {
       log.severe(String.format(
-        "Could not find Provider '%s' to deserialize Song JSON!", providerName
+          "Could not find Provider '%s' to deserialize Song JSON!", providerName
       ));
       return null;
     }
@@ -70,7 +70,7 @@ class SongTypeAdapter extends TypeAdapter<Song> {
       result = provider.lookup(id);
     } catch (NoSuchSongException e) {
       log.severe(String.format(
-        "Song with ID '%s' could not be found by provider '%s'!", id, providerName
+          "Song with ID '%s' could not be found by provider '%s'!", id, providerName
       ));
       return null;
     }

@@ -41,8 +41,8 @@ public final class PlaybackFactoryManager implements Closeable {
     }
 
     Collection<PlaybackFactory> factories = new PluginLoader<>(
-      pluginFolder,
-      PlaybackFactory.class
+        pluginFolder,
+        PlaybackFactory.class
     ).load();
 
     for (PlaybackFactory factory : factories) {

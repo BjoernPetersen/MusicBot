@@ -57,8 +57,8 @@ public final class Queue {
 
   public List<Song> toList() {
     return queue.stream()
-      .map(Entry::getSong)
-      .collect(Collectors.toList());
+        .map(Entry::getSong)
+        .collect(Collectors.toList());
   }
 
   // TODO remove and move

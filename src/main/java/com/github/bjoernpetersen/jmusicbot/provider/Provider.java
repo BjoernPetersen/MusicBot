@@ -1,8 +1,8 @@
 package com.github.bjoernpetersen.jmusicbot.provider;
 
 import com.github.bjoernpetersen.jmusicbot.InitializationException;
-import com.github.bjoernpetersen.jmusicbot.PlaybackFactoryManager;
 import com.github.bjoernpetersen.jmusicbot.NamedPlugin;
+import com.github.bjoernpetersen.jmusicbot.PlaybackFactoryManager;
 import com.github.bjoernpetersen.jmusicbot.Song;
 import java.util.List;
 import javax.annotation.Nonnull;

@@ -46,9 +46,9 @@ class RestSuggesters {
       return suggesters.keySet();
     } else {
       return suggesters.values().stream()
-        .filter(s -> s.getDependencies().contains(providerId))
-        .map(NamedPlugin::getName)
-        .collect(Collectors.toList());
+          .filter(s -> s.getDependencies().contains(providerId))
+          .map(NamedPlugin::getName)
+          .collect(Collectors.toList());
     }
   }
 

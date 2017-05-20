@@ -22,5 +22,5 @@ public interface FilePlaybackFactory extends PlaybackFactory {
    */
   @Nonnull
   Playback createPlayback(@Nonnull File inputFile)
-    throws UnsupportedAudioFileException, IOException;
+      throws UnsupportedAudioFileException, IOException;
 }

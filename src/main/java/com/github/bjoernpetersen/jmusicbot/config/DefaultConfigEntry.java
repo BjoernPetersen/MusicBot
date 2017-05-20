@@ -13,16 +13,16 @@ public final class DefaultConfigEntry {
   private DefaultConfigEntry(Config config) {
     pluginFolder = config.stringEntry(MusicBot.class, "pluginFolder", "TODO", "plugins");
     suggester = config.stringEntry(
-      MusicBot.class,
-      "suggester",
-      "Suggests songs if queue is empty.",
-      null
+        MusicBot.class,
+        "suggester",
+        "Suggests songs if queue is empty.",
+        null
     );
   }
 
   public List<? extends Config.Entry> getEntries() {
     return Collections.unmodifiableList(
-      Arrays.asList(pluginFolder, suggester)
+        Arrays.asList(pluginFolder, suggester)
     );
   }
 

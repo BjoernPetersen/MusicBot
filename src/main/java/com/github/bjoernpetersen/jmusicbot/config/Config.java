@@ -49,9 +49,9 @@ public final class Config {
     String old = getValue(key);
     if (!Objects.equals(old, value)) {
       log.finer(String.format("Config entry '%s' changed from '%s' to '%s'",
-        key,
-        getValue(key),
-        value)
+          key,
+          getValue(key),
+          value)
       );
       config.put(key, value);
       adapter.storePlaintext(config);
@@ -109,7 +109,7 @@ public final class Config {
 
   @Nonnull
   public StringEntry stringEntry(Class<?> type, String key, String description,
-    @Nullable String defaultValue) {
+      @Nullable String defaultValue) {
     key = type.getName() + "." + key;
     Entry entry = getEntry(key);
     if (entry != null) {
@@ -160,7 +160,7 @@ public final class Config {
 
   @Nonnull
   public BooleanEntry booleanEntry(Class<?> type, String key, String description,
-    boolean defaultValue) {
+      boolean defaultValue) {
     key = type.getName() + "." + key;
     Entry entry = getEntry(key);
     if (entry != null) {
@@ -226,9 +226,9 @@ public final class Config {
     private final Set<StringConfigListener> listeners;
 
     private ReadOnlyStringEntry(String key,
-      String description,
-      @Nullable String defaultValue,
-      boolean isSecret) {
+        String description,
+        @Nullable String defaultValue,
+        boolean isSecret) {
       super(key, description, isSecret);
       this.defaultValue = defaultValue;
       this.listeners = new HashSet<>();
@@ -289,7 +289,7 @@ public final class Config {
   public class StringEntry extends ReadOnlyStringEntry {
 
     private StringEntry(String key, String description, @Nullable String defaultValue,
-      boolean isSecret) {
+        boolean isSecret) {
       super(key, description, defaultValue, isSecret);
     }
 
@@ -305,8 +305,8 @@ public final class Config {
     private final Set<BooleanConfigListener> listeners;
 
     private ReadOnlyBooleanEntry(String key,
-      String description,
-      boolean defaultValue) {
+        String description,
+        boolean defaultValue) {
       super(key, description, false);
       this.defaultValue = defaultValue;
       this.listeners = new HashSet<>();

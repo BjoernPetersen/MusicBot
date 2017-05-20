@@ -27,7 +27,7 @@ class RestPlayer {
   private final ProviderManager providerManager;
 
   public RestPlayer(@Nonnull GsonTransformer transformer, @Nonnull Player player,
-    @Nonnull ProviderManager providerManager) {
+      @Nonnull ProviderManager providerManager) {
     this.transformer = transformer;
     this.player = player;
     this.providerManager = providerManager;
@@ -97,9 +97,9 @@ class RestPlayer {
       return provider.lookup(songId);
     } catch (NoSuchSongException e) {
       log.warning(String.format(
-        "Could not find song with ID '%s' with provider '%s'",
-        songId,
-        providerName
+          "Could not find song with ID '%s' with provider '%s'",
+          songId,
+          providerName
       ));
       throw LookupException.notFound(providerName, songId);
     }

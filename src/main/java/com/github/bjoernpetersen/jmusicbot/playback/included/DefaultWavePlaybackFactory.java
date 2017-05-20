@@ -38,7 +38,7 @@ public final class DefaultWavePlaybackFactory implements WavePlaybackFactory {
   @Nonnull
   @Override
   public Playback createPlayback(@Nonnull File inputFile)
-    throws UnsupportedAudioFileException, IOException {
+      throws UnsupportedAudioFileException, IOException {
     return new DefaultWavePlayback(new FileInputStream(inputFile));
   }
 

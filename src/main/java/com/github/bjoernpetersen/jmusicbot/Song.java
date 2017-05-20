@@ -24,7 +24,7 @@ public final class Song {
   private final String providerName;
 
   public Song(PlaybackSupplier playbackSupplier, SongLoader loader, String providerName,
-    String id, String title, String description) {
+      String id, String title, String description) {
     this.playbackSupplier = playbackSupplier;
     this.loader = loader;
     this.id = id;
@@ -115,8 +115,8 @@ public final class Song {
   @Override
   public String toString() {
     return "Song{"
-      + "id='" + id + '\''
-      + ", providerName='" + providerName + '\''
-      + '}';
+        + "id='" + id + '\''
+        + ", providerName='" + providerName + '\''
+        + '}';
   }
 }

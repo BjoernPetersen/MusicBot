@@ -63,10 +63,10 @@ public final class PluginLoader<T> {
       Collection<T> plugins = loadPlugins(loader);
       result.addAll(plugins);
       log.info(String.format(
-        "Loaded %d plugins of type '%s' from plugin folder: %s",
-        plugins.size(),
-        type.getSimpleName(),
-        pluginFolder.getName()
+          "Loaded %d plugins of type '%s' from plugin folder: %s",
+          plugins.size(),
+          type.getSimpleName(),
+          pluginFolder.getName()
       ));
     } catch (Exception | Error e) {
       log.severe("Error loading plugins: " + e);
@@ -88,7 +88,7 @@ public final class PluginLoader<T> {
 
   @Nonnull
   private Collection<T> loadPlugins(ClassLoader classLoader)
-    throws MalformedURLException, ServiceConfigurationError, NoClassDefFoundError {
+      throws MalformedURLException, ServiceConfigurationError, NoClassDefFoundError {
     ServiceLoader<T> loader = ServiceLoader.load(type, classLoader);
 
     List<T> result = new LinkedList<>();
@@ -97,9 +97,9 @@ public final class PluginLoader<T> {
         result.add(plugin);
       } else {
         log.severe(String.format(
-          "Loaded plugin '%s' is not instance of desired type %s",
-          plugin,
-          type.getSimpleName()
+            "Loaded plugin '%s' is not instance of desired type %s",
+            plugin,
+            type.getSimpleName()
         ));
       }
     }

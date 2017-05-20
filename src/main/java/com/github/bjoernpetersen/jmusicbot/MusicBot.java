@@ -30,7 +30,7 @@ public final class MusicBot implements Closeable {
   private final RestApi restApi;
 
   private MusicBot(Config config, List<Provider> providers, List<Suggester> suggesters,
-    List<PlaybackFactory> playbackFactories) {
+      List<PlaybackFactory> playbackFactories) {
     this.config = config;
     File pluginFolder = new File(DefaultConfigEntry.get(config).pluginFolder.getOrDefault());
 
@@ -38,10 +38,10 @@ public final class MusicBot implements Closeable {
     playbackFactoryManager.loadFactories(pluginFolder, playbackFactories);
 
     this.providerManager = new ProviderManager(
-      config,
-      playbackFactoryManager,
-      providers,
-      suggesters
+        config,
+        playbackFactoryManager,
+        providers,
+        suggesters
     );
 
     Optional<String> primarySuggesterName = DefaultConfigEntry.get(config).suggester.get();
@@ -53,7 +53,7 @@ public final class MusicBot implements Closeable {
       primarySuggester = providerManager.getSuggester(primarySuggesterName.get());
     } catch (IllegalArgumentException e) {
       throw new IllegalStateException(String.format(
-        "Primary suggester '%s' is missing.", primarySuggesterName.get()
+          "Primary suggester '%s' is missing.", primarySuggesterName.get()
       ));
     }
 
@@ -143,10 +143,10 @@ public final class MusicBot implements Closeable {
     @Override
     public String toString() {
       return "Builder{" +
-        "providers=" + providers +
-        ", suggesters=" + suggesters +
-        ", playbackFactories=" + playbackFactories +
-        '}';
+          "providers=" + providers +
+          ", suggesters=" + suggesters +
+          ", playbackFactories=" + playbackFactories +
+          '}';
     }
   }
 }

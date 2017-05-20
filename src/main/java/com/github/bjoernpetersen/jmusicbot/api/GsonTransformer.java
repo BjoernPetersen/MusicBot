@@ -15,8 +15,8 @@ class GsonTransformer implements ResponseTransformer {
 
   public GsonTransformer(Function<String, Provider> songLookup) {
     this.gson = new GsonBuilder()
-      .registerTypeAdapter(Song.class, new SongTypeAdapter(songLookup))
-      .create();
+        .registerTypeAdapter(Song.class, new SongTypeAdapter(songLookup))
+        .create();
   }
 
   @Override
