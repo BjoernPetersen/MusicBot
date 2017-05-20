@@ -25,11 +25,12 @@ public final class Config {
   @Nonnull
   private final Map<String, String> secrets;
 
+  @Nonnull
   private final Map<String, WeakReference<Entry>> weakEntries;
   @Nonnull
   private final Map<String, Entry> entries;
 
-  public Config(ConfigStorageAdapter adapter) {
+  public Config(@Nonnull ConfigStorageAdapter adapter) {
     this.adapter = adapter;
     this.config = new HashMap<>(adapter.loadPlaintext());
     this.secrets = new HashMap<>(adapter.loadSecrets());
@@ -97,6 +98,15 @@ public final class Config {
     return null;
   }
 
+  /**
+   * Gets a string config entry. The entry has to be defined by calling {@link #stringEntry(Class,
+   * String, String, String)} prior to this method.
+   *
+   * @param type the class that defined the entry
+   * @param key the entry key
+   * @return a string config entry
+   * @throws IllegalArgumentException if there is no such entry or it is secret
+   */
   @Nonnull
   public ReadOnlyStringEntry stringEntry(Class<?> type, String key) {
     Entry entry = getEntry(key);
@@ -107,6 +117,19 @@ public final class Config {
     }
   }
 
+  /**
+   * Defines and returns a string config entry. If it has already been defined, no new instance will
+   * be created.
+   *
+   * @param type the class defining the entry. It's fully qualified name is prepended to the key for
+   * uniqueness
+   * @param key the entry key
+   * @param description a description for the user what this entry does
+   * @param defaultValue a default value, or null
+   * @return a string config entry
+   * @throws IllegalArgumentException if the entry has already been defined, but is secret or a
+   * BooleanEntry
+   */
   @Nonnull
   public StringEntry stringEntry(Class<?> type, String key, String description,
       @Nullable String defaultValue) {
@@ -122,6 +145,15 @@ public final class Config {
     return new StringEntry(key, description, defaultValue, false);
   }
 
+  /**
+   * Gets a string config entry with a secret. The entry has to be defined by calling {@link
+   * #secret(Class, String, String)} prior to this method.
+   *
+   * @param type the class that defined the entry
+   * @param key the entry key
+   * @return a string config entry
+   * @throws IllegalArgumentException if there is no such entry or it is not a secret
+   */
   @Nonnull
   public ReadOnlyStringEntry secret(Class<?> type, String key) {
     key = type.getName() + "." + key;
@@ -133,6 +165,21 @@ public final class Config {
     }
   }
 
+  /**
+   * <p>Defines and returns a string config entry holding a secret. If it has already been defined,
+   * no new instance will be created.</p>
+   *
+   * <p>Secret string entries are stored separately from plaintext string entries. They should also
+   * not be visible to the user.</p>
+   *
+   * @param type the class defining the entry. It's fully qualified name is prepended to the key for
+   * uniqueness
+   * @param key the entry key
+   * @param description a description for the user what this entry does
+   * @return a string config entry
+   * @throws IllegalArgumentException if the entry has already been defined, but is not secret or it
+   * is a BooleanEntry
+   */
   @Nonnull
   public StringEntry secret(Class<?> type, String key, String description) {
     key = type.getName() + "." + key;
@@ -147,6 +194,15 @@ public final class Config {
     return new StringEntry(key, description, null, true);
   }
 
+  /**
+   * Gets a boolean config entry. The entry has to be defined by calling {@link #booleanEntry(Class,
+   * String, String, boolean)} prior to this method.
+   *
+   * @param type the class that defined the entry
+   * @param key the entry key
+   * @return a boolean config entry
+   * @throws IllegalArgumentException if there is no such entry or it is a StringEntry
+   */
   @Nonnull
   public ReadOnlyBooleanEntry booleanEntry(Class<?> type, String key) {
     key = type.getName() + "." + key;
@@ -158,6 +214,18 @@ public final class Config {
     }
   }
 
+  /**
+   * Defines and returns a boolean config entry. If it has already been defined, no new instance
+   * will be created.
+   *
+   * @param type the class defining the entry. It's fully qualified name is prepended to the key for
+   * uniqueness
+   * @param key the entry key
+   * @param description a description for the user what this entry does
+   * @param defaultValue a default value
+   * @return a boolean config entry
+   * @throws IllegalArgumentException if the entry has already been defined, but is a StringEntry
+   */
   @Nonnull
   public BooleanEntry booleanEntry(Class<?> type, String key, String description,
       boolean defaultValue) {
@@ -173,6 +241,15 @@ public final class Config {
     return new BooleanEntry(key, description, defaultValue);
   }
 
+  /**
+   * <p>A config entry, holding it's key and description.</p>
+   *
+   * There are two implementations of Config.Entry:<br>
+   * <ul>
+   * <li>{@link StringEntry} for string entries and secrets</li>
+   * <li>{@link BooleanEntry} for boolean entries</li>
+   * </ul>
+   */
   public abstract class Entry {
 
     private Entry(@Nonnull String key, @Nonnull String description, boolean isSecret) {
@@ -210,6 +287,10 @@ public final class Config {
       }
     }
 
+    /**
+     * Schedules this entry for destruction. After calling this method, any references to it should
+     * be set to <code>null</code>.
+     */
     public void tryDestruct() {
       WeakReference<Entry> ref = new WeakReference<>(this);
       entries.remove(getKey());
@@ -217,6 +298,12 @@ public final class Config {
     }
   }
 
+  /**
+   * <p>Read-only implementation of Entry supporting string values.</p>
+   *
+   * <p>This implementation provides various possibilities to access the entry value and/or the
+   * default value.</p>
+   */
   @ParametersAreNonnullByDefault
   public class ReadOnlyStringEntry extends Entry {
 
@@ -251,6 +338,11 @@ public final class Config {
       }
     }
 
+    /**
+     * Gets the value of the entry. If a default value is present, it is ignored.
+     *
+     * @return optional of the entry value
+     */
     @Nonnull
     public Optional<String> get() {
       Config config = Config.this;
@@ -258,6 +350,12 @@ public final class Config {
       return Optional.ofNullable(value);
     }
 
+    /**
+     * Gets the value of the entry. If there is no value, but a default value, it will be present.
+     * If there is neither, the returned Optional will be empty.
+     *
+     * @return optional of the entry value or the default value, if present
+     */
     @Nonnull
     public Optional<String> getWithDefault() {
       Optional<String> value = get();
@@ -268,15 +366,34 @@ public final class Config {
       }
     }
 
-    @Nullable
-    public String getDefault() {
-      return defaultValue;
+    /**
+     * Gets the default value, if one is present.
+     *
+     * @return optional of the default value
+     */
+    @Nonnull
+    public Optional<String> getDefault() {
+      return Optional.ofNullable(defaultValue);
     }
 
+    /**
+     * Whether a default value is present.
+     *
+     * @return true, if there is a default value
+     */
     public boolean hasDefault() {
       return defaultValue != null;
     }
 
+    /**
+     * <p>Gets the entry value. If no value is present, the default value is returned.</p>
+     *
+     * <p>This method should only be called if a default value is present. Otherwise, an exception
+     * is thrown.</p>
+     *
+     * @return the entry value or default value
+     * @throws IllegalStateException if this method is called and there is no default value
+     */
     @Nonnull
     public String getOrDefault() {
       if (defaultValue == null) {
@@ -286,6 +403,9 @@ public final class Config {
     }
   }
 
+  /**
+   * An extension of {@link ReadOnlyStringEntry} providing a {@link #set(String)} method.
+   */
   public class StringEntry extends ReadOnlyStringEntry {
 
     private StringEntry(String key, String description, @Nullable String defaultValue,
@@ -293,12 +413,26 @@ public final class Config {
       super(key, description, defaultValue, isSecret);
     }
 
+    /**
+     * <p>Changes the entry value to the specified new one.</p>
+     *
+     * <p>The new value will immediately be persistently stored.</p>
+     *
+     * @param value the new value, or null
+     */
     @Override
     public void set(@Nullable String value) {
       super.set(value);
     }
   }
 
+  /**
+   * <p>Read-only implementation of Entry supporting boolean values.</p>
+   *
+   * <p>This implementation must have a default value.</p>
+   *
+   * <p>This implementation provides a {@link #get()} method to access the current value.</p>
+   */
   public class ReadOnlyBooleanEntry extends Entry {
 
     private final boolean defaultValue;
@@ -331,6 +465,11 @@ public final class Config {
       }
     }
 
+    /**
+     * Gets the current entry value. If no current value is present, the default value is returned.
+     *
+     * @return the entry value
+     */
     public boolean get() {
       Config config = Config.this;
       String value = isSecret() ? config.getSecret(getKey()) : config.getValue(getKey());
@@ -344,12 +483,22 @@ public final class Config {
     }
   }
 
+  /**
+   * An extension of {@link ReadOnlyBooleanEntry} providing a {@link #set(boolean)} method.
+   */
   public class BooleanEntry extends ReadOnlyBooleanEntry {
 
     private BooleanEntry(String key, String description, boolean defaultValue) {
       super(key, description, defaultValue);
     }
 
+    /**
+     * <p>Sets the entry value to the specified new one.</p>
+     *
+     * <p>The new value will immediately be persistently stored.</p>
+     *
+     * @param value the new value
+     */
     public void set(boolean value) {
       set(Boolean.toString(value));
     }
