@@ -53,11 +53,14 @@ public abstract class AbstractPlayback implements Playback {
    * Signals all threads waiting for the {@link #getDone()} condition.
    */
   protected final void markDone() {
-    getLock().lock();
+    Lock lock = getLock();
+    Condition done = getDone();
+
+    lock.lock();
     try {
-      getDone().signalAll();
+      done.signalAll();
     } finally {
-      getLock().unlock();
+      lock.unlock();
     }
   }
 

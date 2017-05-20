@@ -95,9 +95,10 @@ public final class Player implements Closeable {
   }
 
   public void pause() {
+    Lock stateLock = this.stateLock;
     stateLock.lock();
-    log.info("Pausing...");
     try {
+      log.info("Pausing...");
       PlayerState state = getState();
       if (state.getState() == State.PAUSE) {
         log.finer("Already paused.");
@@ -114,9 +115,10 @@ public final class Player implements Closeable {
   }
 
   public void play() {
+    Lock stateLock = this.stateLock;
     stateLock.lock();
-    log.info("Playing...");
     try {
+      log.info("Playing...");
       if (getState().getState() == State.PLAY) {
         log.finer("Already playing.");
         return;
@@ -130,9 +132,10 @@ public final class Player implements Closeable {
 
   public void next() throws InterruptedException {
     PlayerState state = getState();
+    Lock stateLock = this.stateLock;
     stateLock.lock();
-    log.info("Next...");
     try {
+      log.info("Next...");
       PlayerState newState = getState();
       if (isSignificantlyDifferent(state, newState)) {
         log.fine("Skipping next call due to state change while waiting for lock.");
@@ -174,6 +177,7 @@ public final class Player implements Closeable {
       PlayerState state = getState();
       playback.waitForFinish();
 
+      Lock stateLock = this.stateLock;
       stateLock.lock();
       try {
         // Prevent auto next calls if next was manually called
