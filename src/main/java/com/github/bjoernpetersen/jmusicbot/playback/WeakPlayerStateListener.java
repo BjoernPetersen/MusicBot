@@ -14,11 +14,6 @@ public final class WeakPlayerStateListener implements PlayerStateListener {
   }
 
   @Override
-  public void onChange(@Nonnull PlayerState old, @Nonnull PlayerState next) {
-    listener.onChange(old, next);
-  }
-
-  @Override
   public void onChanged(@Nonnull PlayerState state) {
     listener.onChanged(state);
   }

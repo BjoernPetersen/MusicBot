@@ -85,9 +85,6 @@ public final class Player implements Closeable {
   }
 
   private void setState(PlayerState state) {
-    for (PlayerStateListener listener : stateListeners) {
-      listener.onChange(this.state, state);
-    }
     this.state = state;
     for (PlayerStateListener listener : stateListeners) {
       listener.onChanged(state);
