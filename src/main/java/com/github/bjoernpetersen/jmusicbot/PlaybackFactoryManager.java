@@ -38,7 +38,7 @@ public final class PlaybackFactoryManager implements Closeable {
   public <F extends PlaybackFactory> F getFactory(@Nonnull Class<F> factoryType) {
     PlaybackFactory result = factories.get(factoryType);
     if (result == null) {
-      throw new IllegalArgumentException();
+      throw new IllegalArgumentException("No factory for: " + factoryType.getSimpleName());
     } else {
       return (F) result;
     }
@@ -107,20 +107,39 @@ public final class PlaybackFactoryManager implements Closeable {
       throw new InvalidFactoryException();
     }
 
-    List<? extends Config.Entry> result;
-    try {
-      result = factory.initializeConfigEntries(config);
-      factory.initialize();
-    } catch (InitializationException e) {
-      log.severe(String.format("Could not initialize PlaybackFactory '%s': %s", factory, e));
-      throw new InitializationException(e);
-    }
+    List<? extends Config.Entry> result = factory.initializeConfigEntries(config);
 
     for (Class<? extends PlaybackFactory> base : validBases) {
       factories.put(base, factory);
     }
 
     return result;
+  }
+
+  void initializeFactories() throws InitializationException {
+    List<PlaybackFactory> defective = new LinkedList<>();
+    for (PlaybackFactory factory : factories.values()) {
+      try {
+        factory.initialize();
+      } catch (InitializationException e) {
+        log.severe(String.format("Could not initialize PlaybackFactory '%s': %s", factory, e));
+        defective.add(factory);
+      }
+    }
+
+    for (PlaybackFactory factory : defective) {
+      removeFactory(factory);
+      factory.destructConfigEntries();
+    }
+  }
+
+  private void removeFactory(PlaybackFactory factory) {
+    for (Class<? extends PlaybackFactory> base : factory.getBases()) {
+      PlaybackFactory registered = getFactory(base);
+      if (registered == factory) {
+        factories.remove(base);
+      }
+    }
   }
 
   private static class InvalidFactoryException extends Exception {

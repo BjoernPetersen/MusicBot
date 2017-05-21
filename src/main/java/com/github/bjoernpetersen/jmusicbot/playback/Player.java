@@ -155,7 +155,7 @@ public final class Player implements Closeable {
         return;
       }
 
-      Song nextSong = nextOptional.orElseGet(suggester::suggestNext);
+      Song nextSong = nextOptional.orElseGet(() -> suggester.suggestNext());
       songPlayedNotifier.accept(nextSong);
       log.info("Next song is: " + nextSong);
       try {
@@ -175,7 +175,7 @@ public final class Player implements Closeable {
   }
 
   private boolean isSignificantlyDifferent(PlayerState state, PlayerState other) {
-    return state.hasSong() != state.hasSong()
+    return other.hasSong() != state.hasSong()
         || other.hasSong() && state.hasSong() && !state.getSong().equals(other.getSong());
   }
 

@@ -7,8 +7,6 @@ import com.github.bjoernpetersen.jmusicbot.provider.Provider;
 import com.github.bjoernpetersen.jmusicbot.provider.Suggester;
 import java.io.Closeable;
 import java.io.IOException;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.function.Consumer;
 import java.util.logging.Logger;
 import javax.annotation.Nonnull;
@@ -26,19 +24,13 @@ public final class MusicBot implements Closeable {
   private final ProviderManager providerManager;
   private final RestApi restApi;
 
-  private MusicBot(Config config, List<Provider> providers, List<Suggester> suggesters,
-      PlaybackFactoryManager playbackFactoryManager, @Nullable Suggester defaultSuggester)
+  private MusicBot(Config config, PlaybackFactoryManager playbackFactoryManager,
+      ProviderManager providerManager, @Nullable Suggester defaultSuggester)
       throws InitializationException {
     try {
       this.config = config;
       this.playbackFactoryManager = playbackFactoryManager;
-
-      this.providerManager = new ProviderManager(
-          config,
-          playbackFactoryManager,
-          providers,
-          suggesters
-      );
+      this.providerManager = providerManager;
 
       Consumer<Song> songPlayedNotifier = song -> {
         Provider provider = providerManager.getProvider(song.getProviderName());
@@ -86,10 +78,8 @@ public final class MusicBot implements Closeable {
     // TODO IP, port
     @Nonnull
     private final Config config;
-    @Nonnull
-    private final List<Provider> providers;
-    @Nonnull
-    private final List<Suggester> suggesters;
+    @Nullable
+    private ProviderManager providerManager;
     @Nullable
     private PlaybackFactoryManager playbackFactoryManager;
     @Nullable
@@ -97,10 +87,7 @@ public final class MusicBot implements Closeable {
 
     public Builder(Config config) {
       this.config = config;
-      this.providers = new LinkedList<>();
-      this.suggesters = new LinkedList<>();
     }
-
 
     @Nonnull
     public Builder playbackFactoryManager(PlaybackFactoryManager manager) {
@@ -108,29 +95,9 @@ public final class MusicBot implements Closeable {
       return this;
     }
 
-    /**
-     * Adds the specified provider to the list of providers and initializes its config entries.
-     *
-     * @param provider a provider
-     * @return this Builder
-     */
     @Nonnull
-    public Builder addProvider(Provider provider) {
-      provider.initializeConfigEntries(config);
-      providers.add(provider);
-      return this;
-    }
-
-    /**
-     * Adds the specified suggester to the list of providers and initializes its config entries.
-     *
-     * @param suggester a suggester
-     * @return this Builder
-     */
-    @Nonnull
-    public Builder addSuggester(Suggester suggester) {
-      suggester.initializeConfigEntries(config);
-      suggesters.add(suggester);
+    public Builder providerManager(ProviderManager manager) {
+      this.providerManager = manager;
       return this;
     }
 
@@ -142,15 +109,22 @@ public final class MusicBot implements Closeable {
 
     @Nonnull
     public MusicBot build() throws InitializationException {
-      return new MusicBot(config, providers, suggesters, playbackFactoryManager, defaultSuggester);
-    }
+      if (providerManager == null
+          || playbackFactoryManager == null) {
+        throw new IllegalStateException("ProviderManager or PlaybackFactoryManager is null");
+      }
 
-    @Override
-    public String toString() {
-      return "Builder{"
-          + "providers=" + providers
-          + ", suggesters=" + suggesters
-          + '}';
+      playbackFactoryManager.initializeFactories();
+
+      for (Provider provider : providerManager.getProviders().values()) {
+        providerManager.initialize(provider);
+      }
+
+      for (Suggester suggester : providerManager.getSuggesters().values()) {
+        providerManager.initialize(suggester);
+      }
+
+      return new MusicBot(config, playbackFactoryManager, providerManager, defaultSuggester);
     }
   }
 }

@@ -21,6 +21,7 @@ final class DummyPlayback implements Playback {
 
   @Override
   public void waitForFinish() throws InterruptedException {
+    Thread.sleep(2000);
   }
 
   @Override
