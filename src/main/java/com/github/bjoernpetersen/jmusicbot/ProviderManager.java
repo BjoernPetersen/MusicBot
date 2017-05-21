@@ -160,8 +160,15 @@ public final class ProviderManager implements Closeable {
     }
   }
 
-  private boolean isActive(Provider provider) {
-    return providerManager.isActive(provider);
+  @Nonnull
+  public State getState(NamedPlugin plugin) {
+    if (plugin instanceof Provider) {
+      return providerManager.getState((Provider) plugin);
+    } else if (plugin instanceof Suggester) {
+      return suggesterManager.getState((Suggester) plugin);
+    } else {
+      throw new IllegalArgumentException();
+    }
   }
 
   private void addStateListener(Provider provider, BiConsumer<State, State> listener) {
@@ -170,10 +177,6 @@ public final class ProviderManager implements Closeable {
 
   private void removeStateListener(Provider provider, BiConsumer<State, State> listener) {
     providerManager.removeStateListener(provider, listener);
-  }
-
-  private boolean isActive(Suggester provider) {
-    return suggesterManager.isActive(provider);
   }
 
   private void addStateListener(Suggester suggester, BiConsumer<State, State> listener) {

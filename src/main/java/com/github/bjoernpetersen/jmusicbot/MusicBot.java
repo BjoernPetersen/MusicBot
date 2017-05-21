@@ -1,5 +1,6 @@
 package com.github.bjoernpetersen.jmusicbot;
 
+import com.github.bjoernpetersen.jmusicbot.ProviderManager.State;
 import com.github.bjoernpetersen.jmusicbot.api.RestApi;
 import com.github.bjoernpetersen.jmusicbot.config.Config;
 import com.github.bjoernpetersen.jmusicbot.playback.Player;
@@ -117,11 +118,15 @@ public final class MusicBot implements Closeable {
       playbackFactoryManager.initializeFactories();
 
       for (Provider provider : providerManager.getProviders().values()) {
-        providerManager.initialize(provider);
+        if (providerManager.getState(provider) == State.CONFIG) {
+          providerManager.initialize(provider);
+        }
       }
 
       for (Suggester suggester : providerManager.getSuggesters().values()) {
-        providerManager.initialize(suggester);
+        if (providerManager.getState(suggester) == State.CONFIG) {
+          providerManager.initialize(suggester);
+        }
       }
 
       return new MusicBot(config, playbackFactoryManager, providerManager, defaultSuggester);
