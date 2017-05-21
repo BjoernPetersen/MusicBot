@@ -109,12 +109,12 @@ class RestPlayer {
   private Object pause(Request request, Response response) {
     player.pause();
     response.status(204);
-    return null;
+    return "";
   }
 
   private Object play(Request request, Response response) {
     player.play();
     response.status(204);
-    return null;
+    return "";
   }
 }
