@@ -1,21 +1,28 @@
 package com.github.bjoernpetersen.jmusicbot.playback;
 
 import com.github.bjoernpetersen.jmusicbot.Song;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 
 public final class Queue {
 
+  @Nonnull
   private final LinkedList<Entry> queue;
+  @Nonnull
+  private final Set<QueueChangeListener> listeners;
 
   Queue() {
     this.queue = new LinkedList<>();
+    this.listeners = new HashSet<>();
   }
 
   // TODO append entry, not song
@@ -23,6 +30,7 @@ public final class Queue {
     Objects.requireNonNull(song);
     if (queue.stream().noneMatch(e -> e.getSong().equals(song))) {
       queue.add(new Entry(song));
+      notifyListeners(listener -> listener.onAdd(song));
     }
   }
 
@@ -32,6 +40,7 @@ public final class Queue {
       Entry entry = iterator.next();
       if (entry.getSong().equals(song)) {
         iterator.remove();
+        notifyListeners(listener -> listener.onRemove(song));
         return;
       }
     }
@@ -43,7 +52,9 @@ public final class Queue {
     if (queue.isEmpty()) {
       return Optional.empty();
     } else {
-      return Optional.of(queue.pop().getSong());
+      Song song = queue.pop().getSong();
+      notifyListeners(listener -> listener.onRemove(song));
+      return Optional.of(song);
     }
   }
 
@@ -61,7 +72,21 @@ public final class Queue {
         .collect(Collectors.toList());
   }
 
-  // TODO remove and move
+  public void addListener(QueueChangeListener listener) {
+    listeners.add(listener);
+  }
+
+  public void removeListener(QueueChangeListener listener) {
+    listeners.remove(listener);
+  }
+
+  private void notifyListeners(Consumer<QueueChangeListener> notifier) {
+    for (QueueChangeListener listener : listeners) {
+      notifier.accept(listener);
+    }
+  }
+
+  // TODO move
 
   // TODO add more info, like user
   @ParametersAreNonnullByDefault
