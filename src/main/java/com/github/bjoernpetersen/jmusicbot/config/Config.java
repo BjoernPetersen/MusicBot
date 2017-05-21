@@ -54,7 +54,11 @@ public final class Config {
           getValue(key),
           value)
       );
-      config.put(key, value);
+      if (value == null) {
+        config.remove(key);
+      } else {
+        config.put(key, value);
+      }
       adapter.storePlaintext(config);
     }
   }
@@ -68,7 +72,11 @@ public final class Config {
     String old = getSecret(key);
     if (!Objects.equals(old, value)) {
       log.finer(String.format("Secret '%s' changed.", key));
-      secrets.put(key, value);
+      if (value == null) {
+        secrets.remove(key);
+      } else {
+        secrets.put(key, value);
+      }
       adapter.storeSecrets(secrets);
     }
   }
