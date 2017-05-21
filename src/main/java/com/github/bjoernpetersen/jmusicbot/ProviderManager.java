@@ -72,12 +72,11 @@ public final class ProviderManager implements Closeable {
     for (String dependencyName : dependencies) {
       Optional<Provider> foundDependency = this.providerManager.get(dependencyName);
       if (!foundDependency.isPresent()) {
-        log.severe(String.format(
-            "Missing dependency for suggester '%s': '%s'. This suggester will be deactivated.",
+        throw new InitializationException(String.format(
+            "Missing dependency for suggester '%s': '%s'.",
             suggester.getReadableName(),
             dependencyName
         ));
-        return;
       }
 
       Provider dependency = foundDependency.get();
