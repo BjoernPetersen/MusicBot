@@ -40,6 +40,11 @@ public final class MusicBot implements Closeable {
         }
       };
 
+      if (providerManager.getState(defaultSuggester) != State.ACTIVE) {
+        log.warning("Default suggester is not active.");
+        defaultSuggester = null;
+      }
+
       this.player = new Player(songPlayedNotifier, defaultSuggester);
       this.restApi = new RestApi(this);
     } catch (Exception e) {
