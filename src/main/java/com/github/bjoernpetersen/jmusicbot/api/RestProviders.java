@@ -17,11 +17,8 @@ class RestProviders {
 
   @Nonnull
   private final Map<String, Provider> providers;
-  @Nonnull
-  private final GsonTransformer transformer;
 
   RestProviders(@Nonnull GsonTransformer transformer, @Nonnull Map<String, Provider> providers) {
-    this.transformer = transformer;
     this.providers = providers;
 
     path("/providers", () -> {

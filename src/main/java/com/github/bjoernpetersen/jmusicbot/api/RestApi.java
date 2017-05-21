@@ -22,6 +22,8 @@ public class RestApi implements Closeable {
 
   @Override
   public void close() throws IOException {
+    // Deletes all routes and thereby the references instances of RestPlayer,
+    // RestProviders etc. created in constructor
     Spark.stop();
   }
 }

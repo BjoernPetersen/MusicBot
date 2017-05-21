@@ -29,7 +29,7 @@ class SongTypeAdapter extends TypeAdapter<Song> {
         .name("songId").value(song.getId())
         .name("title").value(song.getTitle())
         .name("description").value(song.getDescription())
-        .name("provider").value(song.getProviderName())
+        .name("providerId").value(song.getProviderName())
         .endObject();
   }
 
@@ -44,7 +44,7 @@ class SongTypeAdapter extends TypeAdapter<Song> {
         case "songId":
           id = reader.nextString();
           break;
-        case "provider":
+        case "providerId":
           providerName = reader.nextString();
           break;
         default:

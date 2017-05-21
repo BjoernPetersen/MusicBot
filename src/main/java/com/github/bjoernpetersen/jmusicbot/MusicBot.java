@@ -107,13 +107,20 @@ public final class MusicBot implements Closeable {
     private final List<PlaybackFactory> playbackFactories;
 
     public Builder(Config config) {
-      // TODO register config entries
       this.config = config;
       this.providers = new LinkedList<>();
       this.suggesters = new LinkedList<>();
       this.playbackFactories = new LinkedList<>();
     }
 
+    /**
+     * Registers a PlaybackFactory implementation included in the JMusicBot-wrapper and initializes
+     * its config entries. Note that as of now, PlaybackFactory plugins will be loaded by the {@link
+     * MusicBot} class.
+     *
+     * @param factory an included factory
+     * @return this Builder
+     */
     @Nonnull
     public Builder includePlaybackFactory(PlaybackFactory factory) {
       factory.initializeConfigEntries(config);
@@ -121,6 +128,12 @@ public final class MusicBot implements Closeable {
       return this;
     }
 
+    /**
+     * Adds the specified provider to the list of providers and initializes its config entries.
+     *
+     * @param provider a provider
+     * @return this Builder
+     */
     @Nonnull
     public Builder addProvider(Provider provider) {
       provider.initializeConfigEntries(config);
@@ -128,6 +141,12 @@ public final class MusicBot implements Closeable {
       return this;
     }
 
+    /**
+     * Adds the specified suggester to the list of providers and initializes its config entries.
+     *
+     * @param suggester a suggester
+     * @return this Builder
+     */
     @Nonnull
     public Builder addSuggester(Suggester suggester) {
       suggester.initializeConfigEntries(config);
