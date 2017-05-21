@@ -33,8 +33,8 @@ class RestPlayer {
     this.providerManager = providerManager;
     path("/player", () -> {
       get("", this::getState);
-      get("/pause", this::pause);
-      get("/play", this::play);
+      put("/pause", this::pause);
+      put("/play", this::play);
       path("/queue", () -> {
         get("", this::getQueue, transformer);
         put("/add", this::addToQueue, transformer);
@@ -44,6 +44,7 @@ class RestPlayer {
   }
 
   private Object getState(Request request, Response response) throws Exception {
+    // TODO definitely not final
     return player.getState().getState().toString();
   }
 
