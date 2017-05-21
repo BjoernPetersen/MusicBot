@@ -165,6 +165,16 @@ public final class ProviderManager implements Closeable {
     }
   }
 
+  public void destructConfigEntries(NamedPlugin plugin) {
+    if (plugin instanceof Provider) {
+      providerManager.destructConfigEntries((Provider) plugin);
+    } else if (plugin instanceof Suggester) {
+      suggesterManager.destructConfigEntries((Suggester) plugin);
+    } else {
+      throw new IllegalArgumentException();
+    }
+  }
+
   public void addStateListener(NamedPlugin plugin, BiConsumer<State, State> listener) {
     if (plugin instanceof Provider) {
       addStateListener((Provider) plugin, listener);

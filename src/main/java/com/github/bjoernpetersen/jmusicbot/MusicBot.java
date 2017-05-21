@@ -124,13 +124,31 @@ public final class MusicBot implements Closeable {
 
       for (Provider provider : providerManager.getProviders().values()) {
         if (providerManager.getState(provider) == State.CONFIG) {
-          providerManager.initialize(provider);
+          try {
+            providerManager.initialize(provider);
+          } catch (InitializationException e) {
+            log.severe(String.format(
+                "Could not initialize Provider '%s': %s",
+                provider.getReadableName(),
+                e
+            ));
+            providerManager.destructConfigEntries(provider);
+          }
         }
       }
 
       for (Suggester suggester : providerManager.getSuggesters().values()) {
         if (providerManager.getState(suggester) == State.CONFIG) {
-          providerManager.initialize(suggester);
+          try {
+            providerManager.initialize(suggester);
+          } catch (InitializationException e) {
+            log.severe(String.format(
+                "Could not initialize Suggester '%s': %s",
+                suggester.getReadableName(),
+                e
+            ));
+            providerManager.destructConfigEntries(suggester);
+          }
         }
       }
 
