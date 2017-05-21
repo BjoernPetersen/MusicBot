@@ -1,9 +1,9 @@
 package com.github.bjoernpetersen.jmusicbot.config;
 
 import com.github.bjoernpetersen.jmusicbot.MusicBot;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import javax.annotation.Nonnull;
 
 /**
  * Collection of default config entries used by the core library.
@@ -11,13 +11,10 @@ import java.util.List;
 public final class DefaultConfigEntry {
 
   /**
-   * The folder in which to look for plugin files.
+   * The folder in which to look for plugin files. Default: "plugins".
    */
+  @Nonnull
   public final Config.StringEntry pluginFolder;
-  /**
-   * The name of the default suggester which is used if the queue is empty.
-   */
-  public final Config.StringEntry suggester;
 
   private DefaultConfigEntry(Config config) {
     pluginFolder = config.stringEntry(
@@ -26,23 +23,27 @@ public final class DefaultConfigEntry {
         "This is where the application looks for plugin files",
         "plugins"
     );
-    suggester = config.stringEntry(
-        MusicBot.class,
-        "suggester",
-        "Suggests songs if queue is empty.",
-        null
-    );
   }
 
+  /**
+   * Gets a list of all default entries.
+   *
+   * @return a list of entries
+   */
+  @Nonnull
   public List<? extends Config.Entry> getEntries() {
     return Collections.unmodifiableList(
-        Arrays.asList(pluginFolder, suggester)
+        Collections.singletonList(pluginFolder)
     );
   }
 
-  public static DefaultConfigEntry get(Config config) {
+  /**
+   * Gets the DefaultConfigEntry instance for the specified config.
+   *
+   * @param config a config
+   * @return a DefaultConfigEntry instance
+   */
+  public static DefaultConfigEntry get(@Nonnull Config config) {
     return new DefaultConfigEntry(config);
   }
-
-
 }

@@ -7,7 +7,7 @@ import com.github.bjoernpetersen.jmusicbot.provider.Suggester;
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.HashSet;
-import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -32,7 +32,7 @@ public final class Player implements Closeable {
 
   @Nonnull
   private final Queue queue;
-  @Nonnull
+  @Nullable
   private final Suggester suggester;
 
   @Nonnull
@@ -45,13 +45,13 @@ public final class Player implements Closeable {
   @Nonnull
   private final Set<PlayerStateListener> stateListeners;
 
-  public Player(Consumer<Song> songPlayedNotifier, Suggester suggester) {
+  public Player(Consumer<Song> songPlayedNotifier, @Nullable Suggester suggester) {
     this.executorService = Executors.newSingleThreadExecutor(new NamedThreadFactory("playerPool"));
 
     this.songPlayedNotifier = songPlayedNotifier;
 
     this.queue = new Queue();
-    this.suggester = Objects.requireNonNull(suggester);
+    this.suggester = suggester;
 
     this.stateLock = new ReentrantLock();
     this.state = PlayerState.stop();
@@ -148,7 +148,14 @@ public final class Player implements Closeable {
         log.severe("Error closing playback: " + e);
       }
 
-      Song nextSong = queue.pop().orElseGet(suggester::suggestNext);
+      Optional<Song> nextOptional = queue.pop();
+      if (!nextOptional.isPresent() && suggester == null) {
+        log.info("Queue is empty. Stopping.");
+        setState(PlayerState.stop());
+        return;
+      }
+
+      Song nextSong = nextOptional.orElseGet(suggester::suggestNext);
       songPlayedNotifier.accept(nextSong);
       log.info("Next song is: " + nextSong);
       try {
