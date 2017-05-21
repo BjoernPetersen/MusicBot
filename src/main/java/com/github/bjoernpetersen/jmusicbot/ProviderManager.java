@@ -14,6 +14,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiConsumer;
@@ -96,6 +97,14 @@ public final class ProviderManager implements Closeable {
     suggester.initialize(loadedDependencies);
   }
 
+  /**
+   * Gets the provider with the specified name.
+   * Only returns active providers.
+   *
+   * @param name the provider name
+   * @return a Provider
+   * @throws IllegalArgumentException if there is no such provider
+   */
   @Nonnull
   public Provider getProvider(String name) {
     return this.providerManager.get(name)
@@ -103,15 +112,32 @@ public final class ProviderManager implements Closeable {
   }
 
   @Nonnull
+  public Map<String, Provider> getActiveProviders() {
+    return this.providerManager.getActivePlugins();
+  }
+
+  @Nonnull
   public Map<String, Provider> getProviders() {
     return providerManager.getPlugins();
   }
 
-
+  /**
+   * Gets the suggester with the specified name.
+   * Only returns active suggesters.
+   *
+   * @param name the suggester name
+   * @return a Suggester
+   * @throws IllegalArgumentException if there is no such suggester
+   */
   @Nonnull
   public Suggester getSuggester(String name) {
     return this.suggesterManager.get(name)
         .orElseThrow(() -> new IllegalArgumentException("No such Suggester: " + name));
+  }
+
+  @Nonnull
+  public Map<String, Suggester> getActiveSuggesters() {
+    return this.suggesterManager.getActivePlugins();
   }
 
   @Nonnull
@@ -237,12 +263,27 @@ public final class ProviderManager implements Closeable {
 
     @Nonnull
     public Optional<T> get(String name) {
-      return Optional.ofNullable(plugins.get(name));
+      Optional<T> result = Optional.ofNullable(plugins.get(name));
+      if (result.isPresent() && getState(result.get()) != State.ACTIVE) {
+        return Optional.empty();
+      } else {
+        return result;
+      }
     }
 
     @Nonnull
     public Map<String, T> getPlugins() {
       return plugins;
+    }
+
+    @Nonnull
+    public Map<String, T> getActivePlugins() {
+      return states.entrySet().stream()
+          .filter(e -> e.getValue() == State.ACTIVE)
+          .collect(Collectors.toMap(
+              e -> e.getKey().getName(),
+              Entry::getKey
+          ));
     }
 
     @Nonnull

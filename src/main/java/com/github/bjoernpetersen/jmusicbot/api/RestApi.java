@@ -16,8 +16,8 @@ public class RestApi implements Closeable {
     ProviderManager providerManager = bot.getProviderManager();
     this.transformer = new GsonTransformer(providerManager::getProvider);
     new RestPlayer(transformer, bot.getPlayer(), bot.getProviderManager());
-    new RestProviders(transformer, providerManager.getProviders());
-    new RestSuggesters(transformer, providerManager.getSuggesters());
+    new RestProviders(transformer, providerManager.getActiveProviders());
+    new RestSuggesters(transformer, providerManager.getActiveSuggesters());
   }
 
   @Override
