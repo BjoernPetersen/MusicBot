@@ -2,20 +2,15 @@ package com.github.bjoernpetersen.jmusicbot;
 
 import com.github.bjoernpetersen.jmusicbot.api.RestApi;
 import com.github.bjoernpetersen.jmusicbot.config.Config;
-import com.github.bjoernpetersen.jmusicbot.config.DefaultConfigEntry;
-import com.github.bjoernpetersen.jmusicbot.playback.PlaybackFactory;
 import com.github.bjoernpetersen.jmusicbot.playback.Player;
 import com.github.bjoernpetersen.jmusicbot.provider.Provider;
 import com.github.bjoernpetersen.jmusicbot.provider.Suggester;
 import java.io.Closeable;
-import java.io.File;
 import java.io.IOException;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.logging.Logger;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 
 @Nonnull
@@ -29,43 +24,27 @@ public final class MusicBot implements Closeable {
   private final ProviderManager providerManager;
   private final RestApi restApi;
 
-  private MusicBot(Config config, List<Provider> providers, List<Suggester> suggesters,
-      List<PlaybackFactory> playbackFactories) {
-    this.config = config;
-    File pluginFolder = new File(DefaultConfigEntry.get(config).pluginFolder.getOrDefault());
-
-    this.playbackFactoryManager = new PlaybackFactoryManager();
-    playbackFactoryManager.loadFactories(pluginFolder, playbackFactories);
-
-    this.providerManager = new ProviderManager(
-        config,
-        playbackFactoryManager,
-        providers,
-        suggesters
-    );
-
-    Optional<String> primarySuggesterName = DefaultConfigEntry.get(config).suggester.get();
-    if (!primarySuggesterName.isPresent()) {
-      throw new IllegalStateException("Primary suggester undefined.");
-    }
-    Suggester primarySuggester;
+  private MusicBot(Config config, PlaybackFactoryManager playbackFactoryManager,
+      ProviderManager providerManager, @Nullable Suggester defaultSuggester)
+      throws InitializationException {
     try {
-      primarySuggester = providerManager.getSuggester(primarySuggesterName.get());
-    } catch (IllegalArgumentException e) {
-      throw new IllegalStateException(String.format(
-          "Primary suggester '%s' is missing.", primarySuggesterName.get()
-      ));
+      this.config = config;
+      this.playbackFactoryManager = playbackFactoryManager;
+      this.providerManager = providerManager;
+
+      Consumer<Song> songPlayedNotifier = song -> {
+        Provider provider = providerManager.getProvider(song.getProviderName());
+        for (Suggester suggester : providerManager.getSuggestersFor(provider)) {
+          suggester.notifyPlayed(song);
+        }
+      };
+
+      this.player = new Player(songPlayedNotifier, defaultSuggester);
+      this.restApi = new RestApi(this);
+    } catch (Exception e) {
+      log.severe("Exception during MusicBot initialization: " + e);
+      throw new InitializationException(e);
     }
-
-    Consumer<Song> songPlayedNotifier = song -> {
-      Provider provider = providerManager.getProvider(song.getProviderName());
-      for (Suggester suggester : providerManager.getSuggestersFor(provider)) {
-        suggester.notifyPlayed(song);
-      }
-    };
-
-    this.player = new Player(songPlayedNotifier, primarySuggester);
-    this.restApi = new RestApi(this);
   }
 
   @Nonnull
@@ -99,73 +78,53 @@ public final class MusicBot implements Closeable {
     // TODO IP, port
     @Nonnull
     private final Config config;
-    @Nonnull
-    private final List<Provider> providers;
-    @Nonnull
-    private final List<Suggester> suggesters;
-    @Nonnull
-    private final List<PlaybackFactory> playbackFactories;
+    @Nullable
+    private ProviderManager providerManager;
+    @Nullable
+    private PlaybackFactoryManager playbackFactoryManager;
+    @Nullable
+    private Suggester defaultSuggester;
 
     public Builder(Config config) {
       this.config = config;
-      this.providers = new LinkedList<>();
-      this.suggesters = new LinkedList<>();
-      this.playbackFactories = new LinkedList<>();
     }
 
-    /**
-     * Registers a PlaybackFactory implementation included in the JMusicBot-wrapper and initializes
-     * its config entries. Note that as of now, PlaybackFactory plugins will be loaded by the {@link
-     * MusicBot} class.
-     *
-     * @param factory an included factory
-     * @return this Builder
-     */
     @Nonnull
-    public Builder includePlaybackFactory(PlaybackFactory factory) {
-      factory.initializeConfigEntries(config);
-      this.playbackFactories.add(factory);
-      return this;
-    }
-
-    /**
-     * Adds the specified provider to the list of providers and initializes its config entries.
-     *
-     * @param provider a provider
-     * @return this Builder
-     */
-    @Nonnull
-    public Builder addProvider(Provider provider) {
-      provider.initializeConfigEntries(config);
-      providers.add(provider);
-      return this;
-    }
-
-    /**
-     * Adds the specified suggester to the list of providers and initializes its config entries.
-     *
-     * @param suggester a suggester
-     * @return this Builder
-     */
-    @Nonnull
-    public Builder addSuggester(Suggester suggester) {
-      suggester.initializeConfigEntries(config);
-      suggesters.add(suggester);
+    public Builder playbackFactoryManager(PlaybackFactoryManager manager) {
+      this.playbackFactoryManager = manager;
       return this;
     }
 
     @Nonnull
-    public MusicBot build() {
-      return new MusicBot(config, providers, suggesters, playbackFactories);
+    public Builder providerManager(ProviderManager manager) {
+      this.providerManager = manager;
+      return this;
     }
 
-    @Override
-    public String toString() {
-      return "Builder{" +
-          "providers=" + providers +
-          ", suggesters=" + suggesters +
-          ", playbackFactories=" + playbackFactories +
-          '}';
+    @Nonnull
+    public Builder defaultSuggester(@Nullable Suggester suggester) {
+      this.defaultSuggester = suggester;
+      return this;
+    }
+
+    @Nonnull
+    public MusicBot build() throws InitializationException {
+      if (providerManager == null
+          || playbackFactoryManager == null) {
+        throw new IllegalStateException("ProviderManager or PlaybackFactoryManager is null");
+      }
+
+      playbackFactoryManager.initializeFactories();
+
+      for (Provider provider : providerManager.getProviders().values()) {
+        providerManager.initialize(provider);
+      }
+
+      for (Suggester suggester : providerManager.getSuggesters().values()) {
+        providerManager.initialize(suggester);
+      }
+
+      return new MusicBot(config, playbackFactoryManager, providerManager, defaultSuggester);
     }
   }
 }
