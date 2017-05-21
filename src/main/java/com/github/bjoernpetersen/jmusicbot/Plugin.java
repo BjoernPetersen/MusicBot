@@ -12,7 +12,7 @@ import javax.annotation.Nonnull;
  * extended first. Extending interfaces should define a "<code>initialize(...) throws
  * InitializationException</code>" method, which acts as the counterpart to {@link #close()}.</p>
  *
- * <p>Lifecycle:<br>
+ * Lifecycle:<br>
  * <ol>
  * <li>{@link #initializeConfigEntries(Config)}</li>
  * <li>initialize(...)</li> <li>{@link #close()}</li>
@@ -20,7 +20,6 @@ import javax.annotation.Nonnull;
  * </ol>
  * <b>Note:</b> a successful call to one of the initialization methods guarantees
  * that the respective destruction method will be called in the future.
- * </p>
  */
 public interface Plugin extends Closeable {
 
