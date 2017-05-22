@@ -179,7 +179,9 @@ public final class Player implements Closeable {
   private void autoPlay() {
     try {
       PlayerState state = getState();
+      log.finest("Waiting for song to finish");
       playback.waitForFinish();
+      log.finest("Waiting done");
 
       Lock stateLock = this.stateLock;
       stateLock.lock();
