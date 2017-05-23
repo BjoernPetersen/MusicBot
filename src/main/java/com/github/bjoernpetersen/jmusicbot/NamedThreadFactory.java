@@ -3,6 +3,7 @@ package com.github.bjoernpetersen.jmusicbot;
 import java.util.Objects;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Supplier;
 import javax.annotation.Nonnull;
 
 public final class NamedThreadFactory implements ThreadFactory {
@@ -12,12 +13,27 @@ public final class NamedThreadFactory implements ThreadFactory {
   @Nonnull
   private final AtomicInteger threadNumber = new AtomicInteger(1);
   @Nonnull
-  private final String prefix;
+  private final Supplier<String> prefixSupplier;
 
   public NamedThreadFactory(@Nonnull String name) {
+    this(createSupplier(name));
+  }
+
+  @Nonnull
+  private static Supplier<String> createSupplier(@Nonnull String name) {
+    Objects.requireNonNull(name);
+    return () -> name;
+  }
+
+  public NamedThreadFactory(@Nonnull Supplier<String> nameSupplier) {
     SecurityManager s = System.getSecurityManager();
     this.group = (s != null) ? s.getThreadGroup() : Thread.currentThread().getThreadGroup();
-    this.prefix = Objects.requireNonNull(name) + "-";
+    this.prefixSupplier = Objects.requireNonNull(nameSupplier);
+  }
+
+  @Nonnull
+  private String getPrefix() {
+    return prefixSupplier.get() + "-";
   }
 
   @Override
@@ -25,7 +41,7 @@ public final class NamedThreadFactory implements ThreadFactory {
     Thread thread = new Thread(
         group,
         runnable,
-        prefix + threadNumber.getAndIncrement(),
+        getPrefix() + threadNumber.getAndIncrement(),
         0
     );
     if (thread.isDaemon()) {
