@@ -1,6 +1,7 @@
 package com.github.bjoernpetersen.jmusicbot.playback;
 
 import com.github.bjoernpetersen.jmusicbot.Song;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -62,22 +63,24 @@ public final class Queue {
     queue.clear();
   }
 
-  public Song get(int index) {
+  private Song get(int index) {
     return queue.get(index).getSong();
   }
 
   public List<Song> toList() {
-    return queue.stream()
-        .map(Entry::getSong)
-        .collect(Collectors.toList());
+    return Collections.unmodifiableList(
+        queue.stream()
+            .map(Entry::getSong)
+            .collect(Collectors.toList())
+    );
   }
 
   public void addListener(@Nonnull QueueChangeListener listener) {
-    listeners.add(listener);
+    listeners.add(Objects.requireNonNull(listener));
   }
 
   public void removeListener(@Nonnull QueueChangeListener listener) {
-    listeners.remove(listener);
+    listeners.remove(Objects.requireNonNull(listener));
   }
 
   private void notifyListeners(@Nonnull Consumer<QueueChangeListener> notifier) {

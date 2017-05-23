@@ -60,6 +60,7 @@ public abstract class SongLoader {
    * @param song a Song
    * @return whether loading was successful
    * @throws InterruptedException if the thread is interrupted while waiting for loading
+   * @throws IllegalStateException if the song is not scheduled for loading
    */
   public final boolean hasLoaded(@Nonnull Song song) throws InterruptedException {
     Future<Boolean> future = futures.get(song);
@@ -69,6 +70,8 @@ public abstract class SongLoader {
       } catch (ExecutionException e) {
         // ignore.
       }
+    } else {
+      throw new IllegalStateException("song is not loading");
     }
 
     return false;

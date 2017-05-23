@@ -1,18 +1,22 @@
 package com.github.bjoernpetersen.jmusicbot.playback;
 
+import java.lang.ref.WeakReference;
 import javax.annotation.Nonnull;
 
 public final class WeakPlayerStateListener implements PlayerStateListener {
 
   @Nonnull
-  private final PlayerStateListener listener;
+  private final WeakReference<PlayerStateListener> listener;
 
   public WeakPlayerStateListener(@Nonnull PlayerStateListener listener) {
-    this.listener = listener;
+    this.listener = new WeakReference<>(listener);
   }
 
   @Override
   public void onChanged(@Nonnull PlayerState state) {
-    listener.onChanged(state);
+    PlayerStateListener listener = this.listener.get();
+    if (listener != null) {
+      listener.onChanged(state);
+    }
   }
 }

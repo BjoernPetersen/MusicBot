@@ -1,0 +1,55 @@
+package com.github.bjoernpetersen.jmusicbot;
+
+import com.github.bjoernpetersen.jmusicbot.config.Config;
+import com.github.bjoernpetersen.jmusicbot.config.Config.Entry;
+import com.github.bjoernpetersen.jmusicbot.provider.NoSuchSongException;
+import com.github.bjoernpetersen.jmusicbot.provider.Provider;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
+import javax.annotation.Nonnull;
+
+public class TestProvider implements Provider {
+
+  @Nonnull
+  @Override
+  public String getName() {
+    return "testprovider";
+  }
+
+  @Nonnull
+  @Override
+  public String getReadableName() {
+    return "TestProvider";
+  }
+
+  @Override
+  public void initialize(@Nonnull PlaybackFactoryManager manager) throws InitializationException {
+  }
+
+  @Nonnull
+  @Override
+  public List<Song> search(@Nonnull String query) {
+    return Collections.emptyList();
+  }
+
+  @Nonnull
+  @Override
+  public Song lookup(@Nonnull String id) throws NoSuchSongException {
+    throw new NoSuchSongException();
+  }
+
+  @Nonnull
+  @Override
+  public List<? extends Entry> initializeConfigEntries(@Nonnull Config config) {
+    return Collections.emptyList();
+  }
+
+  @Override
+  public void destructConfigEntries() {
+  }
+
+  @Override
+  public void close() throws IOException {
+  }
+}
