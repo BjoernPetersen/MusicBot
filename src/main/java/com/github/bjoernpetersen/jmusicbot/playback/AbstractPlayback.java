@@ -1,5 +1,6 @@
 package com.github.bjoernpetersen.jmusicbot.playback;
 
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -14,10 +15,13 @@ public abstract class AbstractPlayback implements Playback {
   @Nonnull
   private final Lock lock;
   @Nonnull
+  private final AtomicBoolean isDone;
+  @Nonnull
   private final Condition done;
 
   protected AbstractPlayback() {
     this.lock = new ReentrantLock();
+    this.isDone = new AtomicBoolean();
     this.done = lock.newCondition();
   }
 
@@ -29,6 +33,10 @@ public abstract class AbstractPlayback implements Playback {
   @Nonnull
   protected final Condition getDone() {
     return done;
+  }
+
+  protected final boolean isDone() {
+    return isDone.get();
   }
 
   /**
@@ -43,7 +51,9 @@ public abstract class AbstractPlayback implements Playback {
 
     lock.lock();
     try {
-      done.await();
+      while (!isDone()) {
+        done.await();
+      }
     } finally {
       lock.unlock();
     }
@@ -58,6 +68,7 @@ public abstract class AbstractPlayback implements Playback {
 
     lock.lock();
     try {
+      isDone.set(true);
       done.signalAll();
     } finally {
       lock.unlock();
