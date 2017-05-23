@@ -125,7 +125,7 @@ public final class Song {
         + '}';
   }
 
-  public static class Builder {
+  public static final class Builder {
 
     private PlaybackSupplier playbackSupplier;
     private SongLoader songLoader;
