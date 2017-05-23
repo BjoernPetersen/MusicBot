@@ -13,7 +13,6 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Logger;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 
 /**
  * <p>Prepares songs to be played by a {@link PlaybackFactory}.</p>
@@ -24,7 +23,6 @@ import javax.annotation.ParametersAreNonnullByDefault;
  * <p>It is possible that no loading is need or even possible before the song is actually played. In
  * this case, the {@link #DUMMY} implementation can be used.</p>
  */
-@ParametersAreNonnullByDefault
 public abstract class SongLoader {
 
   @Nonnull
@@ -38,7 +36,7 @@ public abstract class SongLoader {
   @Nonnull
   public static final SongLoader DUMMY = new SongLoader() {
     @Override
-    protected boolean loadImpl(Song song) {
+    protected boolean loadImpl(@Nonnull Song song) {
       return true;
     }
   };
@@ -63,7 +61,7 @@ public abstract class SongLoader {
    * @return whether loading was successful
    * @throws InterruptedException if the thread is interrupted while waiting for loading
    */
-  public final boolean hasLoaded(Song song) throws InterruptedException {
+  public final boolean hasLoaded(@Nonnull Song song) throws InterruptedException {
     Future<Boolean> future = futures.get(song);
     if (future != null) {
       try {
@@ -81,7 +79,7 @@ public abstract class SongLoader {
    *
    * @param song the song to load
    */
-  public final void load(Song song) {
+  public final void load(@Nonnull Song song) {
     if (!futures.containsKey(song)) {
       futureLock.lock();
       try {
@@ -103,7 +101,7 @@ public abstract class SongLoader {
    * @param song a song to load
    * @return whether loading was successful
    */
-  protected abstract boolean loadImpl(Song song);
+  protected abstract boolean loadImpl(@Nonnull Song song);
 
   @Nonnull
   private static ExecutorService getService() {

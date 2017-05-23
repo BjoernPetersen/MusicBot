@@ -6,9 +6,7 @@ import com.github.bjoernpetersen.jmusicbot.PlaybackFactoryManager;
 import com.github.bjoernpetersen.jmusicbot.Song;
 import java.util.List;
 import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
 
-@ParametersAreNonnullByDefault
 public interface Provider extends NamedPlugin {
 
   /**
@@ -18,7 +16,7 @@ public interface Provider extends NamedPlugin {
    * @throws InitializationException If any errors occur (for example due to invalid log-in
    * credentials)
    */
-  void initialize(PlaybackFactoryManager manager) throws InitializationException;
+  void initialize(@Nonnull PlaybackFactoryManager manager) throws InitializationException;
 
   /**
    * Searches for songs based on the given search query.
@@ -27,7 +25,7 @@ public interface Provider extends NamedPlugin {
    * @return a list of songs
    */
   @Nonnull
-  List<Song> search(String query);
+  List<Song> search(@Nonnull String query);
 
   /**
    * Looks up a song by its ID.
@@ -37,5 +35,5 @@ public interface Provider extends NamedPlugin {
    * @throws NoSuchSongException if the ID is invalid
    */
   @Nonnull
-  Song lookup(String id) throws NoSuchSongException;
+  Song lookup(@Nonnull String id) throws NoSuchSongException;
 }

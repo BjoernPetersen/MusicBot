@@ -1,14 +1,13 @@
 package com.github.bjoernpetersen.jmusicbot.config;
 
 import java.lang.ref.WeakReference;
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.Nonnull;
 
-@ParametersAreNonnullByDefault
 public final class WeakBooleanConfigListener implements BooleanConfigListener {
 
   private final WeakReference<BooleanConfigListener> listener;
 
-  public WeakBooleanConfigListener(BooleanConfigListener listener) {
+  public WeakBooleanConfigListener(@Nonnull BooleanConfigListener listener) {
     this.listener = new WeakReference<>(listener);
   }
 

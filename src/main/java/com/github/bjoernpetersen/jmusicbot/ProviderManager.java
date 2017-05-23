@@ -22,7 +22,6 @@ import java.util.function.Function;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
 
 public final class ProviderManager implements Closeable {
 
@@ -66,7 +65,7 @@ public final class ProviderManager implements Closeable {
     this.suggestersForProvider = new HashMap<>(providerManager.getPlugins().size() * 2);
   }
 
-  private void initializeSuggester(Suggester suggester) throws InitializationException {
+  private void initializeSuggester(@Nonnull Suggester suggester) throws InitializationException {
     Collection<String> dependencies = suggester.getDependencies();
     Map<String, Provider> loadedDependencies = new HashMap<>(dependencies.size() * 2);
     for (String dependencyName : dependencies) {
@@ -105,7 +104,7 @@ public final class ProviderManager implements Closeable {
    * @throws IllegalArgumentException if there is no such provider
    */
   @Nonnull
-  public Provider getProvider(String name) {
+  public Provider getProvider(@Nonnull String name) {
     return this.providerManager.get(name)
         .orElseThrow(() -> new IllegalArgumentException("No such Provider: " + name));
   }
@@ -129,7 +128,7 @@ public final class ProviderManager implements Closeable {
    * @throws IllegalArgumentException if there is no such suggester
    */
   @Nonnull
-  public Suggester getSuggester(String name) {
+  public Suggester getSuggester(@Nonnull String name) {
     return this.suggesterManager.get(name)
         .orElseThrow(() -> new IllegalArgumentException("No such Suggester: " + name));
   }
@@ -145,7 +144,7 @@ public final class ProviderManager implements Closeable {
   }
 
   @Nonnull
-  public List<? extends Config.Entry> getConfigEntries(NamedPlugin plugin) {
+  public List<? extends Config.Entry> getConfigEntries(@Nonnull NamedPlugin plugin) {
     if (plugin instanceof Provider) {
       return providerManager.getConfigEntries((Provider) plugin);
     } else if (plugin instanceof Suggester) {
@@ -155,7 +154,7 @@ public final class ProviderManager implements Closeable {
     }
   }
 
-  void initialize(NamedPlugin plugin) throws InitializationException {
+  void initialize(@Nonnull NamedPlugin plugin) throws InitializationException {
     if (plugin instanceof Provider) {
       providerManager.initialize((Provider) plugin);
     } else if (plugin instanceof Suggester) {
@@ -165,7 +164,7 @@ public final class ProviderManager implements Closeable {
     }
   }
 
-  public void destructConfigEntries(NamedPlugin plugin) {
+  public void destructConfigEntries(@Nonnull NamedPlugin plugin) {
     if (plugin instanceof Provider) {
       providerManager.destructConfigEntries((Provider) plugin);
     } else if (plugin instanceof Suggester) {
@@ -175,7 +174,8 @@ public final class ProviderManager implements Closeable {
     }
   }
 
-  public void addStateListener(NamedPlugin plugin, BiConsumer<State, State> listener) {
+  public void addStateListener(@Nonnull NamedPlugin plugin,
+      @Nonnull BiConsumer<State, State> listener) {
     if (plugin instanceof Provider) {
       addStateListener((Provider) plugin, listener);
     } else if (plugin instanceof Suggester) {
@@ -185,7 +185,8 @@ public final class ProviderManager implements Closeable {
     }
   }
 
-  public void removeStateListener(NamedPlugin plugin, BiConsumer<State, State> listener) {
+  public void removeStateListener(@Nonnull NamedPlugin plugin,
+      @Nonnull BiConsumer<State, State> listener) {
     if (plugin instanceof Provider) {
       removeStateListener((Provider) plugin, listener);
     } else if (plugin instanceof Suggester) {
@@ -196,7 +197,7 @@ public final class ProviderManager implements Closeable {
   }
 
   @Nonnull
-  public State getState(NamedPlugin plugin) {
+  public State getState(@Nonnull NamedPlugin plugin) {
     if (plugin instanceof Provider) {
       return providerManager.getState((Provider) plugin);
     } else if (plugin instanceof Suggester) {
@@ -206,19 +207,23 @@ public final class ProviderManager implements Closeable {
     }
   }
 
-  private void addStateListener(Provider provider, BiConsumer<State, State> listener) {
+  private void addStateListener(@Nonnull Provider provider,
+      @Nonnull BiConsumer<State, State> listener) {
     providerManager.addStateListener(provider, listener);
   }
 
-  private void removeStateListener(Provider provider, BiConsumer<State, State> listener) {
+  private void removeStateListener(@Nonnull Provider provider,
+      @Nonnull BiConsumer<State, State> listener) {
     providerManager.removeStateListener(provider, listener);
   }
 
-  private void addStateListener(Suggester suggester, BiConsumer<State, State> listener) {
+  private void addStateListener(@Nonnull Suggester suggester,
+      @Nonnull BiConsumer<State, State> listener) {
     suggesterManager.addStateListener(suggester, listener);
   }
 
-  private void removeStateListener(Suggester suggester, BiConsumer<State, State> listener) {
+  private void removeStateListener(@Nonnull Suggester suggester,
+      @Nonnull BiConsumer<State, State> listener) {
     suggesterManager.removeStateListener(suggester, listener);
   }
 
@@ -233,7 +238,6 @@ public final class ProviderManager implements Closeable {
     providerManager.close();
   }
 
-  @ParametersAreNonnullByDefault
   private static class PluginManager<T extends NamedPlugin> implements Closeable {
 
     @Nonnull
@@ -248,7 +252,8 @@ public final class ProviderManager implements Closeable {
     @Nonnull
     private final Map<T, Set<BiConsumer<State, State>>> listeners;
 
-    private PluginManager(Config config, Class<T> type, Initializer<T> initializer) {
+    private PluginManager(@Nonnull Config config, @Nonnull Class<T> type,
+        @Nonnull Initializer<T> initializer) {
       this.config = config;
       String pluginFolderName = DefaultConfigEntry.get(config).pluginFolder.getOrDefault();
       File pluginFolder = new File(pluginFolderName);
@@ -262,7 +267,7 @@ public final class ProviderManager implements Closeable {
     }
 
     @Nonnull
-    private Map<String, T> loadPlugins(File pluginFolder, Class<T> type) {
+    private Map<String, T> loadPlugins(@Nonnull File pluginFolder, @Nonnull Class<T> type) {
       PluginLoader<T> loader = new PluginLoader<>(pluginFolder, type);
       return loader.load().stream().collect(Collectors.toMap(
           NamedPlugin::getName,
@@ -271,7 +276,7 @@ public final class ProviderManager implements Closeable {
     }
 
     @Nonnull
-    public Optional<T> get(String name) {
+    public Optional<T> get(@Nonnull String name) {
       Optional<T> result = Optional.ofNullable(plugins.get(name));
       if (result.isPresent() && getState(result.get()) != State.ACTIVE) {
         return Optional.empty();
@@ -296,11 +301,11 @@ public final class ProviderManager implements Closeable {
     }
 
     @Nonnull
-    private State getState(T t) {
+    private State getState(@Nonnull T t) {
       return states.get(t);
     }
 
-    private void setState(T t, State state) {
+    private void setState(@Nonnull T t, @Nonnull State state) {
       State old = getState(t);
       states.put(t, state);
       Set<BiConsumer<State, State>> listeners = this.listeners.get(t);
@@ -309,7 +314,7 @@ public final class ProviderManager implements Closeable {
       }
     }
 
-    public void initialize(T t) throws InitializationException {
+    public void initialize(@Nonnull T t) throws InitializationException {
       State state = getState(t);
       switch (state) {
         case INACTIVE:
@@ -323,7 +328,7 @@ public final class ProviderManager implements Closeable {
       }
     }
 
-    public void close(T t) throws IOException {
+    public void close(@Nonnull T t) throws IOException {
       if (getState(t) == State.ACTIVE) {
         t.close();
         setState(t, State.CONFIG);
@@ -331,11 +336,11 @@ public final class ProviderManager implements Closeable {
     }
 
     @Nonnull
-    public List<? extends Config.Entry> getConfigEntries(T t) {
+    public List<? extends Config.Entry> getConfigEntries(@Nonnull T t) {
       return initializeConfig(t);
     }
 
-    public void destructConfigEntries(T t) {
+    public void destructConfigEntries(@Nonnull T t) {
       State state = getState(t);
       if (state == State.ACTIVE) {
         throw new IllegalStateException("Plugin is active");
@@ -348,7 +353,7 @@ public final class ProviderManager implements Closeable {
     }
 
     @Nonnull
-    private List<? extends Config.Entry> initializeConfig(T t) {
+    private List<? extends Config.Entry> initializeConfig(@Nonnull T t) {
       List<? extends Config.Entry> entries = t.initializeConfigEntries(config);
       if (getState(t) == State.INACTIVE) {
         setState(t, State.CONFIG);
@@ -356,20 +361,20 @@ public final class ProviderManager implements Closeable {
       return entries;
     }
 
-    public void addStateListener(T t, BiConsumer<State, State> listener) {
+    public void addStateListener(@Nonnull T t, @Nonnull BiConsumer<State, State> listener) {
       Set<BiConsumer<State, State>> listeners = this.listeners
           .computeIfAbsent(t, p -> new HashSet<>());
       listeners.add(listener);
     }
 
-    public void removeStateListener(T t, BiConsumer<State, State> listener) {
+    public void removeStateListener(@Nonnull T t, @Nonnull BiConsumer<State, State> listener) {
       Set<BiConsumer<State, State>> listeners = this.listeners.get(t);
       if (listeners != null) {
         listeners.remove(listener);
       }
     }
 
-    public boolean isActive(T t) {
+    public boolean isActive(@Nonnull T t) {
       return states.get(t) == State.ACTIVE;
     }
 
@@ -389,6 +394,6 @@ public final class ProviderManager implements Closeable {
   @FunctionalInterface
   private interface Initializer<T extends NamedPlugin> {
 
-    void initialize(T t) throws InitializationException;
+    void initialize(@Nonnull T t) throws InitializationException;
   }
 }

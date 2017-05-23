@@ -13,9 +13,7 @@ import java.util.ServiceConfigurationError;
 import java.util.ServiceLoader;
 import java.util.logging.Logger;
 import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
 
-@ParametersAreNonnullByDefault
 public final class PluginLoader<T> {
 
   private static final Logger log = Logger.getLogger(PluginLoader.class.getName());
@@ -27,7 +25,7 @@ public final class PluginLoader<T> {
   @Nonnull
   private final Class<T> type;
 
-  public PluginLoader(File pluginFolder, Class<T> type) {
+  public PluginLoader(@Nonnull File pluginFolder, @Nonnull Class<T> type) {
     this.pluginFolder = pluginFolder;
     this.type = type;
   }
@@ -77,7 +75,7 @@ public final class PluginLoader<T> {
   }
 
   @Nonnull
-  private ClassLoader createLoader(File[] files) throws MalformedURLException {
+  private ClassLoader createLoader(@Nonnull File[] files) throws MalformedURLException {
     URL[] urls = new URL[files.length];
     for (int i = 0; i < files.length; i++) {
       urls[i] = files[i].toURI().toURL();
@@ -87,7 +85,7 @@ public final class PluginLoader<T> {
   }
 
   @Nonnull
-  private Collection<T> loadPlugins(ClassLoader classLoader)
+  private Collection<T> loadPlugins(@Nonnull ClassLoader classLoader)
       throws MalformedURLException, ServiceConfigurationError, NoClassDefFoundError {
     ServiceLoader<T> loader = ServiceLoader.load(type, classLoader);
 
@@ -106,8 +104,7 @@ public final class PluginLoader<T> {
     return result;
   }
 
-  public static void reset() {
+  static void reset() {
     loader = null;
   }
-
 }

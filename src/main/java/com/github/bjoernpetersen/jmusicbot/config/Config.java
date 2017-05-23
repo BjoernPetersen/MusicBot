@@ -10,9 +10,7 @@ import java.util.Set;
 import java.util.logging.Logger;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 
-@ParametersAreNonnullByDefault
 public final class Config {
 
   @Nonnull
@@ -42,11 +40,11 @@ public final class Config {
   }
 
   @Nullable
-  private String getValue(String key) {
+  private String getValue(@Nonnull String key) {
     return config.get(key);
   }
 
-  private void setValue(String key, @Nullable String value) {
+  private void setValue(@Nonnull String key, @Nullable String value) {
     String old = getValue(key);
     if (!Objects.equals(old, value)) {
       log.finer(String.format("Config entry '%s' changed from '%s' to '%s'",
@@ -64,11 +62,11 @@ public final class Config {
   }
 
   @Nullable
-  private String getSecret(String key) {
+  private String getSecret(@Nonnull String key) {
     return secrets.get(key);
   }
 
-  private void setSecret(String key, @Nullable String value) {
+  private void setSecret(@Nonnull String key, @Nullable String value) {
     String old = getSecret(key);
     if (!Objects.equals(old, value)) {
       log.finer(String.format("Secret '%s' changed.", key));
@@ -82,7 +80,7 @@ public final class Config {
   }
 
   @Nullable
-  private Entry getEntry(String key) {
+  private Entry getEntry(@Nonnull String key) {
     Entry entry = entries.get(key);
     if (entry != null) {
       return entry;
@@ -116,7 +114,7 @@ public final class Config {
    * @throws IllegalArgumentException if there is no such entry or it is secret
    */
   @Nonnull
-  public ReadOnlyStringEntry stringEntry(Class<?> type, String key) {
+  public ReadOnlyStringEntry stringEntry(@Nonnull Class<?> type, @Nonnull String key) {
     Entry entry = getEntry(key);
     if (entry instanceof ReadOnlyStringEntry && !entry.isSecret()) {
       return (ReadOnlyStringEntry) entry;
@@ -139,8 +137,8 @@ public final class Config {
    * BooleanEntry
    */
   @Nonnull
-  public StringEntry stringEntry(Class<?> type, String key, String description,
-      @Nullable String defaultValue) {
+  public StringEntry stringEntry(@Nonnull Class<?> type, @Nonnull String key,
+      @Nonnull String description, @Nullable String defaultValue) {
     key = type.getName() + "." + key;
     Entry entry = getEntry(key);
     if (entry != null) {
@@ -163,7 +161,7 @@ public final class Config {
    * @throws IllegalArgumentException if there is no such entry or it is not a secret
    */
   @Nonnull
-  public ReadOnlyStringEntry secret(Class<?> type, String key) {
+  public ReadOnlyStringEntry secret(@Nonnull Class<?> type, @Nonnull String key) {
     key = type.getName() + "." + key;
     Entry entry = getEntry(key);
     if (entry instanceof ReadOnlyStringEntry && entry.isSecret()) {
@@ -189,7 +187,8 @@ public final class Config {
    * is a BooleanEntry
    */
   @Nonnull
-  public StringEntry secret(Class<?> type, String key, String description) {
+  public StringEntry secret(@Nonnull Class<?> type, @Nonnull String key,
+      @Nonnull String description) {
     key = type.getName() + "." + key;
     Entry entry = getEntry(key);
     if (entry != null) {
@@ -212,7 +211,7 @@ public final class Config {
    * @throws IllegalArgumentException if there is no such entry or it is a StringEntry
    */
   @Nonnull
-  public ReadOnlyBooleanEntry booleanEntry(Class<?> type, String key) {
+  public ReadOnlyBooleanEntry booleanEntry(@Nonnull Class<?> type, @Nonnull String key) {
     key = type.getName() + "." + key;
     Entry entry = getEntry(key);
     if (entry instanceof ReadOnlyBooleanEntry && !entry.isSecret()) {
@@ -235,8 +234,8 @@ public final class Config {
    * @throws IllegalArgumentException if the entry has already been defined, but is a StringEntry
    */
   @Nonnull
-  public BooleanEntry booleanEntry(Class<?> type, String key, String description,
-      boolean defaultValue) {
+  public BooleanEntry booleanEntry(@Nonnull Class<?> type, @Nonnull String key,
+      @Nonnull String description, boolean defaultValue) {
     key = type.getName() + "." + key;
     Entry entry = getEntry(key);
     if (entry != null) {
@@ -312,7 +311,6 @@ public final class Config {
    * <p>This implementation provides various possibilities to access the entry value and/or the
    * default value.</p>
    */
-  @ParametersAreNonnullByDefault
   public class ReadOnlyStringEntry extends Entry {
 
     @Nullable
@@ -320,8 +318,8 @@ public final class Config {
     @Nonnull
     private final Set<StringConfigListener> listeners;
 
-    private ReadOnlyStringEntry(String key,
-        String description,
+    private ReadOnlyStringEntry(@Nonnull String key,
+        @Nonnull String description,
         @Nullable String defaultValue,
         boolean isSecret) {
       super(key, description, isSecret);
@@ -329,11 +327,11 @@ public final class Config {
       this.listeners = new HashSet<>();
     }
 
-    public void addListener(StringConfigListener listener) {
+    public void addListener(@Nonnull StringConfigListener listener) {
       listeners.add(listener);
     }
 
-    public void removeListener(StringConfigListener listener) {
+    public void removeListener(@Nonnull StringConfigListener listener) {
       listeners.remove(listener);
     }
 
@@ -416,8 +414,8 @@ public final class Config {
    */
   public class StringEntry extends ReadOnlyStringEntry {
 
-    private StringEntry(String key, String description, @Nullable String defaultValue,
-        boolean isSecret) {
+    private StringEntry(@Nonnull String key, @Nonnull String description,
+        @Nullable String defaultValue, boolean isSecret) {
       super(key, description, defaultValue, isSecret);
     }
 
@@ -446,8 +444,8 @@ public final class Config {
     private final boolean defaultValue;
     private final Set<BooleanConfigListener> listeners;
 
-    private ReadOnlyBooleanEntry(String key,
-        String description,
+    private ReadOnlyBooleanEntry(@Nonnull String key,
+        @Nonnull String description,
         boolean defaultValue) {
       super(key, description, false);
       this.defaultValue = defaultValue;
@@ -455,11 +453,11 @@ public final class Config {
     }
 
 
-    public void addListener(BooleanConfigListener listener) {
+    public void addListener(@Nonnull BooleanConfigListener listener) {
       listeners.add(listener);
     }
 
-    public void removeListener(BooleanConfigListener listener) {
+    public void removeListener(@Nonnull BooleanConfigListener listener) {
       listeners.remove(listener);
     }
 
@@ -496,7 +494,7 @@ public final class Config {
    */
   public class BooleanEntry extends ReadOnlyBooleanEntry {
 
-    private BooleanEntry(String key, String description, boolean defaultValue) {
+    private BooleanEntry(@Nonnull String key, @Nonnull String description, boolean defaultValue) {
       super(key, description, defaultValue);
     }
 

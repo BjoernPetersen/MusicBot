@@ -11,7 +11,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.Nullable;
 
 public final class Queue {
 
@@ -72,15 +72,15 @@ public final class Queue {
         .collect(Collectors.toList());
   }
 
-  public void addListener(QueueChangeListener listener) {
+  public void addListener(@Nonnull QueueChangeListener listener) {
     listeners.add(listener);
   }
 
-  public void removeListener(QueueChangeListener listener) {
+  public void removeListener(@Nonnull QueueChangeListener listener) {
     listeners.remove(listener);
   }
 
-  private void notifyListeners(Consumer<QueueChangeListener> notifier) {
+  private void notifyListeners(@Nonnull Consumer<QueueChangeListener> notifier) {
     for (QueueChangeListener listener : listeners) {
       notifier.accept(listener);
     }
@@ -89,13 +89,12 @@ public final class Queue {
   // TODO move
 
   // TODO add more info, like user
-  @ParametersAreNonnullByDefault
   private static final class Entry {
 
     @Nonnull
     private final Song song;
 
-    private Entry(Song song) {
+    private Entry(@Nonnull Song song) {
       this.song = song;
     }
 
@@ -105,7 +104,7 @@ public final class Queue {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(@Nullable Object o) {
       if (this == o) {
         return true;
       }

@@ -12,7 +12,6 @@ import java.util.function.Consumer;
 import java.util.logging.Logger;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 
 @Nonnull
 public final class MusicBot implements Closeable {
@@ -25,8 +24,8 @@ public final class MusicBot implements Closeable {
   private final ProviderManager providerManager;
   private final RestApi restApi;
 
-  private MusicBot(Config config, PlaybackFactoryManager playbackFactoryManager,
-      ProviderManager providerManager, @Nullable Suggester defaultSuggester)
+  private MusicBot(@Nonnull Config config, @Nonnull PlaybackFactoryManager playbackFactoryManager,
+      @Nonnull ProviderManager providerManager, @Nullable Suggester defaultSuggester)
       throws InitializationException {
     try {
       this.config = config;
@@ -78,7 +77,6 @@ public final class MusicBot implements Closeable {
     PluginLoader.reset();
   }
 
-  @ParametersAreNonnullByDefault
   public static class Builder {
 
     // TODO IP, port
@@ -91,18 +89,18 @@ public final class MusicBot implements Closeable {
     @Nullable
     private Suggester defaultSuggester;
 
-    public Builder(Config config) {
+    public Builder(@Nonnull Config config) {
       this.config = config;
     }
 
     @Nonnull
-    public Builder playbackFactoryManager(PlaybackFactoryManager manager) {
+    public Builder playbackFactoryManager(@Nonnull PlaybackFactoryManager manager) {
       this.playbackFactoryManager = manager;
       return this;
     }
 
     @Nonnull
-    public Builder providerManager(ProviderManager manager) {
+    public Builder providerManager(@Nonnull ProviderManager manager) {
       this.providerManager = manager;
       return this;
     }

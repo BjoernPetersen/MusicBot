@@ -17,9 +17,7 @@ import java.util.function.Consumer;
 import java.util.logging.Logger;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 
-@ParametersAreNonnullByDefault
 public final class Player implements Closeable {
 
   private static final Logger log = Logger.getLogger(Player.class.getName());
@@ -45,7 +43,7 @@ public final class Player implements Closeable {
   @Nonnull
   private final Set<PlayerStateListener> stateListeners;
 
-  public Player(Consumer<Song> songPlayedNotifier, @Nullable Suggester suggester) {
+  public Player(@Nonnull Consumer<Song> songPlayedNotifier, @Nullable Suggester suggester) {
     this.executorService = Executors.newSingleThreadExecutor(new NamedThreadFactory("playerPool"));
 
     this.songPlayedNotifier = songPlayedNotifier;
@@ -171,7 +169,7 @@ public final class Player implements Closeable {
     }
   }
 
-  private boolean isSignificantlyDifferent(PlayerState state, PlayerState other) {
+  private boolean isSignificantlyDifferent(@Nonnull PlayerState state, @Nonnull PlayerState other) {
     return other.hasSong() != state.hasSong()
         || other.hasSong() && state.hasSong() && !state.getSong().equals(other.getSong());
   }

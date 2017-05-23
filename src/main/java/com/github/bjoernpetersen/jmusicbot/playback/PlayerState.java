@@ -4,9 +4,7 @@ import com.github.bjoernpetersen.jmusicbot.Song;
 import java.util.Optional;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 
-@ParametersAreNonnullByDefault
 public final class PlayerState {
 
   @Nonnull
@@ -28,7 +26,7 @@ public final class PlayerState {
     }
   }
 
-  private PlayerState(State state, @Nullable Song song) {
+  private PlayerState(@Nonnull State state, @Nullable Song song) {
     this.state = state;
     this.song = song;
   }

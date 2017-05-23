@@ -5,9 +5,8 @@ import com.github.bjoernpetersen.jmusicbot.provider.Provider;
 import java.io.IOException;
 import java.util.Objects;
 import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.Nullable;
 
-@ParametersAreNonnullByDefault
 public final class Song {
 
   @Nonnull
@@ -25,8 +24,9 @@ public final class Song {
   private final String description;
 
 
-  private Song(PlaybackSupplier playbackSupplier, SongLoader loader, Provider provider, String id,
-      String title, String description) {
+  private Song(@Nonnull PlaybackSupplier playbackSupplier, @Nonnull SongLoader loader,
+      @Nonnull Provider provider, @Nonnull String id,
+      @Nonnull String title, @Nonnull String description) {
     this.playbackSupplier = playbackSupplier;
     this.loader = loader;
     this.provider = provider;
@@ -97,7 +97,7 @@ public final class Song {
   }
 
   @Override
-  public boolean equals(Object o) {
+  public boolean equals(@Nullable Object o) {
     if (this == o) {
       return true;
     }
