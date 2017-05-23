@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 
+import com.github.bjoernpetersen.jmusicbot.EqualsContract;
 import com.github.bjoernpetersen.jmusicbot.Song;
 import java.util.Arrays;
 import java.util.List;
@@ -17,7 +18,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
-class PlayerStateTest {
+class PlayerStateTest implements EqualsContract<PlayerState> {
+
+  private Song song;
 
   @Nonnull
   private static Song mockSong() {
@@ -91,5 +94,36 @@ class PlayerStateTest {
   @MethodSource(names = "getPossibleStates")
   void getSongNotNull(PlayerState state) {
     assertNotNull(state.getSong());
+  }
+
+  @Nonnull
+  @Override
+  public PlayerState createValue() {
+    song = mockSong();
+    return PlayerState.play(song);
+  }
+
+  @Override
+  public int getEqualRelevantValueCount() {
+    return 5;
+  }
+
+  @Nonnull
+  @Override
+  public PlayerState createNotEqualValue(int valueIndex) {
+    switch (valueIndex) {
+      case 0:
+        return PlayerState.play(mockSong());
+      case 1:
+        return PlayerState.pause(song);
+      case 2:
+        return PlayerState.pause(mockSong());
+      case 3:
+        return PlayerState.stop();
+      case 4:
+        return PlayerState.error();
+      default:
+        throw new IllegalArgumentException();
+    }
   }
 }
