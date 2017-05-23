@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
@@ -62,7 +63,7 @@ class AbstractPlaybackTest {
     lock.lock();
     try {
       assertTimeoutPreemptively(ofMillis(500), () -> doneCall.call(uut));
-      called.await();
+      assertTrue(called.await(500, TimeUnit.MILLISECONDS));
     } finally {
       lock.unlock();
       waiter.interrupt();
