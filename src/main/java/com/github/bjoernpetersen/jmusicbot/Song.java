@@ -1,7 +1,9 @@
 package com.github.bjoernpetersen.jmusicbot;
 
 import com.github.bjoernpetersen.jmusicbot.playback.Playback;
+import com.github.bjoernpetersen.jmusicbot.provider.Provider;
 import java.io.IOException;
+import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 
@@ -12,6 +14,8 @@ public final class Song {
   private final PlaybackSupplier playbackSupplier;
   @Nonnull
   private final SongLoader loader;
+  @Nonnull
+  private final Provider provider;
 
   @Nonnull
   private final String id;
@@ -20,17 +24,16 @@ public final class Song {
   @Nonnull
   private final String description;
 
-  @Nonnull
-  private final String providerName;
 
-  public Song(PlaybackSupplier playbackSupplier, SongLoader loader, String providerName,
-      String id, String title, String description) {
+  private Song(PlaybackSupplier playbackSupplier, SongLoader loader, Provider provider, String id,
+      String title, String description) {
     this.playbackSupplier = playbackSupplier;
     this.loader = loader;
+    this.provider = provider;
+
     this.id = id;
     this.title = title;
     this.description = description;
-    this.providerName = providerName;
   }
 
   /**
@@ -90,7 +93,7 @@ public final class Song {
 
   @Nonnull
   public String getProviderName() {
-    return providerName;
+    return provider.getName();
   }
 
   @Override
@@ -116,7 +119,70 @@ public final class Song {
   public String toString() {
     return "Song{"
         + "id='" + id + '\''
-        + ", providerName='" + providerName + '\''
+        + ", providerName='" + getProviderName() + '\''
         + '}';
+  }
+
+  public static class Builder {
+
+    private PlaybackSupplier playbackSupplier;
+    private SongLoader songLoader;
+    private Provider provider;
+
+    private String id;
+    private String title;
+    private String description;
+
+    // TODO album art
+
+    @Nonnull
+    public Builder playbackSupplier(@Nonnull PlaybackSupplier playbackSupplier) {
+      this.playbackSupplier = Objects.requireNonNull(playbackSupplier);
+      return this;
+    }
+
+    @Nonnull
+    public Builder songLoader(@Nonnull SongLoader songLoader) {
+      this.songLoader = Objects.requireNonNull(songLoader);
+      return this;
+    }
+
+    @Nonnull
+    public Builder provider(@Nonnull Provider provider) {
+      this.provider = Objects.requireNonNull(provider);
+      return this;
+    }
+
+    @Nonnull
+    public Builder id(@Nonnull String id) {
+      this.id = Objects.requireNonNull(id);
+      return this;
+    }
+
+    @Nonnull
+    public Builder title(@Nonnull String title) {
+      this.title = Objects.requireNonNull(title);
+      return this;
+    }
+
+    @Nonnull
+    public Builder description(@Nonnull String description) {
+      this.description = Objects.requireNonNull(description);
+      return this;
+    }
+
+    @Nonnull
+    public Song build() {
+      if (playbackSupplier == null
+          || songLoader == null
+          || provider == null
+          || id == null
+          || title == null
+          || description == null) {
+        throw new IllegalStateException("Not all values specified.");
+      }
+      return new Song(playbackSupplier, songLoader, provider, id, title, description);
+    }
+
   }
 }
