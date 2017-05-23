@@ -51,6 +51,8 @@ public final class Song {
    *
    * @return whether loading was successful
    * @throws InterruptedException if the thread is interrupted while waiting for the song to load
+   * @throws IllegalStateException if the song is not scheduled for loading (call {@link #load()}
+   * before
    */
   public boolean hasLoaded() throws InterruptedException {
     return loader.hasLoaded(this);
