@@ -170,8 +170,10 @@ public final class Player implements Closeable {
   }
 
   private boolean isSignificantlyDifferent(@Nonnull PlayerState state, @Nonnull PlayerState other) {
-    return other.hasSong() != state.hasSong()
-        || other.hasSong() && state.hasSong() && !state.getSong().equals(other.getSong());
+    Optional<Song> stateSong = state.getSong();
+    Optional<Song> otherSong = other.getSong();
+    return (otherSong.isPresent() != stateSong.isPresent())
+        || otherSong.isPresent() && !state.getSong().equals(other.getSong());
   }
 
   private void autoPlay() {

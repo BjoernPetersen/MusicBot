@@ -1,6 +1,7 @@
 package com.github.bjoernpetersen.jmusicbot.playback;
 
 import com.github.bjoernpetersen.jmusicbot.Song;
+import java.util.Objects;
 import java.util.Optional;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -27,17 +28,13 @@ public final class PlayerState {
   }
 
   private PlayerState(@Nonnull State state, @Nullable Song song) {
-    this.state = state;
+    this.state = Objects.requireNonNull(state);
     this.song = song;
   }
 
   @Nonnull
   public State getState() {
     return state;
-  }
-
-  public boolean hasSong() {
-    return getState().hasSong();
   }
 
   @Nonnull
@@ -79,12 +76,12 @@ public final class PlayerState {
 
   @Nonnull
   static PlayerState play(Song song) {
-    return new PlayerState(State.PLAY, song);
+    return new PlayerState(State.PLAY, Objects.requireNonNull(song));
   }
 
   @Nonnull
   static PlayerState pause(Song song) {
-    return new PlayerState(State.PAUSE, song);
+    return new PlayerState(State.PAUSE, Objects.requireNonNull(song));
   }
 
   @Nonnull
