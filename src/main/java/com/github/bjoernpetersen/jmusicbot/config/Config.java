@@ -106,7 +106,7 @@ public final class Config {
 
   /**
    * Gets a string config entry. The entry has to be defined by calling {@link #stringEntry(Class,
-   * String, String, String)} prior to this method.
+   * String, String, String, ConfigChecker)} prior to this method.
    *
    * @param type the class that defined the entry
    * @param key the entry key
@@ -132,13 +132,15 @@ public final class Config {
    * @param key the entry key
    * @param description a description for the user what this entry does
    * @param defaultValue a default value, or null
+   * @param errorChecker an error checker
    * @return a string config entry
    * @throws IllegalArgumentException if the entry has already been defined, but is secret or a
    * BooleanEntry
    */
   @Nonnull
   public StringEntry stringEntry(@Nonnull Class<?> type, @Nonnull String key,
-      @Nonnull String description, @Nullable String defaultValue) {
+      @Nonnull String description, @Nullable String defaultValue,
+      @Nonnull ConfigChecker errorChecker) {
     key = type.getName() + "." + key;
     Entry entry = getEntry(key);
     if (entry != null) {
@@ -148,12 +150,12 @@ public final class Config {
         throw new IllegalArgumentException();
       }
     }
-    return new StringEntry(key, description, defaultValue, false);
+    return new StringEntry(key, description, defaultValue, false, errorChecker);
   }
 
   /**
    * Gets a string config entry with a secret. The entry has to be defined by calling {@link
-   * #secret(Class, String, String)} prior to this method.
+   * #secret(Class, String, String, ConfigChecker)} prior to this method.
    *
    * @param type the class that defined the entry
    * @param key the entry key
@@ -182,13 +184,14 @@ public final class Config {
    * uniqueness
    * @param key the entry key
    * @param description a description for the user what this entry does
+   * @param errorChecker an error checker
    * @return a string config entry
    * @throws IllegalArgumentException if the entry has already been defined, but is not secret or it
    * is a BooleanEntry
    */
   @Nonnull
   public StringEntry secret(@Nonnull Class<?> type, @Nonnull String key,
-      @Nonnull String description) {
+      @Nonnull String description, @Nonnull ConfigChecker errorChecker) {
     key = type.getName() + "." + key;
     Entry entry = getEntry(key);
     if (entry != null) {
@@ -198,7 +201,7 @@ public final class Config {
         throw new IllegalArgumentException();
       }
     }
-    return new StringEntry(key, description, null, true);
+    return new StringEntry(key, description, null, true, errorChecker);
   }
 
   /**
@@ -317,14 +320,18 @@ public final class Config {
     private final String defaultValue;
     @Nonnull
     private final Set<StringConfigListener> listeners;
+    @Nonnull
+    private final ConfigChecker checker;
 
     private ReadOnlyStringEntry(@Nonnull String key,
         @Nonnull String description,
         @Nullable String defaultValue,
-        boolean isSecret) {
+        boolean isSecret,
+        @Nonnull ConfigChecker checker) {
       super(key, description, isSecret);
       this.defaultValue = defaultValue;
       this.listeners = new HashSet<>();
+      this.checker = checker;
     }
 
     public void addListener(@Nonnull StringConfigListener listener) {
@@ -338,10 +345,15 @@ public final class Config {
     @Override
     void set(@Nullable String value) {
       String oldValue = get().orElse(null);
-      super.set(value);
       if (!Objects.equals(oldValue, value)) {
+        super.set(value);
         listeners.forEach(c -> c.onChange(oldValue, value));
       }
+    }
+
+    @Nonnull
+    public Optional<String> checkError() {
+      return get().flatMap(checker::check);
     }
 
     /**
@@ -415,8 +427,8 @@ public final class Config {
   public class StringEntry extends ReadOnlyStringEntry {
 
     private StringEntry(@Nonnull String key, @Nonnull String description,
-        @Nullable String defaultValue, boolean isSecret) {
-      super(key, description, defaultValue, isSecret);
+        @Nullable String defaultValue, boolean isSecret, @Nonnull ConfigChecker checker) {
+      super(key, description, defaultValue, isSecret, checker);
     }
 
     /**

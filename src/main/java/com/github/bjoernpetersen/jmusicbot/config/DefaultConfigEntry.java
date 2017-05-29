@@ -1,8 +1,10 @@
 package com.github.bjoernpetersen.jmusicbot.config;
 
 import com.github.bjoernpetersen.jmusicbot.MusicBot;
+import java.io.File;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import javax.annotation.Nonnull;
 
 /**
@@ -21,7 +23,14 @@ public final class DefaultConfigEntry {
         MusicBot.class,
         "pluginFolder",
         "This is where the application looks for plugin files",
-        "plugins"
+        "plugins",
+        fileName -> {
+          File file = new File(fileName);
+          if (file.isFile()) {
+            return Optional.of("This is a file, must be a directory");
+          }
+          return Optional.empty();
+        }
     );
   }
 
