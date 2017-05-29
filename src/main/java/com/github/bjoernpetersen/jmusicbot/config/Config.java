@@ -155,7 +155,7 @@ public final class Config {
 
   /**
    * Gets a string config entry with a secret. The entry has to be defined by calling {@link
-   * #secret(Class, String, String, ConfigChecker)} prior to this method.
+   * #secret(Class, String, String)} prior to this method.
    *
    * @param type the class that defined the entry
    * @param key the entry key
@@ -184,14 +184,13 @@ public final class Config {
    * uniqueness
    * @param key the entry key
    * @param description a description for the user what this entry does
-   * @param errorChecker an error checker
    * @return a string config entry
    * @throws IllegalArgumentException if the entry has already been defined, but is not secret or it
    * is a BooleanEntry
    */
   @Nonnull
   public StringEntry secret(@Nonnull Class<?> type, @Nonnull String key,
-      @Nonnull String description, @Nonnull ConfigChecker errorChecker) {
+      @Nonnull String description) {
     key = type.getName() + "." + key;
     Entry entry = getEntry(key);
     if (entry != null) {
@@ -201,7 +200,7 @@ public final class Config {
         throw new IllegalArgumentException();
       }
     }
-    return new StringEntry(key, description, null, true, errorChecker);
+    return new StringEntry(key, description, null, true, v -> Optional.empty());
   }
 
   /**
