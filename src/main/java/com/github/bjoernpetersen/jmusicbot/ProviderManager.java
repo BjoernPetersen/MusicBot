@@ -53,7 +53,7 @@ public final class ProviderManager implements Closeable {
     this.providerManager = new PluginManager<>(
         config,
         Provider.class,
-        p -> p.initialize(playbackFactoryManager)
+        (sw, p) -> p.initialize(sw, playbackFactoryManager)
     );
 
     this.suggesterManager = new PluginManager<>(
@@ -65,7 +65,8 @@ public final class ProviderManager implements Closeable {
     this.suggestersForProvider = new HashMap<>(providerManager.getPlugins().size() * 2);
   }
 
-  private void initializeSuggester(@Nonnull Suggester suggester) throws InitializationException {
+  private void initializeSuggester(@Nonnull InitStateWriter initStateWriter,
+      @Nonnull Suggester suggester) throws InitializationException {
     Collection<String> dependencies = suggester.getDependencies();
     Map<String, Provider> loadedDependencies = new HashMap<>(dependencies.size() * 2);
     for (String dependencyName : dependencies) {
@@ -92,7 +93,7 @@ public final class ProviderManager implements Closeable {
       }
     }
 
-    suggester.initialize(loadedDependencies);
+    suggester.initialize(initStateWriter, loadedDependencies);
   }
 
   /**
@@ -154,11 +155,12 @@ public final class ProviderManager implements Closeable {
     }
   }
 
-  void initialize(@Nonnull NamedPlugin plugin) throws InitializationException {
+  void initialize(@Nonnull NamedPlugin plugin, @Nonnull InitStateWriter initStateWriter)
+      throws InitializationException {
     if (plugin instanceof Provider) {
-      providerManager.initialize((Provider) plugin);
+      providerManager.initialize(initStateWriter, (Provider) plugin);
     } else if (plugin instanceof Suggester) {
-      suggesterManager.initialize((Suggester) plugin);
+      suggesterManager.initialize(initStateWriter, (Suggester) plugin);
     } else {
       throw new IllegalArgumentException();
     }
@@ -314,13 +316,14 @@ public final class ProviderManager implements Closeable {
       }
     }
 
-    public void initialize(@Nonnull T t) throws InitializationException {
+    public void initialize(@Nonnull InitStateWriter initStateWriter, @Nonnull T t)
+        throws InitializationException {
       State state = getState(t);
       switch (state) {
         case INACTIVE:
           initializeConfig(t);
         case CONFIG:
-          initializer.initialize(t);
+          initializer.initialize(initStateWriter, t);
           setState(t, State.ACTIVE);
         case ACTIVE:
         default:
@@ -394,6 +397,7 @@ public final class ProviderManager implements Closeable {
   @FunctionalInterface
   private interface Initializer<T extends NamedPlugin> {
 
-    void initialize(@Nonnull T t) throws InitializationException;
+    void initialize(@Nonnull InitStateWriter initStateWriter, @Nonnull T t)
+        throws InitializationException;
   }
 }

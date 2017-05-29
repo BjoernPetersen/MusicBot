@@ -92,7 +92,7 @@ public final class PlaybackFactoryManager implements Closeable {
   }
 
   @Nonnull
-  private List<? extends Config.Entry> storeFactoryForValidBases(PlaybackFactory factory)
+  private List<? extends Config.Entry> storeFactoryForValidBases(@Nonnull PlaybackFactory factory)
       throws InvalidFactoryException, InitializationException {
     List<Class<? extends PlaybackFactory>> validBases = new LinkedList<>();
     for (Class<? extends PlaybackFactory> base : factory.getBases()) {
@@ -116,11 +116,11 @@ public final class PlaybackFactoryManager implements Closeable {
     return result;
   }
 
-  void initializeFactories() throws InitializationException {
+  void initializeFactories(@Nonnull InitStateWriter initStateWriter) throws InitializationException {
     List<PlaybackFactory> defective = new LinkedList<>();
     for (PlaybackFactory factory : factories.values()) {
       try {
-        factory.initialize();
+        factory.initialize(initStateWriter);
       } catch (InitializationException e) {
         log.severe(String.format("Could not initialize PlaybackFactory '%s': %s", factory, e));
         defective.add(factory);

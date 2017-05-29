@@ -9,17 +9,14 @@ import javax.annotation.Nonnull;
 
 /**
  * <p>Base interface for all plugins. Usually this interface won't be directly implemented, but
- * extended first. Extending interfaces should define a "<code>initialize(...) throws
- * InitializationException</code>" method, which acts as the counterpart to {@link #close()}.</p>
+ * extended first. Extending interfaces should define a "<code>initialize(InitStateWriter, ...)
+ * throws InitializationException</code>" method, which acts as the counterpart to {@link
+ * #close()}.</p>
  *
- * Lifecycle:<br>
- * <ol>
- * <li>{@link #initializeConfigEntries(Config)}</li>
- * <li>initialize(...)</li> <li>{@link #close()}</li>
- * <li>{@link #destructConfigEntries()}</li>
- * </ol>
- * <b>Note:</b> a successful call to one of the initialization methods guarantees
- * that the respective destruction method will be called in the future.
+ * Lifecycle:<br> <ol> <li>{@link #initializeConfigEntries(Config)}</li> <li>initialize(...)</li>
+ * <li>{@link #close()}</li> <li>{@link #destructConfigEntries()}</li> </ol> <b>Note:</b> a
+ * successful call to one of the initialization methods guarantees that the respective destruction
+ * method will be called in the future.
  */
 public interface Plugin extends Closeable {
 

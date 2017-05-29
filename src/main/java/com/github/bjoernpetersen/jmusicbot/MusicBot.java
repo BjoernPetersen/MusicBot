@@ -8,6 +8,7 @@ import com.github.bjoernpetersen.jmusicbot.provider.Provider;
 import com.github.bjoernpetersen.jmusicbot.provider.Suggester;
 import java.io.Closeable;
 import java.io.IOException;
+import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.logging.Logger;
 import javax.annotation.Nonnull;
@@ -88,9 +89,12 @@ public final class MusicBot implements Closeable {
     private PlaybackFactoryManager playbackFactoryManager;
     @Nullable
     private Suggester defaultSuggester;
+    @Nonnull
+    private InitStateWriter initStateWriter;
 
     public Builder(@Nonnull Config config) {
       this.config = config;
+      this.initStateWriter = InitStateWriter.NO_OP;
     }
 
     @Nonnull
@@ -112,18 +116,24 @@ public final class MusicBot implements Closeable {
     }
 
     @Nonnull
+    public Builder initStateWriter(@Nonnull InitStateWriter initStateWriter) {
+      this.initStateWriter = Objects.requireNonNull(initStateWriter);
+      return this;
+    }
+
+    @Nonnull
     public MusicBot build() throws InitializationException {
       if (providerManager == null
           || playbackFactoryManager == null) {
         throw new IllegalStateException("ProviderManager or PlaybackFactoryManager is null");
       }
 
-      playbackFactoryManager.initializeFactories();
+      playbackFactoryManager.initializeFactories(initStateWriter);
 
       for (Provider provider : providerManager.getProviders().values()) {
         if (providerManager.getState(provider) == State.CONFIG) {
           try {
-            providerManager.initialize(provider);
+            providerManager.initialize(provider, initStateWriter);
           } catch (InitializationException e) {
             log.severe(String.format(
                 "Could not initialize Provider '%s': %s",
@@ -138,7 +148,7 @@ public final class MusicBot implements Closeable {
       for (Suggester suggester : providerManager.getSuggesters().values()) {
         if (providerManager.getState(suggester) == State.CONFIG) {
           try {
-            providerManager.initialize(suggester);
+            providerManager.initialize(suggester, initStateWriter);
           } catch (InitializationException e) {
             log.severe(String.format(
                 "Could not initialize Suggester '%s': %s",
@@ -149,6 +159,8 @@ public final class MusicBot implements Closeable {
           }
         }
       }
+
+      initStateWriter.close();
 
       return new MusicBot(config, playbackFactoryManager, providerManager, defaultSuggester);
     }

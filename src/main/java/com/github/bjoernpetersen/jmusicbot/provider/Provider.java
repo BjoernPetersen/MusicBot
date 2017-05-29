@@ -1,5 +1,6 @@
 package com.github.bjoernpetersen.jmusicbot.provider;
 
+import com.github.bjoernpetersen.jmusicbot.InitStateWriter;
 import com.github.bjoernpetersen.jmusicbot.InitializationException;
 import com.github.bjoernpetersen.jmusicbot.NamedPlugin;
 import com.github.bjoernpetersen.jmusicbot.PlaybackFactoryManager;
@@ -13,10 +14,12 @@ public interface Provider extends NamedPlugin {
    * Signals to the provider that it can start doing work.
    *
    * @param manager a PlaybackFactoryManager to obtain PlaybackFactory instances from
+   * @param initStateWriter a writer for initialization state messages
    * @throws InitializationException If any errors occur (for example due to invalid log-in
    * credentials)
    */
-  void initialize(@Nonnull PlaybackFactoryManager manager) throws InitializationException;
+  void initialize(@Nonnull InitStateWriter initStateWriter, @Nonnull PlaybackFactoryManager manager)
+      throws InitializationException;
 
   /**
    * Searches for songs based on the given search query.

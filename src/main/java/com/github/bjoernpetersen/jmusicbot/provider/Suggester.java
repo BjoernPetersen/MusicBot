@@ -1,5 +1,6 @@
 package com.github.bjoernpetersen.jmusicbot.provider;
 
+import com.github.bjoernpetersen.jmusicbot.InitStateWriter;
 import com.github.bjoernpetersen.jmusicbot.InitializationException;
 import com.github.bjoernpetersen.jmusicbot.NamedPlugin;
 import com.github.bjoernpetersen.jmusicbot.Song;
@@ -58,10 +59,12 @@ public interface Suggester extends NamedPlugin {
    *
    * @param dependencies the Provider instances requested by {@link #getDependencies()} and {@link
    * #getOptionalDependencies()}
+   * @param initStateWriter a writer for initialization state messages
    * @throws InitializationException If any errors occur (for example due to invalid log-in
    * credentials)
    */
-  void initialize(@Nonnull Map<String, Provider> dependencies) throws InitializationException;
+  void initialize(@Nonnull InitStateWriter initStateWriter,
+      @Nonnull Map<String, Provider> dependencies) throws InitializationException;
 
   /**
    * <p>Gets a set of names of providers this Suggester depends on.</p>
