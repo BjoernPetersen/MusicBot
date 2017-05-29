@@ -157,6 +157,7 @@ public final class ProviderManager implements Closeable {
 
   void initialize(@Nonnull NamedPlugin plugin, @Nonnull InitStateWriter initStateWriter)
       throws InitializationException {
+    initStateWriter.begin(plugin.getReadableName());
     if (plugin instanceof Provider) {
       providerManager.initialize(initStateWriter, (Provider) plugin);
     } else if (plugin instanceof Suggester) {

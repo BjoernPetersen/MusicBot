@@ -120,6 +120,7 @@ public final class PlaybackFactoryManager implements Closeable {
     List<PlaybackFactory> defective = new LinkedList<>();
     for (PlaybackFactory factory : factories.values()) {
       try {
+        initStateWriter.begin(factory.getClass().getSimpleName());
         factory.initialize(initStateWriter);
       } catch (InitializationException e) {
         log.severe(String.format("Could not initialize PlaybackFactory '%s': %s", factory, e));
