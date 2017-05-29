@@ -24,7 +24,8 @@ public class TestProvider implements Provider {
   }
 
   @Override
-  public void initialize(@Nonnull PlaybackFactoryManager manager) throws InitializationException {
+  public void initialize(@Nonnull InitStateWriter initStateWriter,
+      @Nonnull PlaybackFactoryManager manager) throws InitializationException {
   }
 
   @Nonnull
