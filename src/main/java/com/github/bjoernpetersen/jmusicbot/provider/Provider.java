@@ -17,9 +17,10 @@ public interface Provider extends NamedPlugin {
    * @param initStateWriter a writer for initialization state messages
    * @throws InitializationException If any errors occur (for example due to invalid log-in
    * credentials)
+   * @throws InterruptedException if the thread is interrupted while initializing
    */
   void initialize(@Nonnull InitStateWriter initStateWriter, @Nonnull PlaybackFactoryManager manager)
-      throws InitializationException;
+      throws InitializationException, InterruptedException;
 
   /**
    * Searches for songs based on the given search query.

@@ -40,7 +40,7 @@ public final class MusicBot implements Closeable {
         }
       };
 
-      if (providerManager.getState(defaultSuggester) != State.ACTIVE) {
+      if (defaultSuggester != null && providerManager.getState(defaultSuggester) != State.ACTIVE) {
         log.warning("Default suggester is not active.");
         defaultSuggester = null;
       }
@@ -122,7 +122,7 @@ public final class MusicBot implements Closeable {
     }
 
     @Nonnull
-    public MusicBot build() throws InitializationException {
+    public MusicBot build() throws InitializationException, InterruptedException {
       if (providerManager == null
           || playbackFactoryManager == null) {
         throw new IllegalStateException("ProviderManager or PlaybackFactoryManager is null");

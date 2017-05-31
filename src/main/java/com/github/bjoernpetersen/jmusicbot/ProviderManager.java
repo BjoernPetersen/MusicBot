@@ -66,7 +66,7 @@ public final class ProviderManager implements Closeable {
   }
 
   private void initializeSuggester(@Nonnull InitStateWriter initStateWriter,
-      @Nonnull Suggester suggester) throws InitializationException {
+      @Nonnull Suggester suggester) throws InitializationException, InterruptedException {
     Collection<String> dependencies = suggester.getDependencies();
     Map<String, Provider> loadedDependencies = new HashMap<>(dependencies.size() * 2);
     for (String dependencyName : dependencies) {
@@ -156,7 +156,7 @@ public final class ProviderManager implements Closeable {
   }
 
   void initialize(@Nonnull NamedPlugin plugin, @Nonnull InitStateWriter initStateWriter)
-      throws InitializationException {
+      throws InitializationException, InterruptedException {
     initStateWriter.begin(plugin.getReadableName());
     if (plugin instanceof Provider) {
       providerManager.initialize(initStateWriter, (Provider) plugin);
@@ -318,7 +318,7 @@ public final class ProviderManager implements Closeable {
     }
 
     public void initialize(@Nonnull InitStateWriter initStateWriter, @Nonnull T t)
-        throws InitializationException {
+        throws InitializationException, InterruptedException {
       State state = getState(t);
       switch (state) {
         case INACTIVE:
@@ -399,6 +399,6 @@ public final class ProviderManager implements Closeable {
   private interface Initializer<T extends NamedPlugin> {
 
     void initialize(@Nonnull InitStateWriter initStateWriter, @Nonnull T t)
-        throws InitializationException;
+        throws InitializationException, InterruptedException;
   }
 }

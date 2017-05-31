@@ -14,8 +14,10 @@ public interface PlaybackFactory extends Plugin {
    *
    * @param initStateWriter a writer for initialization state messages
    * @throws InitializationException if anything goes wrong
+   * @throws InterruptedException if the thread is interrupted while initializing
    */
-  void initialize(@Nonnull InitStateWriter initStateWriter) throws InitializationException;
+  void initialize(@Nonnull InitStateWriter initStateWriter)
+      throws InitializationException, InterruptedException;
 
   /**
    * Gets the PlaybackFactories this is implementing.

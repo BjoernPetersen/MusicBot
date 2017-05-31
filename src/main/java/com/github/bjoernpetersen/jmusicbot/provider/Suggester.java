@@ -62,9 +62,11 @@ public interface Suggester extends NamedPlugin {
    * @param initStateWriter a writer for initialization state messages
    * @throws InitializationException If any errors occur (for example due to invalid log-in
    * credentials)
+   * @throws InterruptedException if the thread is interrupted while initializing
    */
   void initialize(@Nonnull InitStateWriter initStateWriter,
-      @Nonnull Map<String, Provider> dependencies) throws InitializationException;
+      @Nonnull Map<String, Provider> dependencies)
+      throws InitializationException, InterruptedException;
 
   /**
    * <p>Gets a set of names of providers this Suggester depends on.</p>

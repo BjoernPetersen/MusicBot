@@ -34,13 +34,18 @@ public final class PlaybackFactoryManager implements Closeable {
     this.configEntries = loadFactories(pluginFolder, included);
   }
 
+  @SuppressWarnings("unchecked")
   @Nonnull
   public <F extends PlaybackFactory> F getFactory(@Nonnull Class<F> factoryType) {
     PlaybackFactory result = factories.get(factoryType);
     if (result == null) {
       throw new IllegalArgumentException("No factory for: " + factoryType.getSimpleName());
     } else {
-      return (F) result;
+      try {
+        return (F) result;
+      } catch (ClassCastException e) {
+        throw new IllegalArgumentException("Wrong type for factory: " + factoryType.getName(), e);
+      }
     }
   }
 
@@ -116,7 +121,7 @@ public final class PlaybackFactoryManager implements Closeable {
     return result;
   }
 
-  void initializeFactories(@Nonnull InitStateWriter initStateWriter) throws InitializationException {
+  void initializeFactories(@Nonnull InitStateWriter initStateWriter) throws InterruptedException {
     List<PlaybackFactory> defective = new LinkedList<>();
     for (PlaybackFactory factory : factories.values()) {
       try {
