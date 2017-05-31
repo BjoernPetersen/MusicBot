@@ -4,6 +4,7 @@ import com.github.bjoernpetersen.jmusicbot.playback.PlaybackFactory;
 import com.github.bjoernpetersen.jmusicbot.provider.Provider;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.RemovalListener;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -52,6 +53,13 @@ public abstract class SongLoader {
         .initialCapacity(8)
         .maximumSize(128)
         .weakKeys()
+        .removalListener((RemovalListener<Song, Future<Boolean>>) removalNotification -> {
+          Future<Boolean> future = removalNotification.getValue();
+          if (!future.isDone()) {
+            log.warning("Cancelling future because of cache removal");
+            future.cancel(true);
+          }
+        })
         .build();
   }
 
