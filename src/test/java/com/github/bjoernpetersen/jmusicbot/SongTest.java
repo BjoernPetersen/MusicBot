@@ -61,7 +61,7 @@ class SongTest implements EqualsContract<Song> {
   void hasLoadedUnsuccessful() throws InterruptedException {
     Song song = filledBuilder().songLoader(new SongLoader() {
       @Override
-      protected boolean loadImpl(Song song) {
+      protected boolean loadImpl(@Nonnull Song song) {
         return false;
       }
     }).build();
@@ -81,7 +81,7 @@ class SongTest implements EqualsContract<Song> {
     Song song = filledBuilder()
         .songLoader(new SongLoader() {
           @Override
-          protected boolean loadImpl(Song song) {
+          protected boolean loadImpl(@Nonnull Song song) {
             return false;
           }
         })
@@ -105,7 +105,7 @@ class SongTest implements EqualsContract<Song> {
         })
         .songLoader(new SongLoader() {
           @Override
-          protected boolean loadImpl(Song song) {
+          protected boolean loadImpl(@Nonnull Song song) {
             return true;
           }
         })
