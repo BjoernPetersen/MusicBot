@@ -289,6 +289,10 @@ public final class Config {
     }
 
     void set(@Nullable String value) {
+      if (value != null && value.isEmpty()) {
+        log.finest("Replacing empty new value with null");
+        value = null;
+      }
       if (isSecret()) {
         Config.this.setSecret(getKey(), value);
       } else {
@@ -364,6 +368,10 @@ public final class Config {
     public Optional<String> get() {
       Config config = Config.this;
       String value = isSecret() ? config.getSecret(getKey()) : config.getValue(getKey());
+      if (value != null && value.isEmpty()) {
+        log.finest("Replacing empty value with null");
+        value = null;
+      }
       return Optional.ofNullable(value);
     }
 
