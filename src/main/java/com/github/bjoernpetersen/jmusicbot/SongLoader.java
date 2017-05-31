@@ -2,8 +2,8 @@ package com.github.bjoernpetersen.jmusicbot;
 
 import com.github.bjoernpetersen.jmusicbot.playback.PlaybackFactory;
 import com.github.bjoernpetersen.jmusicbot.provider.Provider;
-import java.util.HashMap;
-import java.util.Map;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -44,12 +44,15 @@ public abstract class SongLoader {
   @Nonnull
   private final Lock futureLock;
   @Nonnull
-  private final Map<Song, Future<Boolean>> futures;
+  private final Cache<Song, Future<Boolean>> futures;
 
   public SongLoader() {
     this.futureLock = new ReentrantLock();
-    // replace map with guava cache
-    this.futures = new HashMap<>();
+    futures = CacheBuilder.newBuilder()
+        .initialCapacity(8)
+        .maximumSize(128)
+        .weakKeys()
+        .build();
   }
 
   /**
@@ -63,7 +66,7 @@ public abstract class SongLoader {
    * @throws IllegalStateException if the song is not scheduled for loading
    */
   public final boolean hasLoaded(@Nonnull Song song) throws InterruptedException {
-    Future<Boolean> future = futures.get(song);
+    Future<Boolean> future = futures.getIfPresent(song);
     if (future != null) {
       try {
         return !future.isCancelled() && future.get();
@@ -83,10 +86,10 @@ public abstract class SongLoader {
    * @param song the song to load
    */
   public final void load(@Nonnull Song song) {
-    if (!futures.containsKey(song)) {
+    if (futures.getIfPresent(song) == null) {
       futureLock.lock();
       try {
-        if (!futures.containsKey(song)) {
+        if (futures.getIfPresent(song) == null) {
           log.finer("Queuing song load: " + song);
           futures.put(song, getService().submit(() -> this.loadImpl(song)));
         }
