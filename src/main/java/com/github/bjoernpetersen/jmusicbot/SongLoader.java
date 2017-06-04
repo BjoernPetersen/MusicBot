@@ -98,7 +98,7 @@ public abstract class SongLoader {
       futureLock.lock();
       try {
         if (futures.getIfPresent(song) == null) {
-          log.finer("Queuing song load: " + song);
+          log.finer("Enqueuing song load: " + song);
           futures.put(song, getService().submit(() -> this.loadImpl(song)));
         }
       } finally {
