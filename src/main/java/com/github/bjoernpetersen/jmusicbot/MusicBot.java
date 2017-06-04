@@ -5,6 +5,7 @@ import com.github.bjoernpetersen.jmusicbot.config.Config;
 import com.github.bjoernpetersen.jmusicbot.playback.Player;
 import com.github.bjoernpetersen.jmusicbot.provider.Provider;
 import com.github.bjoernpetersen.jmusicbot.provider.Suggester;
+import com.github.bjoernpetersen.jmusicbot.user.UserManager;
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.Objects;
@@ -22,15 +23,17 @@ public final class MusicBot implements Closeable {
   private final Player player;
   private final PlaybackFactoryManager playbackFactoryManager;
   private final ProviderManager providerManager;
+  private final UserManager userManager;
   private final Closeable restApi;
 
   private MusicBot(@Nonnull Config config, @Nonnull PlaybackFactoryManager playbackFactoryManager,
       @Nonnull ProviderManager providerManager, @Nullable Suggester defaultSuggester,
-      @Nonnull ApiInitializer apiInitializer)
+      @Nonnull UserManager userManager, @Nonnull ApiInitializer apiInitializer)
       throws InitializationException {
     this.config = config;
     this.playbackFactoryManager = playbackFactoryManager;
     this.providerManager = providerManager;
+    this.userManager = userManager;
 
     Consumer<Song> songPlayedNotifier = song -> {
       Provider provider = providerManager.getProvider(song.getProviderName());
@@ -57,6 +60,7 @@ public final class MusicBot implements Closeable {
         player.close();
       } catch (IOException closeException) {
         log.severe("Tried to close player due to REST init error and got another exception: " + e);
+        e.addSuppressed(e);
       }
       throw new InitializationException("Exception during REST init", e);
     }
@@ -77,9 +81,15 @@ public final class MusicBot implements Closeable {
     return providerManager;
   }
 
+  @Nonnull
+  public UserManager getUserManager() {
+    return userManager;
+  }
+
   @Override
   public void close() throws IOException {
     restApi.close();
+    userManager.close();
     player.close();
     getProviderManager().close();
     getPlaybackFactoryManager().close();
@@ -100,6 +110,8 @@ public final class MusicBot implements Closeable {
     private Suggester defaultSuggester;
     @Nullable
     private ApiInitializer apiInitializer;
+    @Nullable
+    private UserManager userManager;
     @Nonnull
     private InitStateWriter initStateWriter;
 
@@ -127,6 +139,12 @@ public final class MusicBot implements Closeable {
     }
 
     @Nonnull
+    public Builder userManager(@Nonnull UserManager userManager) {
+      this.userManager = Objects.requireNonNull(userManager);
+      return this;
+    }
+
+    @Nonnull
     public Builder apiInitializer(@Nonnull ApiInitializer apiInitializer) {
       this.apiInitializer = Objects.requireNonNull(apiInitializer);
       return this;
@@ -142,6 +160,7 @@ public final class MusicBot implements Closeable {
     public MusicBot build() throws InitializationException, InterruptedException {
       if (providerManager == null
           || playbackFactoryManager == null
+          || userManager == null
           || apiInitializer == null) {
         throw new IllegalStateException("ProviderManager or PlaybackFactoryManager is null");
       }
@@ -185,6 +204,7 @@ public final class MusicBot implements Closeable {
           playbackFactoryManager,
           providerManager,
           defaultSuggester,
+          userManager,
           apiInitializer
       );
     }
