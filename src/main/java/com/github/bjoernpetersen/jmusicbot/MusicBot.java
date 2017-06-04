@@ -1,7 +1,6 @@
 package com.github.bjoernpetersen.jmusicbot;
 
 import com.github.bjoernpetersen.jmusicbot.ProviderManager.State;
-import com.github.bjoernpetersen.jmusicbot.api.RestApi;
 import com.github.bjoernpetersen.jmusicbot.config.Config;
 import com.github.bjoernpetersen.jmusicbot.playback.Player;
 import com.github.bjoernpetersen.jmusicbot.provider.Provider;
@@ -23,33 +22,43 @@ public final class MusicBot implements Closeable {
   private final Player player;
   private final PlaybackFactoryManager playbackFactoryManager;
   private final ProviderManager providerManager;
-  private final RestApi restApi;
+  private final Closeable restApi;
 
   private MusicBot(@Nonnull Config config, @Nonnull PlaybackFactoryManager playbackFactoryManager,
-      @Nonnull ProviderManager providerManager, @Nullable Suggester defaultSuggester)
+      @Nonnull ProviderManager providerManager, @Nullable Suggester defaultSuggester,
+      @Nonnull ApiInitializer apiInitializer)
       throws InitializationException {
-    try {
-      this.config = config;
-      this.playbackFactoryManager = playbackFactoryManager;
-      this.providerManager = providerManager;
+    this.config = config;
+    this.playbackFactoryManager = playbackFactoryManager;
+    this.providerManager = providerManager;
 
-      Consumer<Song> songPlayedNotifier = song -> {
-        Provider provider = providerManager.getProvider(song.getProviderName());
-        for (Suggester suggester : providerManager.getSuggestersFor(provider)) {
-          suggester.notifyPlayed(song);
-        }
-      };
-
-      if (defaultSuggester != null && providerManager.getState(defaultSuggester) != State.ACTIVE) {
-        log.warning("Default suggester is not active.");
-        defaultSuggester = null;
+    Consumer<Song> songPlayedNotifier = song -> {
+      Provider provider = providerManager.getProvider(song.getProviderName());
+      for (Suggester suggester : providerManager.getSuggestersFor(provider)) {
+        suggester.notifyPlayed(song);
       }
+    };
 
+    if (defaultSuggester != null && providerManager.getState(defaultSuggester) != State.ACTIVE) {
+      log.warning("Default suggester is not active.");
+      defaultSuggester = null;
+    }
+
+    try {
       this.player = new Player(songPlayedNotifier, defaultSuggester);
-      this.restApi = new RestApi(this);
-    } catch (Exception e) {
-      log.severe("Exception during MusicBot initialization: " + e);
-      throw new InitializationException(e);
+    } catch (RuntimeException e) {
+      throw new InitializationException("Exception during player init", e);
+    }
+
+    try {
+      this.restApi = apiInitializer.initialize(this);
+    } catch (InitializationException e) {
+      try {
+        player.close();
+      } catch (IOException closeException) {
+        log.severe("Tried to close player due to REST init error and got another exception: " + e);
+      }
+      throw new InitializationException("Exception during REST init", e);
     }
   }
 
@@ -89,6 +98,8 @@ public final class MusicBot implements Closeable {
     private PlaybackFactoryManager playbackFactoryManager;
     @Nullable
     private Suggester defaultSuggester;
+    @Nullable
+    private ApiInitializer apiInitializer;
     @Nonnull
     private InitStateWriter initStateWriter;
 
@@ -116,6 +127,12 @@ public final class MusicBot implements Closeable {
     }
 
     @Nonnull
+    public Builder apiInitializer(@Nonnull ApiInitializer apiInitializer) {
+      this.apiInitializer = Objects.requireNonNull(apiInitializer);
+      return this;
+    }
+
+    @Nonnull
     public Builder initStateWriter(@Nonnull InitStateWriter initStateWriter) {
       this.initStateWriter = Objects.requireNonNull(initStateWriter);
       return this;
@@ -124,7 +141,8 @@ public final class MusicBot implements Closeable {
     @Nonnull
     public MusicBot build() throws InitializationException, InterruptedException {
       if (providerManager == null
-          || playbackFactoryManager == null) {
+          || playbackFactoryManager == null
+          || apiInitializer == null) {
         throw new IllegalStateException("ProviderManager or PlaybackFactoryManager is null");
       }
 
@@ -162,7 +180,13 @@ public final class MusicBot implements Closeable {
 
       initStateWriter.close();
 
-      return new MusicBot(config, playbackFactoryManager, providerManager, defaultSuggester);
+      return new MusicBot(
+          config,
+          playbackFactoryManager,
+          providerManager,
+          defaultSuggester,
+          apiInitializer
+      );
     }
   }
 }

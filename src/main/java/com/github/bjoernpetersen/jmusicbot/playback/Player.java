@@ -146,6 +146,7 @@ public final class Player implements Closeable {
       Optional<Song> nextOptional = queue.pop();
       if (!nextOptional.isPresent() && suggester == null) {
         log.info("Queue is empty. Stopping.");
+        playback = DummyPlayback.getInstance();
         setState(PlayerState.stop());
         return;
       }
