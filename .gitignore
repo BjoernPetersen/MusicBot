@@ -8,15 +8,6 @@
 .*/
 !.circleci/
 bin/
-
-*.class
-
-# Package Files #
-*.jar
-*.war
-*.ear
-
-bin/
 /.apt_generated/
 
 # Eclipse #
@@ -26,7 +17,6 @@ bin/
 .settings/
 
 # Intellij #
-.idea/
 *.iml
 *.iws
 
