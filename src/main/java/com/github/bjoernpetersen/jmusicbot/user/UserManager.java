@@ -19,6 +19,7 @@ import java.time.Period;
 import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -94,7 +95,7 @@ public final class UserManager implements Closeable {
    * @return a new, valid user object
    * @throws DuplicateUserException if the specified user was a guest and a full user with the same
    * name already existed
-   * @throws SQLException if any unspecified SQL errors occur
+   * @throws SQLException if any SQL errors occur
    */
   @Nonnull
   public User updateUser(User user, String password) throws DuplicateUserException, SQLException {
@@ -130,6 +131,16 @@ public final class UserManager implements Closeable {
     String name = user.getName();
     database.dropUser(user);
     users.invalidate(name);
+  }
+
+  /**
+   * Gets all full users.
+   *
+   * @return a list of users
+   * @throws SQLException if any SQL errors occur
+   */
+  public List<User> getUsers() throws SQLException {
+    return database.getUsers();
   }
 
   @Nonnull
