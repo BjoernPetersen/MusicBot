@@ -1,6 +1,5 @@
 package com.github.bjoernpetersen.jmusicbot.playback;
 
-import com.github.bjoernpetersen.jmusicbot.Song;
 import java.util.Objects;
 import java.util.Optional;
 import javax.annotation.Nonnull;
@@ -11,7 +10,7 @@ public final class PlayerState {
   @Nonnull
   private final State state;
   @Nullable
-  private final Song song;
+  private final SongEntry entry;
 
   public enum State {
     PLAY(true), PAUSE(true), STOP(false), ERROR(false);
@@ -27,9 +26,9 @@ public final class PlayerState {
     }
   }
 
-  private PlayerState(@Nonnull State state, @Nullable Song song) {
+  private PlayerState(@Nonnull State state, @Nullable SongEntry entry) {
     this.state = Objects.requireNonNull(state);
-    this.song = song;
+    this.entry = entry;
   }
 
   @Nonnull
@@ -38,8 +37,8 @@ public final class PlayerState {
   }
 
   @Nonnull
-  public Optional<Song> getSong() {
-    return Optional.ofNullable(song);
+  public Optional<SongEntry> getEntry() {
+    return Optional.ofNullable(entry);
   }
 
   @Override
@@ -56,13 +55,13 @@ public final class PlayerState {
     if (state != that.state) {
       return false;
     }
-    return song != null ? song.equals(that.song) : that.song == null;
+    return entry != null ? entry.equals(that.entry) : that.entry == null;
   }
 
   @Override
   public int hashCode() {
     int result = state.hashCode();
-    result = 31 * result + (song != null ? song.hashCode() : 0);
+    result = 31 * result + (entry != null ? entry.hashCode() : 0);
     return result;
   }
 
@@ -70,18 +69,18 @@ public final class PlayerState {
   public String toString() {
     return "PlayerState{" +
         "state=" + state +
-        ", song=" + song +
+        ", entry=" + entry +
         '}';
   }
 
   @Nonnull
-  static PlayerState play(Song song) {
-    return new PlayerState(State.PLAY, Objects.requireNonNull(song));
+  static PlayerState play(SongEntry entry) {
+    return new PlayerState(State.PLAY, Objects.requireNonNull(entry));
   }
 
   @Nonnull
-  static PlayerState pause(Song song) {
-    return new PlayerState(State.PAUSE, Objects.requireNonNull(song));
+  static PlayerState pause(SongEntry entry) {
+    return new PlayerState(State.PAUSE, Objects.requireNonNull(entry));
   }
 
   @Nonnull
