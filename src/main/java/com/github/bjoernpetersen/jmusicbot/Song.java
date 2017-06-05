@@ -4,6 +4,7 @@ import com.github.bjoernpetersen.jmusicbot.playback.Playback;
 import com.github.bjoernpetersen.jmusicbot.provider.Provider;
 import java.io.IOException;
 import java.util.Objects;
+import java.util.Optional;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -22,11 +23,13 @@ public final class Song {
   private final String title;
   @Nonnull
   private final String description;
+  @Nullable
+  private final String albumArtUrl;
 
 
   private Song(@Nonnull PlaybackSupplier playbackSupplier, @Nonnull SongLoader loader,
-      @Nonnull Provider provider, @Nonnull String id,
-      @Nonnull String title, @Nonnull String description) {
+      @Nonnull Provider provider, @Nonnull String id, @Nonnull String title,
+      @Nonnull String description, @Nullable String albumArtUrl) {
     this.playbackSupplier = playbackSupplier;
     this.loader = loader;
     this.provider = provider;
@@ -34,6 +37,7 @@ public final class Song {
     this.id = id;
     this.title = title;
     this.description = description;
+    this.albumArtUrl = albumArtUrl;
   }
 
   /**
@@ -76,6 +80,11 @@ public final class Song {
       throw new IOException(e);
     }
     return playbackSupplier.supply(this);
+  }
+
+  @Nonnull
+  public Optional<String> getAlbumArtUrl() {
+    return Optional.ofNullable(albumArtUrl);
   }
 
   @Nonnull
@@ -135,7 +144,7 @@ public final class Song {
     private String title;
     private String description;
 
-    // TODO album art
+    private String albumArtUrl;
 
     @Nonnull
     public Builder playbackSupplier(@Nonnull PlaybackSupplier playbackSupplier) {
@@ -174,6 +183,12 @@ public final class Song {
     }
 
     @Nonnull
+    public Builder albumArtUrl(@Nullable String albumArtUrl) {
+      this.albumArtUrl = albumArtUrl;
+      return this;
+    }
+
+    @Nonnull
     public Song build() {
       if (playbackSupplier == null
           || songLoader == null
@@ -183,7 +198,7 @@ public final class Song {
           || description == null) {
         throw new IllegalStateException("Not all values specified.");
       }
-      return new Song(playbackSupplier, songLoader, provider, id, title, description);
+      return new Song(playbackSupplier, songLoader, provider, id, title, description, albumArtUrl);
     }
 
   }
