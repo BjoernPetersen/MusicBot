@@ -60,9 +60,6 @@ public final class User {
 
   @Nonnull
   public String getName() {
-    if (invalid) {
-      throw new IllegalStateException();
-    }
     return name;
   }
 

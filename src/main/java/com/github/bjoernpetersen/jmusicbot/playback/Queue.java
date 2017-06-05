@@ -1,18 +1,16 @@
 package com.github.bjoernpetersen.jmusicbot.playback;
 
 import com.github.bjoernpetersen.jmusicbot.Song;
+import com.github.bjoernpetersen.jmusicbot.user.User;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 public final class Queue {
 
@@ -27,35 +25,30 @@ public final class Queue {
   }
 
   // TODO append entry, not song
-  public void append(@Nonnull Song song) {
-    Objects.requireNonNull(song);
-    if (queue.stream().noneMatch(e -> e.getSong().equals(song))) {
-      queue.add(new Entry(song));
-      notifyListeners(listener -> listener.onAdd(song));
+  public void append(@Nonnull Entry entry) {
+    Objects.requireNonNull(entry);
+    if (!queue.contains(entry)) {
+      queue.add(entry);
+      notifyListeners(listener -> listener.onAdd(entry));
     }
   }
 
-  public void remove(@Nonnull Song song) {
-    Objects.requireNonNull(song);
-    for (Iterator<Entry> iterator = queue.iterator(); iterator.hasNext(); ) {
-      Entry entry = iterator.next();
-      if (entry.getSong().equals(song)) {
-        iterator.remove();
-        notifyListeners(listener -> listener.onRemove(song));
-        return;
-      }
+  public void remove(@Nonnull Entry entry) {
+    Objects.requireNonNull(entry);
+    boolean removed = queue.remove(entry);
+    if (removed) {
+      notifyListeners(listener -> listener.onRemove(entry));
     }
   }
 
-  // TODO return entry
   @Nonnull
-  public Optional<Song> pop() {
+  public Optional<Entry> pop() {
     if (queue.isEmpty()) {
       return Optional.empty();
     } else {
-      Song song = queue.pop().getSong();
-      notifyListeners(listener -> listener.onRemove(song));
-      return Optional.of(song);
+      Entry entry = queue.pop();
+      notifyListeners(listener -> listener.onRemove(entry));
+      return Optional.of(entry);
     }
   }
 
@@ -67,12 +60,8 @@ public final class Queue {
     return queue.get(index).getSong();
   }
 
-  public List<Song> toList() {
-    return Collections.unmodifiableList(
-        queue.stream()
-            .map(Entry::getSong)
-            .collect(Collectors.toList())
-    );
+  public List<Queue.Entry> toList() {
+    return Collections.unmodifiableList(queue);
   }
 
   public void addListener(@Nonnull QueueChangeListener listener) {
@@ -91,14 +80,16 @@ public final class Queue {
 
   // TODO move
 
-  // TODO add more info, like user
-  private static final class Entry {
+  public static final class Entry extends SongEntry {
 
     @Nonnull
     private final Song song;
+    @Nonnull
+    private final User user;
 
-    private Entry(@Nonnull Song song) {
+    public Entry(@Nonnull Song song, @Nonnull User user) {
       this.song = song;
+      this.user = user;
     }
 
     @Nonnull
@@ -106,23 +97,9 @@ public final class Queue {
       return song;
     }
 
-    @Override
-    public boolean equals(@Nullable Object o) {
-      if (this == o) {
-        return true;
-      }
-      if (o == null || getClass() != o.getClass()) {
-        return false;
-      }
-
-      Entry entry = (Entry) o;
-
-      return song.equals(entry.song);
-    }
-
-    @Override
-    public int hashCode() {
-      return song.hashCode();
+    @Nonnull
+    public User getUser() {
+      return user;
     }
   }
 }

@@ -9,7 +9,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 
 import com.github.bjoernpetersen.jmusicbot.EqualsContract;
-import com.github.bjoernpetersen.jmusicbot.Song;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -20,23 +19,23 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 class PlayerStateTest implements EqualsContract<PlayerState> {
 
-  private Song song;
+  private SongEntry songEntry;
 
   @Nonnull
-  private static Song mockSong() {
-    return mock(Song.class);
+  private static SongEntry mockEntry() {
+    return mock(SongEntry.class);
   }
 
   @Test
   void play() {
-    Song song = mockSong();
-    PlayerState state = PlayerState.play(song);
+    SongEntry entry = mockEntry();
+    PlayerState state = PlayerState.play(entry);
 
     assertSame(PlayerState.State.PLAY, state.getState());
-    Optional<Song> songOptional = state.getSong();
+    Optional<SongEntry> songOptional = state.getEntry();
     assertTrue(songOptional.isPresent());
-    assertEquals(song, songOptional.get());
-    assertSame(song, songOptional.get());
+    assertEquals(entry, songOptional.get());
+    assertSame(entry, songOptional.get());
   }
 
   @Test
@@ -46,11 +45,11 @@ class PlayerStateTest implements EqualsContract<PlayerState> {
 
   @Test
   void pause() {
-    Song song = mockSong();
+    SongEntry song = mockEntry();
     PlayerState state = PlayerState.pause(song);
 
     assertSame(PlayerState.State.PAUSE, state.getState());
-    Optional<Song> songOptional = state.getSong();
+    Optional<SongEntry> songOptional = state.getEntry();
     assertTrue(songOptional.isPresent());
     assertEquals(song, songOptional.get());
     assertSame(song, songOptional.get());
@@ -68,7 +67,7 @@ class PlayerStateTest implements EqualsContract<PlayerState> {
 
   @Test
   void stopNoSong() {
-    assertFalse(PlayerState.stop().getSong().isPresent());
+    assertFalse(PlayerState.stop().getEntry().isPresent());
   }
 
   @Test
@@ -78,12 +77,12 @@ class PlayerStateTest implements EqualsContract<PlayerState> {
 
   @Test
   void errorNoSong() {
-    assertFalse(PlayerState.error().getSong().isPresent());
+    assertFalse(PlayerState.error().getEntry().isPresent());
   }
 
   @SuppressWarnings("unused") // used as MethodSource
   private static List<PlayerState> getPossibleStates() {
-    Song song = mockSong();
+    SongEntry song = mockEntry();
     return Arrays.asList(
         PlayerState.play(song), PlayerState.pause(song),
         PlayerState.stop(), PlayerState.error()
@@ -93,14 +92,14 @@ class PlayerStateTest implements EqualsContract<PlayerState> {
   @ParameterizedTest
   @MethodSource(names = "getPossibleStates")
   void getSongNotNull(PlayerState state) {
-    assertNotNull(state.getSong());
+    assertNotNull(state.getEntry());
   }
 
   @Nonnull
   @Override
   public PlayerState createValue() {
-    song = mockSong();
-    return PlayerState.play(song);
+    songEntry = mockEntry();
+    return PlayerState.play(songEntry);
   }
 
   @Override
@@ -113,11 +112,11 @@ class PlayerStateTest implements EqualsContract<PlayerState> {
   public PlayerState createNotEqualValue(int valueIndex) {
     switch (valueIndex) {
       case 0:
-        return PlayerState.play(mockSong());
+        return PlayerState.play(mockEntry());
       case 1:
-        return PlayerState.pause(song);
+        return PlayerState.pause(songEntry);
       case 2:
-        return PlayerState.pause(mockSong());
+        return PlayerState.pause(mockEntry());
       case 3:
         return PlayerState.stop();
       case 4:

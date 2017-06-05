@@ -1,12 +1,12 @@
 package com.github.bjoernpetersen.jmusicbot.playback;
 
-import com.github.bjoernpetersen.jmusicbot.Song;
+import javax.annotation.Nonnull;
 
 public interface QueueChangeListener {
 
-  void onAdd(Song song);
+  void onAdd(@Nonnull Queue.Entry entry);
 
-  void onRemove(Song song);
+  void onRemove(@Nonnull Queue.Entry entry);
 
   // TODO move
 }

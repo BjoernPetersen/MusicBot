@@ -103,7 +103,7 @@ public final class Player implements Closeable {
         return;
       }
       playback.pause();
-      setState(PlayerState.pause(state.getSong().orElseThrow(IllegalStateException::new)));
+      setState(PlayerState.pause(state.getEntry().orElseThrow(IllegalStateException::new)));
     } finally {
       stateLock.unlock();
     }
@@ -119,7 +119,7 @@ public final class Player implements Closeable {
         return;
       }
       playback.play();
-      setState(PlayerState.play(state.getSong().orElseThrow(IllegalStateException::new)));
+      setState(PlayerState.play(state.getEntry().orElseThrow(IllegalStateException::new)));
     } finally {
       stateLock.unlock();
     }
@@ -143,7 +143,7 @@ public final class Player implements Closeable {
         log.severe("Error closing playback: " + e);
       }
 
-      Optional<Song> nextOptional = queue.pop();
+      Optional<Queue.Entry> nextOptional = queue.pop();
       if (!nextOptional.isPresent() && suggester == null) {
         log.info("Queue is empty. Stopping.");
         playback = DummyPlayback.getInstance();
@@ -151,7 +151,14 @@ public final class Player implements Closeable {
         return;
       }
 
-      Song nextSong = nextOptional.orElseGet(() -> suggester.suggestNext());
+      SongEntry nextEntry;
+      if (nextOptional.isPresent()) {
+        nextEntry = nextOptional.get();
+      } else {
+        nextEntry = new SuggestedSongEntry(suggester.suggestNext());
+      }
+
+      Song nextSong = nextEntry.getSong();
       songPlayedNotifier.accept(nextSong);
       log.info("Next song is: " + nextSong);
       try {
@@ -163,7 +170,7 @@ public final class Player implements Closeable {
         playback = DummyPlayback.getInstance();
         return;
       }
-      setState(PlayerState.pause(nextSong));
+      setState(PlayerState.pause(nextEntry));
       play();
     } finally {
       stateLock.unlock();
@@ -171,10 +178,11 @@ public final class Player implements Closeable {
   }
 
   private boolean isSignificantlyDifferent(@Nonnull PlayerState state, @Nonnull PlayerState other) {
-    Optional<Song> stateSong = state.getSong();
-    Optional<Song> otherSong = other.getSong();
+    Optional<SongEntry> stateSong = state.getEntry();
+    Optional<SongEntry> otherSong = other.getEntry();
+    // TODO check for correctness
     return (otherSong.isPresent() != stateSong.isPresent())
-        || otherSong.isPresent() && !state.getSong().equals(other.getSong());
+        || otherSong.isPresent() && !state.getEntry().equals(other.getEntry());
   }
 
   private void autoPlay() {

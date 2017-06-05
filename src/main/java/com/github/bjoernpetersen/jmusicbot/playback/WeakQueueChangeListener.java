@@ -1,6 +1,5 @@
 package com.github.bjoernpetersen.jmusicbot.playback;
 
-import com.github.bjoernpetersen.jmusicbot.Song;
 import java.lang.ref.WeakReference;
 import java.util.Optional;
 import javax.annotation.Nonnull;
@@ -20,12 +19,12 @@ public final class WeakQueueChangeListener implements QueueChangeListener {
   }
 
   @Override
-  public void onAdd(Song song) {
-    getWrapped().ifPresent(wrapped -> wrapped.onAdd(song));
+  public void onAdd(@Nonnull Queue.Entry entry) {
+    getWrapped().ifPresent(wrapped -> wrapped.onAdd(entry));
   }
 
   @Override
-  public void onRemove(Song song) {
-    getWrapped().ifPresent(wrapped -> wrapped.onRemove(song));
+  public void onRemove(@Nonnull Queue.Entry entry) {
+    getWrapped().ifPresent(wrapped -> wrapped.onRemove(entry));
   }
 }
