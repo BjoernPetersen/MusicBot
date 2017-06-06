@@ -49,6 +49,17 @@ public interface Suggester extends NamedPlugin {
   }
 
   /**
+   * <p>Removes the specified song from the suggestions. Can be seen as an indication of dislike
+   * for the song.</p>
+   *
+   * The default implementation does nothing.
+   *
+   * @param song a song
+   */
+  default void removeSuggestion(@Nonnull Song song) {
+  }
+
+  /**
    * <p>Signals to the provider that it can start doing work.</p>
    *
    * <p>The Suggester should remain operational until {@link #close()} is called.</p>
