@@ -3,7 +3,7 @@ package com.github.bjoernpetersen.jmusicbot.user;
 import javax.annotation.Nonnull;
 
 public enum Permission {
-  SKIP("skip");
+  SKIP("skip"), DISLIKE("dislike");
 
   private final String name;
 
