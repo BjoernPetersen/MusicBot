@@ -49,14 +49,24 @@ public interface Suggester extends NamedPlugin {
   }
 
   /**
-   * <p>Removes the specified song from the suggestions. Can be seen as an indication of dislike
-   * for the song.</p>
+   * <p>Removes the specified song from the suggestions.</p>
    *
    * The default implementation does nothing.
    *
    * @param song a song
    */
   default void removeSuggestion(@Nonnull Song song) {
+  }
+
+  /**
+   * <p>Indicates a user disliking the specified song.</p>
+   *
+   * The default implementation calls {@link #removeSuggestion(Song)}.
+   *
+   * @param song a song
+   */
+  default void dislike(@Nonnull Song song) {
+    removeSuggestion(song);
   }
 
   /**

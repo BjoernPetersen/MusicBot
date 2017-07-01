@@ -3,6 +3,8 @@ package com.github.bjoernpetersen.jmusicbot;
 import com.github.bjoernpetersen.jmusicbot.ProviderManager.State;
 import com.github.bjoernpetersen.jmusicbot.config.Config;
 import com.github.bjoernpetersen.jmusicbot.playback.Player;
+import com.github.bjoernpetersen.jmusicbot.playback.Queue;
+import com.github.bjoernpetersen.jmusicbot.playback.QueueChangeListener;
 import com.github.bjoernpetersen.jmusicbot.provider.Provider;
 import com.github.bjoernpetersen.jmusicbot.provider.Suggester;
 import com.github.bjoernpetersen.jmusicbot.user.UserManager;
@@ -46,6 +48,20 @@ public final class MusicBot implements Loggable, Closeable {
 
     try {
       this.player = new Player(songPlayedNotifier, defaultSuggester);
+      this.player.getQueue().addListener(new QueueChangeListener() {
+        @Override
+        public void onAdd(@Nonnull Queue.Entry entry) {
+          Song song = entry.getSong();
+          Provider provider = providerManager.getProvider(song.getProviderName());
+          for (Suggester suggester : providerManager.getSuggestersFor(provider)) {
+            suggester.removeSuggestion(song);
+          }
+        }
+
+        @Override
+        public void onRemove(@Nonnull Queue.Entry entry) {
+        }
+      });
     } catch (RuntimeException e) {
       throw new InitializationException("Exception during player init", e);
     }
