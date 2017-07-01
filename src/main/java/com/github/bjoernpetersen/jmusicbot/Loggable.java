@@ -21,7 +21,7 @@ public interface Loggable {
   }
 
   default void logSevere(String msg, Throwable throwable) {
-    log(Level.SEVERE, msg, throwable);
+    log(Level.SEVERE, throwable, msg);
   }
 
   default void logWarning(String msg) {
@@ -29,7 +29,7 @@ public interface Loggable {
   }
 
   default void logWarning(String msg, Throwable throwable) {
-    log(Level.WARNING, msg, throwable);
+    log(Level.WARNING, throwable, msg);
   }
 
   default void logInfo(String msg) {
