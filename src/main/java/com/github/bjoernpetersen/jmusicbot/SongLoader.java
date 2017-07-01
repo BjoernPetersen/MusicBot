@@ -24,10 +24,8 @@ import javax.annotation.Nullable;
  * <p>It is possible that no loading is need or even possible before the song is actually played. In
  * this case, the {@link #DUMMY} implementation can be used.</p>
  */
-public abstract class SongLoader {
+public abstract class SongLoader implements Loggable {
 
-  @Nonnull
-  private static final Logger log = Logger.getLogger(SongLoader.class.getName());
   @Nullable
   private static ExecutorService service = null;
 
@@ -43,11 +41,14 @@ public abstract class SongLoader {
   };
 
   @Nonnull
+  private final Logger logger;
+  @Nonnull
   private final Lock futureLock;
   @Nonnull
   private final Cache<Song, Future<Boolean>> futures;
 
   public SongLoader() {
+    this.logger = createLogger();
     this.futureLock = new ReentrantLock();
     futures = CacheBuilder.newBuilder()
         .initialCapacity(8)
@@ -56,11 +57,17 @@ public abstract class SongLoader {
         .removalListener((RemovalListener<Song, Future<Boolean>>) removalNotification -> {
           Future<Boolean> future = removalNotification.getValue();
           if (!future.isDone()) {
-            log.warning("Cancelling future because of cache removal");
+            logWarning("Cancelling future because of cache removal");
             future.cancel(true);
           }
         })
         .build();
+  }
+
+  @Override
+  @Nonnull
+  public Logger getLogger() {
+    return logger;
   }
 
   /**
@@ -98,7 +105,7 @@ public abstract class SongLoader {
       futureLock.lock();
       try {
         if (futures.getIfPresent(song) == null) {
-          log.finer("Enqueuing song load: " + song);
+          logFiner("Enqueuing song load: " + song);
           futures.put(song, getService().submit(() -> this.loadImpl(song)));
         }
       } finally {

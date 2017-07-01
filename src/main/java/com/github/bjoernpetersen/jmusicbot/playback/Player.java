@@ -1,5 +1,6 @@
 package com.github.bjoernpetersen.jmusicbot.playback;
 
+import com.github.bjoernpetersen.jmusicbot.Loggable;
 import com.github.bjoernpetersen.jmusicbot.NamedThreadFactory;
 import com.github.bjoernpetersen.jmusicbot.Song;
 import com.github.bjoernpetersen.jmusicbot.playback.PlayerState.State;
@@ -18,9 +19,10 @@ import java.util.logging.Logger;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public final class Player implements Closeable {
+public final class Player implements Loggable, Closeable {
 
-  private static final Logger log = Logger.getLogger(Player.class.getName());
+  @Nonnull
+  private final Logger logger;
 
   @Nonnull
   private final ExecutorService executorService;
@@ -44,6 +46,8 @@ public final class Player implements Closeable {
   private final Set<PlayerStateListener> stateListeners;
 
   public Player(@Nonnull Consumer<Song> songPlayedNotifier, @Nullable Suggester suggester) {
+    this.logger = createLogger();
+
     this.executorService = Executors.newSingleThreadExecutor(new NamedThreadFactory("playerPool"));
 
     this.songPlayedNotifier = songPlayedNotifier;
@@ -58,6 +62,12 @@ public final class Player implements Closeable {
     this.stateListeners = new HashSet<>();
 
     executorService.submit(this::autoPlay);
+  }
+
+  @Override
+  @Nonnull
+  public Logger getLogger() {
+    return logger;
   }
 
   public void addListener(@Nullable PlayerStateListener listener) {
@@ -93,13 +103,13 @@ public final class Player implements Closeable {
     Lock stateLock = this.stateLock;
     stateLock.lock();
     try {
-      log.info("Pausing...");
+      logInfo("Pausing...");
       PlayerState state = getState();
       if (state.getState() == State.PAUSE) {
-        log.finer("Already paused.");
+        logFiner("Already paused.");
         return;
       } else if (state.getState() != State.PLAY) {
-        log.finer(String.format("Tried to pause player in state %s", state.getState()));
+        logFiner("Tried to pause player in state %s", state.getState());
         return;
       }
       playback.pause();
@@ -113,9 +123,9 @@ public final class Player implements Closeable {
     Lock stateLock = this.stateLock;
     stateLock.lock();
     try {
-      log.info("Playing...");
+      logInfo("Playing...");
       if (getState().getState() == State.PLAY) {
-        log.finer("Already playing.");
+        logFiner("Already playing.");
         return;
       }
       playback.play();
@@ -130,22 +140,22 @@ public final class Player implements Closeable {
     Lock stateLock = this.stateLock;
     stateLock.lock();
     try {
-      log.info("Next...");
+      logInfo("Next...");
       PlayerState newState = getState();
       if (isSignificantlyDifferent(state, newState)) {
-        log.fine("Skipping next call due to state change while waiting for lock.");
+        logFine("Skipping next call due to state change while waiting for lock.");
         return;
       }
 
       try {
         playback.close();
       } catch (Exception e) {
-        log.severe("Error closing playback: " + e);
+        logSevere("Error closing playback", e);
       }
 
       Optional<Queue.Entry> nextOptional = queue.pop();
       if (!nextOptional.isPresent() && suggester == null) {
-        log.info("Queue is empty. Stopping.");
+        logInfo("Queue is empty. Stopping.");
         playback = DummyPlayback.getInstance();
         setState(PlayerState.stop());
         return;
@@ -160,11 +170,11 @@ public final class Player implements Closeable {
 
       Song nextSong = nextEntry.getSong();
       songPlayedNotifier.accept(nextSong);
-      log.info("Next song is: " + nextSong);
+      logInfo("Next song is: " + nextSong);
       try {
         playback = nextSong.getPlayback();
       } catch (IOException e) {
-        log.severe("Error creating playback: " + e);
+        logSevere("Error creating playback", e);
 
         setState(PlayerState.error());
         playback = DummyPlayback.getInstance();
@@ -188,18 +198,18 @@ public final class Player implements Closeable {
   private void autoPlay() {
     try {
       PlayerState state = getState();
-      log.finest("Waiting for song to finish");
+      logFinest("Waiting for song to finish");
       playback.waitForFinish();
-      log.finest("Waiting done");
+      logFinest("Waiting done");
 
       Lock stateLock = this.stateLock;
       stateLock.lock();
       try {
         // Prevent auto next calls if next was manually called
         if (isSignificantlyDifferent(getState(), state)) {
-          log.fine("Skipping auto call to next()");
+          logFine("Skipping auto call to next()");
         } else {
-          log.fine("Auto call to next()");
+          logFine("Auto call to next()");
           next();
         }
       } finally {
@@ -208,7 +218,7 @@ public final class Player implements Closeable {
 
       executorService.submit(this::autoPlay);
     } catch (InterruptedException e) {
-      log.fine("interrupted: " + e);
+      logFine("autoPlay interrupted", e);
     }
   }
 

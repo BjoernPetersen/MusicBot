@@ -10,14 +10,11 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.util.Objects;
 import java.util.function.Consumer;
-import java.util.logging.Logger;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 @Nonnull
-public final class MusicBot implements Closeable {
-
-  private static final Logger log = Logger.getLogger(MusicBot.class.getName());
+public final class MusicBot implements Loggable, Closeable {
 
   private final Config config;
   private final Player player;
@@ -43,7 +40,7 @@ public final class MusicBot implements Closeable {
     };
 
     if (defaultSuggester != null && providerManager.getState(defaultSuggester) != State.ACTIVE) {
-      log.warning("Default suggester is not active.");
+      logWarning("Default suggester is not active.");
       defaultSuggester = null;
     }
 
@@ -59,7 +56,7 @@ public final class MusicBot implements Closeable {
       try {
         player.close();
       } catch (IOException closeException) {
-        log.severe("Tried to close player due to REST init error and got another exception: " + e);
+        logSevere("Tried to close player due to REST init error and got another exception: ", e);
         e.addSuppressed(e);
       }
       throw new InitializationException("Exception during REST init", e);
@@ -97,7 +94,7 @@ public final class MusicBot implements Closeable {
     PluginLoader.reset();
   }
 
-  public static class Builder {
+  public static class Builder implements Loggable {
 
     // TODO IP, port
     @Nonnull
@@ -172,11 +169,7 @@ public final class MusicBot implements Closeable {
           try {
             providerManager.initialize(provider, initStateWriter);
           } catch (InitializationException e) {
-            log.severe(String.format(
-                "Could not initialize Provider '%s': %s",
-                provider.getReadableName(),
-                e
-            ));
+            logSevere("Could not initialize Provider " + provider.getReadableName(), e);
             providerManager.destructConfigEntries(provider);
           }
         }
@@ -187,11 +180,7 @@ public final class MusicBot implements Closeable {
           try {
             providerManager.initialize(suggester, initStateWriter);
           } catch (InitializationException e) {
-            log.severe(String.format(
-                "Could not initialize Suggester '%s': %s",
-                suggester.getReadableName(),
-                e
-            ));
+            logSevere("Could not initialize Suggester " + suggester.getReadableName(), e);
             providerManager.destructConfigEntries(suggester);
           }
         }

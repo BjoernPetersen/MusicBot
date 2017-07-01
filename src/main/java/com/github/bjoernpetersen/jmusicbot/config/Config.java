@@ -1,5 +1,6 @@
 package com.github.bjoernpetersen.jmusicbot.config;
 
+import com.github.bjoernpetersen.jmusicbot.Loggable;
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -11,10 +12,10 @@ import java.util.logging.Logger;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public final class Config {
+public final class Config implements Loggable {
 
   @Nonnull
-  private static final Logger log = Logger.getLogger(Config.class.getName());
+  private final Logger logger;
 
   @Nonnull
   private final ConfigStorageAdapter adapter;
@@ -29,6 +30,7 @@ public final class Config {
   private final Map<String, Entry> entries;
 
   public Config(@Nonnull ConfigStorageAdapter adapter) {
+    this.logger = createLogger();
     this.adapter = adapter;
     this.config = new HashMap<>(adapter.loadPlaintext());
     this.secrets = new HashMap<>(adapter.loadSecrets());
@@ -39,6 +41,12 @@ public final class Config {
     DefaultConfigEntry.get(this);
   }
 
+  @Override
+  @Nonnull
+  public Logger getLogger() {
+    return logger;
+  }
+
   @Nullable
   private String getValue(@Nonnull String key) {
     return config.get(key);
@@ -47,11 +55,7 @@ public final class Config {
   private void setValue(@Nonnull String key, @Nullable String value) {
     String old = getValue(key);
     if (!Objects.equals(old, value)) {
-      log.finer(String.format("Config entry '%s' changed from '%s' to '%s'",
-          key,
-          getValue(key),
-          value)
-      );
+      logFiner("Config entry '%s' changed from '%s' to '%s'", key, getValue(key), value);
       if (value == null) {
         config.remove(key);
       } else {
@@ -69,7 +73,7 @@ public final class Config {
   private void setSecret(@Nonnull String key, @Nullable String value) {
     String old = getSecret(key);
     if (!Objects.equals(old, value)) {
-      log.finer(String.format("Secret '%s' changed.", key));
+      logFiner("Secret '%s' changed.", key);
       if (value == null) {
         secrets.remove(key);
       } else {
@@ -290,7 +294,7 @@ public final class Config {
 
     void set(@Nullable String value) {
       if (value != null && value.isEmpty()) {
-        log.finest("Replacing empty new value with null");
+        logFinest("Replacing empty new value with null");
         value = null;
       }
       if (isSecret()) {
@@ -369,7 +373,7 @@ public final class Config {
       Config config = Config.this;
       String value = isSecret() ? config.getSecret(getKey()) : config.getValue(getKey());
       if (value != null && value.isEmpty()) {
-        log.finest("Replacing empty value with null");
+        logFinest("Replacing empty value with null");
         value = null;
       }
       return Optional.ofNullable(value);
@@ -502,10 +506,10 @@ public final class Config {
       Config config = Config.this;
       String value = isSecret() ? config.getSecret(getKey()) : config.getValue(getKey());
       if (value == null || value.trim().equals("")) {
-        log.finest("Returning default for missing or empty value: " + getKey());
+        logFinest("Returning default for missing or empty value: " + getKey());
         return defaultValue;
       } else {
-        log.finest("Getting bool from string: '" + value + "'");
+        logFinest("Getting bool from string: '" + value + "'");
         return Boolean.parseBoolean(value);
       }
     }

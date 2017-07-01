@@ -11,12 +11,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ServiceConfigurationError;
 import java.util.ServiceLoader;
-import java.util.logging.Logger;
 import javax.annotation.Nonnull;
 
-public final class PluginLoader<T> {
-
-  private static final Logger log = Logger.getLogger(PluginLoader.class.getName());
+public final class PluginLoader<T> implements Loggable {
 
   private static ClassLoader loader;
 
@@ -35,7 +32,7 @@ public final class PluginLoader<T> {
     if (!pluginFolder.isDirectory()) {
       if (!pluginFolder.exists()) {
         if (!pluginFolder.mkdirs()) {
-          log.warning(String.format("Could not create plugin folder '%s'", pluginFolder.getPath()));
+          logWarning("Could not create plugin folder '%s'", pluginFolder.getPath());
         }
       }
       return Collections.emptyList();
@@ -60,15 +57,14 @@ public final class PluginLoader<T> {
     try {
       Collection<T> plugins = loadPlugins(loader);
       result.addAll(plugins);
-      log.info(String.format(
+      logInfo(
           "Loaded %d plugins of type '%s' from plugin folder: %s",
           plugins.size(),
           type.getSimpleName(),
           pluginFolder.getName()
-      ));
+      );
     } catch (Exception | Error e) {
-      log.severe("Error loading plugins: " + e);
-      e.printStackTrace();
+      logSevere("Error loading plugins", e);
     }
 
     return result;
@@ -94,11 +90,11 @@ public final class PluginLoader<T> {
       if (type.isInstance(plugin)) {
         result.add(plugin);
       } else {
-        log.severe(String.format(
+        logSevere(
             "Loaded plugin '%s' is not instance of desired type %s",
             plugin,
             type.getSimpleName()
-        ));
+        );
       }
     }
     return result;

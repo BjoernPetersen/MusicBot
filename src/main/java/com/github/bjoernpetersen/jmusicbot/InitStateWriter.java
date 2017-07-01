@@ -1,13 +1,9 @@
 package com.github.bjoernpetersen.jmusicbot;
 
-import java.util.logging.Logger;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public abstract class InitStateWriter {
-
-  @Nonnull
-  private static final Logger log = Logger.getLogger(InitStateWriter.class.getName());
+public abstract class InitStateWriter implements Loggable {
 
   @Nonnull
   public static final InitStateWriter NO_OP = new InitStateWriter() {
@@ -36,12 +32,12 @@ public abstract class InitStateWriter {
 
     @Override
     public void state(String state) {
-      log.info(activePlugin + ": " + state);
+      logInfo(activePlugin + ": " + state);
     }
 
     @Override
     public void warning(String warning) {
-      log.warning(activePlugin + ": " + warning);
+      logWarning(activePlugin + ": " + warning);
     }
   };
 

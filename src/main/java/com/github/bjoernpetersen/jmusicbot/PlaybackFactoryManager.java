@@ -12,12 +12,9 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
 import javax.annotation.Nonnull;
 
-public final class PlaybackFactoryManager implements Closeable {
-
-  private static final Logger log = Logger.getLogger(PlaybackFactoryManager.class.getName());
+public final class PlaybackFactoryManager implements Loggable, Closeable {
 
   @Nonnull
   private final Config config;
@@ -76,7 +73,7 @@ public final class PlaybackFactoryManager implements Closeable {
       try {
         result.put(factory, storeFactoryForValidBases(factory));
       } catch (InvalidFactoryException | InitializationException e) {
-        log.severe("Could not load included factory " + factory.toString() + ": " + e);
+        logSevere("Could not load included factory " + factory.toString(), e);
       }
     }
 
@@ -89,7 +86,7 @@ public final class PlaybackFactoryManager implements Closeable {
       try {
         result.put(factory, storeFactoryForValidBases(factory));
       } catch (InvalidFactoryException | InitializationException e) {
-        log.severe("Could not load factory " + factory.toString() + ": " + e);
+        logSevere("Could not load factory " + factory.toString(), e);
       }
     }
 
@@ -102,7 +99,7 @@ public final class PlaybackFactoryManager implements Closeable {
     List<Class<? extends PlaybackFactory>> validBases = new LinkedList<>();
     for (Class<? extends PlaybackFactory> base : factory.getBases()) {
       if (!base.isAssignableFrom(factory.getClass())) {
-        log.severe(String.format("Bad base '%s' for PlaybackFactory: %s", base, factory));
+        logSevere("Bad base '%s' for PlaybackFactory: %s", base, factory);
         continue;
       }
       validBases.add(base);
@@ -128,7 +125,7 @@ public final class PlaybackFactoryManager implements Closeable {
         initStateWriter.begin(factory.getClass().getSimpleName());
         factory.initialize(initStateWriter);
       } catch (InitializationException e) {
-        log.severe(String.format("Could not initialize PlaybackFactory '%s': %s", factory, e));
+        logSevere("Could not initialize PlaybackFactory '%s': %s", factory, e);
         defective.add(factory);
       }
     }

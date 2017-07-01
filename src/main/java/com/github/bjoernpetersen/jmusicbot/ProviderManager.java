@@ -19,14 +19,10 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 
-public final class ProviderManager implements Closeable {
-
-  @Nonnull
-  private static final Logger log = Logger.getLogger(ProviderManager.class.getName());
+public final class ProviderManager implements Loggable, Closeable {
 
   public enum State {
     INACTIVE, CONFIG, ACTIVE
@@ -241,7 +237,7 @@ public final class ProviderManager implements Closeable {
     providerManager.close();
   }
 
-  private static class PluginManager<T extends NamedPlugin> implements Closeable {
+  private static class PluginManager<T extends NamedPlugin> implements Loggable, Closeable {
 
     @Nonnull
     private final Config config;
@@ -389,7 +385,7 @@ public final class ProviderManager implements Closeable {
           close(plugin);
           destructConfigEntries(plugin);
         } catch (IOException e) {
-          log.severe("Error closing plugin: " + e);
+          logSevere("Error closing plugin", e);
         }
       }
     }
