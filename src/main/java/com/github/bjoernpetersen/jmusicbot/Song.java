@@ -45,7 +45,7 @@ public final class Song {
    * #hasLoaded()}).
    */
   public void load() {
-    loader.load(this);
+    SongLoaderExecutor.getInstance().execute(this);
   }
 
   /**
@@ -59,7 +59,11 @@ public final class Song {
    * before
    */
   public boolean hasLoaded() throws InterruptedException {
-    return loader.hasLoaded(this);
+    return SongLoaderExecutor.getInstance().hasLoaded(this);
+  }
+
+  SongLoader getLoader() {
+    return loader;
   }
 
   /**

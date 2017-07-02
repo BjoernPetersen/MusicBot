@@ -106,7 +106,7 @@ public final class MusicBot implements Loggable, Closeable {
     player.close();
     getProviderManager().close();
     getPlaybackFactoryManager().close();
-    SongLoader.reset();
+    SongLoaderExecutor.getInstance().close();
     PluginLoader.reset();
   }
 

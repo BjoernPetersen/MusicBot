@@ -59,12 +59,7 @@ class SongTest implements EqualsContract<Song> {
 
   @Test
   void hasLoadedUnsuccessful() throws InterruptedException {
-    Song song = filledBuilder().songLoader(new SongLoader() {
-      @Override
-      protected boolean loadImpl(@Nonnull Song song) {
-        return false;
-      }
-    }).build();
+    Song song = filledBuilder().songLoader(s -> false).build();
 
     song.load();
     assertFalse(assertTimeoutPreemptively(ofMillis(500), song::hasLoaded));
@@ -79,12 +74,7 @@ class SongTest implements EqualsContract<Song> {
   @Test
   void getPlaybackUnsuccessful() {
     Song song = filledBuilder()
-        .songLoader(new SongLoader() {
-          @Override
-          protected boolean loadImpl(@Nonnull Song song) {
-            return false;
-          }
-        })
+        .songLoader(s -> false)
         .build();
 
     assertTimeoutPreemptively(ofMillis(500), () ->
@@ -103,12 +93,7 @@ class SongTest implements EqualsContract<Song> {
           public void pause() {
           }
         })
-        .songLoader(new SongLoader() {
-          @Override
-          protected boolean loadImpl(@Nonnull Song song) {
-            return true;
-          }
-        })
+        .songLoader(song -> true)
         .provider(new TestProvider())
         .id("test")
         .description("test")

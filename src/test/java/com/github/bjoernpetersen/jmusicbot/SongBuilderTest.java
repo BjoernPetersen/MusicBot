@@ -3,7 +3,6 @@ package com.github.bjoernpetersen.jmusicbot;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.github.bjoernpetersen.jmusicbot.provider.Provider;
-import javax.annotation.Nonnull;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -27,12 +26,7 @@ class SongBuilderTest {
 
   @BeforeEach
   void createSongLoader() {
-    loader = new SongLoader() {
-      @Override
-      protected boolean loadImpl(@Nonnull Song song) {
-        return false;
-      }
-    };
+    loader = song -> false;
   }
 
   @BeforeEach
@@ -192,6 +186,6 @@ class SongBuilderTest {
 
   @AfterAll
   static void resetSongLoader() {
-    SongLoader.reset();
+    SongLoaderExecutor.getInstance().close();
   }
 }
