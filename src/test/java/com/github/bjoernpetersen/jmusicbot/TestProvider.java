@@ -2,11 +2,13 @@ package com.github.bjoernpetersen.jmusicbot;
 
 import com.github.bjoernpetersen.jmusicbot.config.Config;
 import com.github.bjoernpetersen.jmusicbot.config.Config.Entry;
+import com.github.bjoernpetersen.jmusicbot.playback.PlaybackFactory;
 import com.github.bjoernpetersen.jmusicbot.provider.NoSuchSongException;
 import com.github.bjoernpetersen.jmusicbot.provider.Provider;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import javax.annotation.Nonnull;
 
 public class TestProvider implements Provider {
@@ -21,6 +23,11 @@ public class TestProvider implements Provider {
   @Override
   public String getReadableName() {
     return "TestProvider";
+  }
+
+  @Override
+  public Set<Class<? extends PlaybackFactory>> getPlaybackDependencies() {
+    return Collections.emptySet();
   }
 
   @Override
