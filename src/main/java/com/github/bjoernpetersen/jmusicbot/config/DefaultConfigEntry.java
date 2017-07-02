@@ -27,9 +27,9 @@ public final class DefaultConfigEntry {
         fileName -> {
           File file = new File(fileName);
           if (file.isFile()) {
-            return Optional.of("This is a file, must be a directory");
+            return "This is a file, must be a directory";
           }
-          return Optional.empty();
+          return null;
         }
     );
   }
