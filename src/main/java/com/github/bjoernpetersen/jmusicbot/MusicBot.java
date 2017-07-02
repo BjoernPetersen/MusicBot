@@ -42,7 +42,7 @@ public final class MusicBot implements Loggable, Closeable {
     };
 
     if (defaultSuggester != null && providerManager.getState(defaultSuggester) != State.ACTIVE) {
-      logWarning("Default suggester is not active.");
+      logInfo("Default suggester is not active.");
       defaultSuggester = null;
     }
 
@@ -185,8 +185,10 @@ public final class MusicBot implements Loggable, Closeable {
           try {
             providerManager.initialize(provider, initStateWriter);
           } catch (InitializationException e) {
-            logSevere(e, "Could not initialize Provider " + provider.getReadableName());
+            logInfo(e, "Could not initialize Provider " + provider.getReadableName());
             providerManager.destructConfigEntries(provider);
+          } catch (RuntimeException e) {
+            logSevere(e, "Unexpected error initializing Provider " + provider.getReadableName());
           }
         }
       }
@@ -196,8 +198,10 @@ public final class MusicBot implements Loggable, Closeable {
           try {
             providerManager.initialize(suggester, initStateWriter);
           } catch (InitializationException e) {
-            logSevere(e, "Could not initialize Suggester " + suggester.getReadableName());
+            logInfo(e, "Could not initialize Suggester " + suggester.getReadableName());
             providerManager.destructConfigEntries(suggester);
+          } catch (RuntimeException e) {
+            logSevere(e, "Unexpected error initializing Suggester " + suggester.getReadableName());
           }
         }
       }
