@@ -64,7 +64,7 @@ public final class PluginLoader<T> implements Loggable {
           pluginFolder.getName()
       );
     } catch (Exception | Error e) {
-      logSevere("Error loading plugins", e);
+      logSevere(e, "Error loading plugins");
     }
 
     return result;

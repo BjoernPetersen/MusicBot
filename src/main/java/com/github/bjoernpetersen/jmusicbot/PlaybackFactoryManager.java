@@ -73,7 +73,7 @@ public final class PlaybackFactoryManager implements Loggable, Closeable {
       try {
         result.put(factory, storeFactoryForValidBases(factory));
       } catch (InvalidFactoryException | InitializationException e) {
-        logSevere("Could not load included factory " + factory.toString(), e);
+        logSevere(e, "Could not load included factory " + factory.toString());
       }
     }
 
@@ -86,7 +86,7 @@ public final class PlaybackFactoryManager implements Loggable, Closeable {
       try {
         result.put(factory, storeFactoryForValidBases(factory));
       } catch (InvalidFactoryException | InitializationException e) {
-        logSevere("Could not load factory " + factory.toString(), e);
+        logSevere(e, "Could not load factory " + factory.toString());
       }
     }
 
@@ -125,7 +125,7 @@ public final class PlaybackFactoryManager implements Loggable, Closeable {
         initStateWriter.begin(factory.getClass().getSimpleName());
         factory.initialize(initStateWriter);
       } catch (InitializationException e) {
-        logSevere("Could not initialize PlaybackFactory '%s': %s", factory, e);
+        logSevere(e, "Could not initialize PlaybackFactory '%s'", factory);
         defective.add(factory);
       }
     }

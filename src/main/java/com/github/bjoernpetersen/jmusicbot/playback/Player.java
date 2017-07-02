@@ -150,7 +150,7 @@ public final class Player implements Loggable, Closeable {
       try {
         playback.close();
       } catch (Exception e) {
-        logSevere("Error closing playback", e);
+        logSevere(e, "Error closing playback");
       }
 
       Optional<Queue.Entry> nextOptional = queue.pop();
@@ -174,7 +174,7 @@ public final class Player implements Loggable, Closeable {
       try {
         playback = nextSong.getPlayback();
       } catch (IOException e) {
-        logSevere("Error creating playback", e);
+        logSevere(e, "Error creating playback");
 
         setState(PlayerState.error());
         playback = DummyPlayback.getInstance();

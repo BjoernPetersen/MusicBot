@@ -72,7 +72,7 @@ public final class MusicBot implements Loggable, Closeable {
       try {
         player.close();
       } catch (IOException closeException) {
-        logSevere("Tried to close player due to REST init error and got another exception: ", e);
+        logSevere(e, "Tried to close player due to REST init error and got another exception: ");
         e.addSuppressed(e);
       }
       throw new InitializationException("Exception during REST init", e);
@@ -185,7 +185,7 @@ public final class MusicBot implements Loggable, Closeable {
           try {
             providerManager.initialize(provider, initStateWriter);
           } catch (InitializationException e) {
-            logSevere("Could not initialize Provider " + provider.getReadableName(), e);
+            logSevere(e, "Could not initialize Provider " + provider.getReadableName());
             providerManager.destructConfigEntries(provider);
           }
         }
@@ -196,7 +196,7 @@ public final class MusicBot implements Loggable, Closeable {
           try {
             providerManager.initialize(suggester, initStateWriter);
           } catch (InitializationException e) {
-            logSevere("Could not initialize Suggester " + suggester.getReadableName(), e);
+            logSevere(e, "Could not initialize Suggester " + suggester.getReadableName());
             providerManager.destructConfigEntries(suggester);
           }
         }

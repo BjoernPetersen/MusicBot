@@ -385,7 +385,7 @@ public final class ProviderManager implements Loggable, Closeable {
           close(plugin);
           destructConfigEntries(plugin);
         } catch (IOException e) {
-          logSevere("Error closing plugin", e);
+          logSevere(e, "Error closing plugin");
         }
       }
     }
