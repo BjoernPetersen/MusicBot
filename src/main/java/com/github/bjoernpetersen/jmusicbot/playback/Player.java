@@ -180,6 +180,20 @@ public final class Player implements Loggable, Closeable {
         playback = DummyPlayback.getInstance();
         return;
       }
+
+      playback.setPlaybackStateListener(playbackState -> {
+        switch (playbackState) {
+          case PLAY:
+            play();
+            break;
+          case PAUSE:
+            pause();
+            break;
+          default:
+            throw new IllegalArgumentException("Unknown PlaybackState: " + playbackState);
+        }
+      });
+
       setState(PlayerState.pause(nextEntry));
       play();
     } finally {

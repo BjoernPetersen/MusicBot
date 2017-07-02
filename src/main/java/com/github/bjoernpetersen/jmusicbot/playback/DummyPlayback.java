@@ -12,6 +12,10 @@ final class DummyPlayback implements Playback {
   }
 
   @Override
+  public void setPlaybackStateListener(PlaybackStateListener listener) {
+  }
+
+  @Override
   public void play() {
   }
 

@@ -1,16 +1,21 @@
 package com.github.bjoernpetersen.jmusicbot.playback;
 
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * Abstract Playback implementation providing a lock and an associated "done" condition, as well as
  * an implementation for the {@link #waitForFinish()} method and a {@link #markDone()} method.
  */
 public abstract class AbstractPlayback implements Playback {
+
+  @Nullable
+  private PlaybackStateListener playbackStateListener;
 
   @Nonnull
   private final Lock lock;
@@ -23,6 +28,17 @@ public abstract class AbstractPlayback implements Playback {
     this.lock = new ReentrantLock();
     this.isDone = new AtomicBoolean();
     this.done = lock.newCondition();
+  }
+
+  @Override
+  public final void setPlaybackStateListener(
+      @Nullable PlaybackStateListener playbackStateListener) {
+    this.playbackStateListener = playbackStateListener;
+  }
+
+  @Nonnull
+  protected final Optional<PlaybackStateListener> getPlaybackStateListener() {
+    return Optional.ofNullable(playbackStateListener);
   }
 
   @Nonnull
