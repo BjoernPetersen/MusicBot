@@ -36,12 +36,20 @@ public interface Loggable {
     log(Level.INFO, msg);
   }
 
+  default void logInfo(Throwable throwable, String msg) {
+    log(Level.INFO, throwable, msg);
+  }
+
   default void logConfig(String msg) {
     log(Level.CONFIG, msg);
   }
 
   default void logFine(String msg) {
     log(Level.FINE, msg);
+  }
+
+  default void logFine(Throwable throwable, String msg) {
+    log(Level.FINE, throwable, msg);
   }
 
   default void logFiner(String msg) {
@@ -72,12 +80,20 @@ public interface Loggable {
     log(Level.INFO, msg, formatArgs);
   }
 
+  default void logInfo(Throwable throwable, String msg, Object... formatArgs) {
+    log(Level.INFO, throwable, msg, formatArgs);
+  }
+
   default void logConfig(String msg, Object... formatArgs) {
     log(Level.CONFIG, msg, formatArgs);
   }
 
   default void logFine(String msg, Object... formatArgs) {
     log(Level.FINE, msg, formatArgs);
+  }
+
+  default void logFine(Throwable throwable, String msg, Object... formatArgs) {
+    log(Level.FINE, throwable, msg, formatArgs);
   }
 
   default void logFiner(String msg, Object... formatArgs) {
