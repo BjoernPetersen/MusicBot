@@ -64,6 +64,7 @@ public final class ProviderManager implements Loggable, Closeable {
 
   private void initializeProvider(@Nonnull InitStateWriter initStateWriter, Provider provider)
       throws InitializationException, InterruptedException {
+    initStateWriter.state("Checking dependencies...");
     for (Class<? extends PlaybackFactory> factoryType : provider.getPlaybackDependencies()) {
       if (!playbackFactoryManager.hasFactory(factoryType)) {
         throw new InitializationException(String.format(
@@ -73,11 +74,13 @@ public final class ProviderManager implements Loggable, Closeable {
         ));
       }
     }
+    initStateWriter.state("Initializing...");
     provider.initialize(initStateWriter, playbackFactoryManager);
   }
 
   private void initializeSuggester(@Nonnull InitStateWriter initStateWriter,
       @Nonnull Suggester suggester) throws InitializationException, InterruptedException {
+    initStateWriter.state("Checking dependencies...");
     Collection<String> dependencies = suggester.getDependencies();
     Map<String, Provider> loadedDependencies = new HashMap<>(dependencies.size() * 2);
     for (String dependencyName : dependencies) {
@@ -95,6 +98,7 @@ public final class ProviderManager implements Loggable, Closeable {
       loadedDependencies.put(dependencyName, dependency);
     }
 
+    initStateWriter.state("Checking optional dependencies...");
     for (String dependencyName : suggester.getOptionalDependencies()) {
       Optional<Provider> foundDependency = this.providerManager.get(dependencyName);
       if (foundDependency.isPresent()) {
@@ -104,6 +108,7 @@ public final class ProviderManager implements Loggable, Closeable {
       }
     }
 
+    initStateWriter.state("Initializing...");
     suggester.initialize(initStateWriter, loadedDependencies);
   }
 
