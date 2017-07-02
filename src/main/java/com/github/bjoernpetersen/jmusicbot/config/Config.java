@@ -204,7 +204,7 @@ public final class Config implements Loggable {
         throw new IllegalArgumentException();
       }
     }
-    return new StringEntry(key, description, null, true, v -> Optional.empty());
+    return new StringEntry(key, description, null, true, v -> null);
   }
 
   /**
@@ -360,7 +360,7 @@ public final class Config implements Loggable {
 
     @Nonnull
     public Optional<String> checkError() {
-      return get().flatMap(checker::check);
+      return get().flatMap(value -> Optional.ofNullable(checker.check(value)));
     }
 
     /**
