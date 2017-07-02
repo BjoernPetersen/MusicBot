@@ -2,6 +2,7 @@ package com.github.bjoernpetersen.jmusicbot;
 
 import com.github.bjoernpetersen.jmusicbot.config.Config;
 import com.github.bjoernpetersen.jmusicbot.config.DefaultConfigEntry;
+import com.github.bjoernpetersen.jmusicbot.playback.PlaybackFactory;
 import com.github.bjoernpetersen.jmusicbot.provider.Provider;
 import com.github.bjoernpetersen.jmusicbot.provider.Suggester;
 import java.io.Closeable;
@@ -49,7 +50,7 @@ public final class ProviderManager implements Loggable, Closeable {
     this.providerManager = new PluginManager<>(
         config,
         Provider.class,
-        (sw, p) -> p.initialize(sw, playbackFactoryManager)
+        this::initializeProvider
     );
 
     this.suggesterManager = new PluginManager<>(
@@ -59,6 +60,20 @@ public final class ProviderManager implements Loggable, Closeable {
     );
 
     this.suggestersForProvider = new HashMap<>(providerManager.getPlugins().size() * 2);
+  }
+
+  private void initializeProvider(@Nonnull InitStateWriter initStateWriter, Provider provider)
+      throws InitializationException, InterruptedException {
+    for (Class<? extends PlaybackFactory> factoryType : provider.getPlaybackDependencies()) {
+      if (!playbackFactoryManager.hasFactory(factoryType)) {
+        throw new InitializationException(String.format(
+            "Missing dependency for Provider '%s': '%s'.",
+            provider.getReadableName(),
+            factoryType.getName()
+        ));
+      }
+    }
+    provider.initialize(initStateWriter, playbackFactoryManager);
   }
 
   private void initializeSuggester(@Nonnull InitStateWriter initStateWriter,

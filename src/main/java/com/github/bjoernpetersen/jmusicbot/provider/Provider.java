@@ -5,10 +5,14 @@ import com.github.bjoernpetersen.jmusicbot.InitializationException;
 import com.github.bjoernpetersen.jmusicbot.NamedPlugin;
 import com.github.bjoernpetersen.jmusicbot.PlaybackFactoryManager;
 import com.github.bjoernpetersen.jmusicbot.Song;
+import com.github.bjoernpetersen.jmusicbot.playback.PlaybackFactory;
 import java.util.List;
+import java.util.Set;
 import javax.annotation.Nonnull;
 
 public interface Provider extends NamedPlugin {
+
+  Set<Class<? extends PlaybackFactory>> getPlaybackDependencies();
 
   /**
    * Signals to the provider that it can start doing work.

@@ -31,6 +31,14 @@ public final class PlaybackFactoryManager implements Loggable, Closeable {
     this.configEntries = loadFactories(pluginFolder, included);
   }
 
+  /**
+   * Gets a PlaybackFactory that implements the given marker interface.
+   *
+   * @param factoryType a PlaybackFactory marker interface
+   * @param <F> the type of PlaybackFactory
+   * @return an instance of F
+   * @throws IllegalArgumentException if no implementation of the given interface is active.
+   */
   @SuppressWarnings("unchecked")
   @Nonnull
   public <F extends PlaybackFactory> F getFactory(@Nonnull Class<F> factoryType) {
@@ -44,6 +52,16 @@ public final class PlaybackFactoryManager implements Loggable, Closeable {
         throw new IllegalArgumentException("Wrong type for factory: " + factoryType.getName(), e);
       }
     }
+  }
+
+  /**
+   * Checks whether there is an active factory implementing the specified type.
+   *
+   * @param factoryType a PlaybackFactory marker interface
+   * @return whether an implementing factory is active
+   */
+  public boolean hasFactory(@Nonnull Class<? extends PlaybackFactory> factoryType) {
+    return factories.containsKey(factoryType);
   }
 
   @Nonnull
