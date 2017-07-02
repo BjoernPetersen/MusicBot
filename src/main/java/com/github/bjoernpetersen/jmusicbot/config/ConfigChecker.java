@@ -1,11 +1,17 @@
 package com.github.bjoernpetersen.jmusicbot.config;
 
-import java.util.Optional;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 @FunctionalInterface
 public interface ConfigChecker {
 
-  @Nonnull
-  Optional<String> check(@Nonnull String value);
+  /**
+   * Checks whether the given value is valid.
+   *
+   * @param value a config value
+   * @return an warning message, or null
+   */
+  @Nullable
+  String check(@Nonnull String value);
 }
