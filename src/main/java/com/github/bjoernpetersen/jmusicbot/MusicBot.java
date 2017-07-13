@@ -10,6 +10,8 @@ import com.github.bjoernpetersen.jmusicbot.provider.Suggester;
 import com.github.bjoernpetersen.jmusicbot.user.UserManager;
 import java.io.Closeable;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 import javax.annotation.Nonnull;
@@ -18,21 +20,31 @@ import javax.annotation.Nullable;
 @Nonnull
 public final class MusicBot implements Loggable, Closeable {
 
+  private static final int PORT = 42945;
+  private static final String GROUP_ADDRESS = "224.0.0.142";
+
   private final Config config;
   private final Player player;
   private final PlaybackFactoryManager playbackFactoryManager;
   private final ProviderManager providerManager;
   private final UserManager userManager;
   private final Closeable restApi;
+  private final Closeable broadcaster;
 
   private MusicBot(@Nonnull Config config, @Nonnull PlaybackFactoryManager playbackFactoryManager,
       @Nonnull ProviderManager providerManager, @Nullable Suggester defaultSuggester,
-      @Nonnull UserManager userManager, @Nonnull ApiInitializer apiInitializer)
+      @Nonnull UserManager userManager, @Nonnull ApiInitializer apiInitializer,
+      @Nonnull BroadcasterInitializer broadcasterInitializer)
       throws InitializationException {
     this.config = config;
     this.playbackFactoryManager = playbackFactoryManager;
     this.providerManager = providerManager;
     this.userManager = userManager;
+
+    List<Closeable> initialized = new ArrayList<>();
+    initialized.add(playbackFactoryManager);
+    initialized.add(providerManager);
+    initialized.add(userManager);
 
     Consumer<Song> songPlayedNotifier = song -> {
       Provider provider = providerManager.getProvider(song.getProviderName());
@@ -48,34 +60,54 @@ public final class MusicBot implements Loggable, Closeable {
 
     try {
       this.player = new Player(songPlayedNotifier, defaultSuggester);
-      this.player.getQueue().addListener(new QueueChangeListener() {
-        @Override
-        public void onAdd(@Nonnull Queue.Entry entry) {
-          Song song = entry.getSong();
-          Provider provider = providerManager.getProvider(song.getProviderName());
-          for (Suggester suggester : providerManager.getSuggestersFor(provider)) {
-            suggester.removeSuggestion(song);
-          }
-        }
-
-        @Override
-        public void onRemove(@Nonnull Queue.Entry entry) {
-        }
-      });
+      initialized.add(this.player);
     } catch (RuntimeException e) {
+      closeAll(e, initialized);
       throw new InitializationException("Exception during player init", e);
+    }
+    this.player.getQueue().addListener(new QueueChangeListener() {
+      @Override
+      public void onAdd(@Nonnull Queue.Entry entry) {
+        Song song = entry.getSong();
+        Provider provider = providerManager.getProvider(song.getProviderName());
+        for (Suggester suggester : providerManager.getSuggestersFor(provider)) {
+          suggester.removeSuggestion(song);
+        }
+      }
+
+      @Override
+      public void onRemove(@Nonnull Queue.Entry entry) {
+      }
+    });
+
+    try {
+      this.restApi = apiInitializer.initialize(this, PORT);
+      initialized.add(this.restApi);
+    } catch (InitializationException e) {
+      closeAll(e, initialized);
+      throw new InitializationException("Exception during REST init", e);
     }
 
     try {
-      this.restApi = apiInitializer.initialize(this);
+      this.broadcaster = broadcasterInitializer.initialize(
+          PORT,
+          GROUP_ADDRESS,
+          PORT + ";1.0"
+      );
+      initialized.add(this.broadcaster);
     } catch (InitializationException e) {
+      closeAll(e, initialized);
+      throw new InitializationException("Exception during broadcaster init", e);
+    }
+  }
+
+  private void closeAll(Exception cause, List<Closeable> toClose) {
+    for (Closeable closeable : toClose) {
       try {
-        player.close();
-      } catch (IOException closeException) {
-        logSevere(e, "Tried to close player due to REST init error and got another exception: ");
-        e.addSuppressed(e);
+        closeable.close();
+      } catch (IOException e) {
+        cause.addSuppressed(e);
       }
-      throw new InitializationException("Exception during REST init", e);
     }
   }
 
@@ -101,6 +133,7 @@ public final class MusicBot implements Loggable, Closeable {
 
   @Override
   public void close() throws IOException {
+    broadcaster.close();
     restApi.close();
     userManager.close();
     player.close();
@@ -123,6 +156,8 @@ public final class MusicBot implements Loggable, Closeable {
     private Suggester defaultSuggester;
     @Nullable
     private ApiInitializer apiInitializer;
+    @Nullable
+    private BroadcasterInitializer broadcasterInitializer;
     @Nullable
     private UserManager userManager;
     @Nonnull
@@ -164,6 +199,12 @@ public final class MusicBot implements Loggable, Closeable {
     }
 
     @Nonnull
+    public Builder broadcasterInitializer(@Nonnull BroadcasterInitializer broadcasterInitializer) {
+      this.broadcasterInitializer = Objects.requireNonNull(broadcasterInitializer);
+      return this;
+    }
+
+    @Nonnull
     public Builder initStateWriter(@Nonnull InitStateWriter initStateWriter) {
       this.initStateWriter = Objects.requireNonNull(initStateWriter);
       return this;
@@ -174,8 +215,9 @@ public final class MusicBot implements Loggable, Closeable {
       if (providerManager == null
           || playbackFactoryManager == null
           || userManager == null
-          || apiInitializer == null) {
-        throw new IllegalStateException("ProviderManager or PlaybackFactoryManager is null");
+          || apiInitializer == null
+          || broadcasterInitializer == null) {
+        throw new IllegalStateException("Not all required values set.");
       }
 
       playbackFactoryManager.initializeFactories(initStateWriter);
@@ -214,7 +256,8 @@ public final class MusicBot implements Loggable, Closeable {
           providerManager,
           defaultSuggester,
           userManager,
-          apiInitializer
+          apiInitializer,
+          broadcasterInitializer
       );
     }
   }
