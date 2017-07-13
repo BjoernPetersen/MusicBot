@@ -26,7 +26,7 @@ class SongLoaderExecutor implements Loggable {
   private final Cache<Song, Future<Boolean>> futures;
 
   private SongLoaderExecutor() {
-    this.service = Executors.newFixedThreadPool(2, new NamedThreadFactory("SongLoaderPool"));
+    this.service = Executors.newFixedThreadPool(2, new NamedThreadFactory("SongLoaderPool", true));
     this.logger = createLogger();
     this.futureLock = new ReentrantLock();
     futures = CacheBuilder.newBuilder()

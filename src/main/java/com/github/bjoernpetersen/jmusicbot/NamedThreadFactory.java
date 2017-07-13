@@ -8,6 +8,7 @@ import javax.annotation.Nonnull;
 
 public final class NamedThreadFactory implements ThreadFactory {
 
+  private final boolean daemon;
   @Nonnull
   private final ThreadGroup group;
   @Nonnull
@@ -15,6 +16,7 @@ public final class NamedThreadFactory implements ThreadFactory {
   @Nonnull
   private final Supplier<String> prefixSupplier;
 
+  @Deprecated
   public NamedThreadFactory(@Nonnull String name) {
     this(createSupplier(name));
   }
@@ -25,7 +27,17 @@ public final class NamedThreadFactory implements ThreadFactory {
     return () -> name;
   }
 
+  @Deprecated
   public NamedThreadFactory(@Nonnull Supplier<String> nameSupplier) {
+    this(nameSupplier, false);
+  }
+
+  public NamedThreadFactory(@Nonnull String name, boolean daemon) {
+    this(createSupplier(name), daemon);
+  }
+
+  public NamedThreadFactory(@Nonnull Supplier<String> nameSupplier, boolean daemon) {
+    this.daemon = daemon;
     SecurityManager s = System.getSecurityManager();
     this.group = (s != null) ? s.getThreadGroup() : Thread.currentThread().getThreadGroup();
     this.prefixSupplier = Objects.requireNonNull(nameSupplier);
@@ -44,8 +56,8 @@ public final class NamedThreadFactory implements ThreadFactory {
         getPrefix() + threadNumber.getAndIncrement(),
         0
     );
-    if (thread.isDaemon()) {
-      thread.setDaemon(false);
+    if (thread.isDaemon() != daemon) {
+      thread.setDaemon(daemon);
     }
     if (thread.getPriority() != Thread.NORM_PRIORITY) {
       thread.setPriority(Thread.NORM_PRIORITY);

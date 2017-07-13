@@ -48,7 +48,9 @@ public final class Player implements Loggable, Closeable {
   public Player(@Nonnull Consumer<Song> songPlayedNotifier, @Nullable Suggester suggester) {
     this.logger = createLogger();
 
-    this.executorService = Executors.newSingleThreadExecutor(new NamedThreadFactory("playerPool"));
+    this.executorService = Executors.newSingleThreadExecutor(
+        new NamedThreadFactory("playerPool", true)
+    );
 
     this.songPlayedNotifier = songPlayedNotifier;
 
