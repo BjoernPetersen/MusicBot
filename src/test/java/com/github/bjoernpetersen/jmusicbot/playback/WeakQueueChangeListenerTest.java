@@ -17,29 +17,29 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 class WeakQueueChangeListenerTest {
 
-  private static List<BiConsumer<QueueChangeListener, Queue.Entry>> getInterfaceMethods() {
+  private static List<BiConsumer<QueueChangeListener, QueueEntry>> getInterfaceMethods() {
     return Arrays.asList(QueueChangeListener::onAdd, QueueChangeListener::onRemove);
   }
 
   @ParameterizedTest
   @MethodSource(names = "getInterfaceMethods")
-  void methodIsCalled(BiConsumer<QueueChangeListener, Queue.Entry> method) {
-    AtomicReference<Queue.Entry> called = new AtomicReference<>();
+  void methodIsCalled(BiConsumer<QueueChangeListener, QueueEntry> method) {
+    AtomicReference<QueueEntry> called = new AtomicReference<>();
     QueueChangeListener listener = new QueueChangeListener() {
       @Override
-      public void onAdd(@Nonnull Queue.Entry song) {
+      public void onAdd(@Nonnull QueueEntry song) {
         called.set(song);
       }
 
       @Override
-      public void onRemove(@Nonnull Queue.Entry song) {
+      public void onRemove(@Nonnull QueueEntry song) {
         called.set(song);
       }
     };
     QueueChangeListener weak = new WeakQueueChangeListener(listener);
 
     assertNull(called.get());
-    Queue.Entry song = mock(Queue.Entry.class);
+    QueueEntry song = mock(QueueEntry.class);
     method.accept(weak, song);
     assertSame(song, called.get());
   }
@@ -58,11 +58,11 @@ class WeakQueueChangeListenerTest {
   private static final class DummyListener implements QueueChangeListener {
 
     @Override
-    public void onAdd(@Nonnull Queue.Entry song) {
+    public void onAdd(@Nonnull QueueEntry song) {
     }
 
     @Override
-    public void onRemove(@Nonnull Queue.Entry song) {
+    public void onRemove(@Nonnull QueueEntry song) {
     }
   }
 }

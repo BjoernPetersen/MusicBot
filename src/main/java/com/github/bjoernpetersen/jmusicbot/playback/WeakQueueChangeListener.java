@@ -19,12 +19,12 @@ public final class WeakQueueChangeListener implements QueueChangeListener {
   }
 
   @Override
-  public void onAdd(@Nonnull Queue.Entry entry) {
+  public void onAdd(@Nonnull QueueEntry entry) {
     getWrapped().ifPresent(wrapped -> wrapped.onAdd(entry));
   }
 
   @Override
-  public void onRemove(@Nonnull Queue.Entry entry) {
+  public void onRemove(@Nonnull QueueEntry entry) {
     getWrapped().ifPresent(wrapped -> wrapped.onRemove(entry));
   }
 }

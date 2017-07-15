@@ -99,7 +99,7 @@ final class Database implements Closeable {
     return Streams.stream(Splitter.on(',')
         .omitEmptyStrings()
         .split(permissionString))
-        .map(Permission::matchByName);
+        .map(Permission::valueOf);
   }
 
   @Nonnull
@@ -119,7 +119,7 @@ final class Database implements Closeable {
     synchronized (updatePermissions) {
       updatePermissions.clearParameters();
       String permissions = newPermissions.stream()
-          .map(Permission::getName)
+          .map(Permission::getLabel)
           .reduce("", (l, r) -> l + ',' + r);
       updatePermissions.setString(1, permissions);
       updatePermissions.setString(2, user.getName());

@@ -156,7 +156,7 @@ public final class UserManager implements Closeable {
         .setExpiration(Date.from(Instant.now().plus(Period.ofDays(7))));
 
     for (Permission permission : user.getPermissions()) {
-      builder.claim(permission.getName(), true);
+      builder.claim(permission.getLabel(), true);
     }
 
     return builder.compact();
