@@ -5,7 +5,8 @@ package com.github.bjoernpetersen.jmusicbot.playback;
  */
 public interface Playback extends AutoCloseable {
 
-  void setPlaybackStateListener(PlaybackStateListener listener);
+  default void setPlaybackStateListener(PlaybackStateListener listener) {
+  }
 
   void play();
 
