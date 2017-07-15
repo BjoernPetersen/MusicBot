@@ -14,12 +14,12 @@ class DummyPlaybackTest {
 
   @BeforeEach
   void init() {
-    instance = DummyPlayback.getInstance();
+    instance = DummyPlayback.INSTANCE;
   }
 
   @Test
   void getInstanceNotNull() {
-    assertNotNull(DummyPlayback.getInstance());
+    assertNotNull(DummyPlayback.INSTANCE);
   }
 
   @Test

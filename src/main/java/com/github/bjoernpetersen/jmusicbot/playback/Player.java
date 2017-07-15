@@ -59,7 +59,7 @@ public final class Player implements Loggable, Closeable {
 
     this.stateLock = new ReentrantLock();
     this.state = PlayerState.stop();
-    this.playback = DummyPlayback.getInstance();
+    this.playback = DummyPlayback.INSTANCE;
 
     this.stateListeners = new HashSet<>();
 
@@ -158,7 +158,7 @@ public final class Player implements Loggable, Closeable {
       Optional<Queue.Entry> nextOptional = queue.pop();
       if (!nextOptional.isPresent() && suggester == null) {
         logInfo("Queue is empty. Stopping.");
-        playback = DummyPlayback.getInstance();
+        playback = DummyPlayback.INSTANCE;
         setState(PlayerState.stop());
         return;
       }
@@ -179,7 +179,7 @@ public final class Player implements Loggable, Closeable {
         logSevere(e, "Error creating playback");
 
         setState(PlayerState.error());
-        playback = DummyPlayback.getInstance();
+        playback = DummyPlayback.INSTANCE;
         return;
       }
 
