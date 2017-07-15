@@ -25,9 +25,9 @@ class QueueTest implements EqualsContract<Queue> {
   @Test
   void appendValidArg() {
     Queue queue = createValue();
-    Queue.Entry entry = mock(Queue.Entry.class);
+    QueueEntry entry = mock(QueueEntry.class);
     queue.append(entry);
-    Optional<Queue.Entry> popped = queue.pop();
+    Optional<QueueEntry> popped = queue.pop();
     assertTrue(popped.isPresent());
     assertSame(entry, popped.get());
   }
@@ -35,7 +35,7 @@ class QueueTest implements EqualsContract<Queue> {
   @Test
   void appendTwice() {
     Queue queue = createValue();
-    Queue.Entry entry = mock(Queue.Entry.class);
+    QueueEntry entry = mock(QueueEntry.class);
     queue.append(entry);
     queue.append(entry);
     assertEquals(1, queue.toList().size(), "Same entry appended twice");
@@ -43,14 +43,14 @@ class QueueTest implements EqualsContract<Queue> {
 
   @Test
   void fifo() {
-    Queue.Entry entry1 = mock(Queue.Entry.class);
-    Queue.Entry entry2 = mock(Queue.Entry.class);
+    QueueEntry entry1 = mock(QueueEntry.class);
+    QueueEntry entry2 = mock(QueueEntry.class);
 
     Queue queue = createValue();
     queue.append(entry1);
     queue.append(entry2);
 
-    Optional<Queue.Entry> popped = queue.pop();
+    Optional<QueueEntry> popped = queue.pop();
     assertTrue(popped.isPresent());
     assertSame(entry1, popped.get());
 
@@ -61,7 +61,7 @@ class QueueTest implements EqualsContract<Queue> {
 
   @Test
   void emptyPop() {
-    Optional<Queue.Entry> popped = createValue().pop();
+    Optional<QueueEntry> popped = createValue().pop();
     assertNotNull(popped);
     assertFalse(popped.isPresent());
   }
@@ -69,7 +69,7 @@ class QueueTest implements EqualsContract<Queue> {
   @Test
   void clear() {
     Queue queue = createValue();
-    queue.append(mock(Queue.Entry.class));
+    queue.append(mock(QueueEntry.class));
     queue.clear();
     assertFalse(queue.pop().isPresent());
   }
@@ -77,8 +77,8 @@ class QueueTest implements EqualsContract<Queue> {
   @Test
   void toList() {
     Queue queue = createValue();
-    Queue.Entry entry1 = mock(Queue.Entry.class);
-    Queue.Entry entry2 = mock(Queue.Entry.class);
+    QueueEntry entry1 = mock(QueueEntry.class);
+    QueueEntry entry2 = mock(QueueEntry.class);
     queue.append(entry1);
     queue.append(entry2);
     assertEquals(Arrays.asList(entry1, entry2), queue.toList());
@@ -87,7 +87,7 @@ class QueueTest implements EqualsContract<Queue> {
   @Test
   void toListModify() {
     Queue queue = createValue();
-    Queue.Entry entry = mock(Queue.Entry.class);
+    QueueEntry entry = mock(QueueEntry.class);
     queue.append(entry);
     assertThrows(UnsupportedOperationException.class, () -> queue.toList().remove(entry));
   }
@@ -106,11 +106,11 @@ class QueueTest implements EqualsContract<Queue> {
   void removeUnregisteredListener() {
     createValue().removeListener(new QueueChangeListener() {
       @Override
-      public void onAdd(@Nonnull Queue.Entry song) {
+      public void onAdd(@Nonnull QueueEntry song) {
       }
 
       @Override
-      public void onRemove(@Nonnull Queue.Entry song) {
+      public void onRemove(@Nonnull QueueEntry song) {
       }
     });
   }
@@ -121,31 +121,31 @@ class QueueTest implements EqualsContract<Queue> {
     AtomicBoolean added = new AtomicBoolean();
     queue.addListener(new QueueChangeListener() {
       @Override
-      public void onAdd(@Nonnull Queue.Entry song) {
+      public void onAdd(@Nonnull QueueEntry song) {
         added.set(true);
       }
 
       @Override
-      public void onRemove(@Nonnull Queue.Entry song) {
+      public void onRemove(@Nonnull QueueEntry song) {
       }
     });
-    queue.append(mock(Queue.Entry.class));
+    queue.append(mock(QueueEntry.class));
     assertTrue(added.get());
   }
 
   @Test
   void listenerCalledRemove() {
     Queue queue = createValue();
-    queue.append(mock(Queue.Entry.class));
+    queue.append(mock(QueueEntry.class));
 
     AtomicBoolean removed = new AtomicBoolean();
     queue.addListener(new QueueChangeListener() {
       @Override
-      public void onAdd(@Nonnull Queue.Entry song) {
+      public void onAdd(@Nonnull QueueEntry song) {
       }
 
       @Override
-      public void onRemove(@Nonnull Queue.Entry song) {
+      public void onRemove(@Nonnull QueueEntry song) {
         removed.set(true);
       }
     });
@@ -160,18 +160,18 @@ class QueueTest implements EqualsContract<Queue> {
     AtomicBoolean called = new AtomicBoolean();
     QueueChangeListener listener = new QueueChangeListener() {
       @Override
-      public void onAdd(@Nonnull Queue.Entry song) {
+      public void onAdd(@Nonnull QueueEntry song) {
         called.set(true);
       }
 
       @Override
-      public void onRemove(@Nonnull Queue.Entry song) {
+      public void onRemove(@Nonnull QueueEntry song) {
         called.set(true);
       }
     };
     queue.addListener(listener);
     queue.removeListener(listener);
-    queue.append(mock(Queue.Entry.class));
+    queue.append(mock(QueueEntry.class));
     queue.pop();
     assertFalse(called.get());
   }

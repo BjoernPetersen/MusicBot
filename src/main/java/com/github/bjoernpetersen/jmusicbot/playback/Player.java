@@ -155,7 +155,7 @@ public final class Player implements Loggable, Closeable {
         logSevere(e, "Error closing playback");
       }
 
-      Optional<Queue.Entry> nextOptional = queue.pop();
+      Optional<QueueEntry> nextOptional = queue.pop();
       if (!nextOptional.isPresent() && suggester == null) {
         logInfo("Queue is empty. Stopping.");
         playback = DummyPlayback.INSTANCE;

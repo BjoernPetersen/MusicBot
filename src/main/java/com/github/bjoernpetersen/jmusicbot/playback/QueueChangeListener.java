@@ -4,9 +4,9 @@ import javax.annotation.Nonnull;
 
 public interface QueueChangeListener {
 
-  void onAdd(@Nonnull Queue.Entry entry);
+  void onAdd(@Nonnull QueueEntry entry);
 
-  void onRemove(@Nonnull Queue.Entry entry);
+  void onRemove(@Nonnull QueueEntry entry);
 
   // TODO move
 }

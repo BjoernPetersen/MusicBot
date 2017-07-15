@@ -1,7 +1,6 @@
 package com.github.bjoernpetersen.jmusicbot.playback;
 
 import com.github.bjoernpetersen.jmusicbot.Song;
-import com.github.bjoernpetersen.jmusicbot.user.User;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -15,7 +14,7 @@ import javax.annotation.Nonnull;
 public final class Queue {
 
   @Nonnull
-  private final LinkedList<Entry> queue;
+  private final LinkedList<QueueEntry> queue;
   @Nonnull
   private final Set<QueueChangeListener> listeners;
 
@@ -25,7 +24,7 @@ public final class Queue {
   }
 
   // TODO append entry, not song
-  public void append(@Nonnull Entry entry) {
+  public void append(@Nonnull QueueEntry entry) {
     Objects.requireNonNull(entry);
     if (!queue.contains(entry)) {
       queue.add(entry);
@@ -33,7 +32,7 @@ public final class Queue {
     }
   }
 
-  public void remove(@Nonnull Entry entry) {
+  public void remove(@Nonnull QueueEntry entry) {
     Objects.requireNonNull(entry);
     boolean removed = queue.remove(entry);
     if (removed) {
@@ -42,11 +41,11 @@ public final class Queue {
   }
 
   @Nonnull
-  public Optional<Entry> pop() {
+  public Optional<QueueEntry> pop() {
     if (queue.isEmpty()) {
       return Optional.empty();
     } else {
-      Entry entry = queue.pop();
+      QueueEntry entry = queue.pop();
       notifyListeners(listener -> listener.onRemove(entry));
       return Optional.of(entry);
     }
@@ -60,7 +59,7 @@ public final class Queue {
     return queue.get(index).getSong();
   }
 
-  public List<Queue.Entry> toList() {
+  public List<QueueEntry> toList() {
     return Collections.unmodifiableList(queue);
   }
 
@@ -79,27 +78,4 @@ public final class Queue {
   }
 
   // TODO move
-
-  public static final class Entry extends SongEntry {
-
-    @Nonnull
-    private final Song song;
-    @Nonnull
-    private final User user;
-
-    public Entry(@Nonnull Song song, @Nonnull User user) {
-      this.song = song;
-      this.user = user;
-    }
-
-    @Nonnull
-    public Song getSong() {
-      return song;
-    }
-
-    @Nonnull
-    public User getUser() {
-      return user;
-    }
-  }
 }
