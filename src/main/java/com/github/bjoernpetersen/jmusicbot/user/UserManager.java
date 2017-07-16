@@ -32,6 +32,8 @@ public final class UserManager implements Closeable {
   @Nonnull
   private final Config.StringEntry signatureKey;
   @Nonnull
+  private final String guestSignatureKey;
+  @Nonnull
   private final Database database;
 
   @Nonnull
@@ -41,6 +43,7 @@ public final class UserManager implements Closeable {
 
   public UserManager(@Nonnull Config config, @Nonnull String databaseUrl) throws SQLException {
     this.signatureKey = config.secret(getClass(), "signatureKey", "");
+    this.guestSignatureKey = createSignatureKey();
     this.database = new Database(databaseUrl);
 
     this.temporaryUsers = new HashMap<>(32);
@@ -149,10 +152,16 @@ public final class UserManager implements Closeable {
       throw new IllegalArgumentException();
     }
 
+    String signatureKey;
+    if (user.isTemporary()) {
+      signatureKey = this.guestSignatureKey;
+    } else {
+      signatureKey = getSignatureKey();
+    }
     JwtBuilder builder = Jwts.builder()
         .setSubject(user.getName())
         .setIssuedAt(new Date())
-        .signWith(SignatureAlgorithm.HS512, getSignatureKey())
+        .signWith(SignatureAlgorithm.HS512, signatureKey)
         .setExpiration(Date.from(Instant.now().plus(Period.ofDays(7))));
 
     for (Permission permission : user.getPermissions()) {
@@ -170,7 +179,15 @@ public final class UserManager implements Closeable {
           .setSigningKey(getSignatureKey())
           .parseClaimsJws(token);
     } catch (JwtException e) {
-      throw new InvalidTokenException(e);
+      // try again with guest key
+      try {
+        parsed = Jwts.parser()
+            .setSigningKey(guestSignatureKey)
+            .parseClaimsJws(token);
+      } catch (JwtException e1) {
+        e1.addSuppressed(e);
+        throw new InvalidTokenException(e1);
+      }
     }
 
     String name = parsed.getBody().getSubject();
@@ -191,11 +208,16 @@ public final class UserManager implements Closeable {
     if (configKey.isPresent()) {
       return configKey.get();
     } else {
-      byte[] encoded = Base64.getEncoder().encode(MacSigner.generateKey().getEncoded());
-      String key = new String(encoded);
+      String key = createSignatureKey();
       signatureKey.set(key);
       return key;
     }
+  }
+
+  @Nonnull
+  private String createSignatureKey() {
+    byte[] encoded = Base64.getEncoder().encode(MacSigner.generateKey().getEncoded());
+    return new String(encoded);
   }
 
   @Nonnull
