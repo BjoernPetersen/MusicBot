@@ -9,10 +9,12 @@ import javax.annotation.Nonnull;
 
 public interface Loggable {
 
+  @Nonnull
   default Logger createLogger() {
     return Logger.getLogger(getClass().getName());
   }
 
+  @Nonnull
   default Logger getLogger() {
     return createLogger();
   }
