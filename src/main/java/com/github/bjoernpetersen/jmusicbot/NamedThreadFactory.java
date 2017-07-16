@@ -1,11 +1,16 @@
 package com.github.bjoernpetersen.jmusicbot;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import java.util.Objects;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 import javax.annotation.Nonnull;
 
+/**
+ * @deprecated in favor of Guava's {@link ThreadFactoryBuilder}. Will be removed in 0.9.0.
+ */
+@Deprecated
 public final class NamedThreadFactory implements ThreadFactory {
 
   private final boolean daemon;

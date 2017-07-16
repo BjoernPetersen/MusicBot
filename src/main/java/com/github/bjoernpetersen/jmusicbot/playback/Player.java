@@ -5,6 +5,7 @@ import com.github.bjoernpetersen.jmusicbot.NamedThreadFactory;
 import com.github.bjoernpetersen.jmusicbot.Song;
 import com.github.bjoernpetersen.jmusicbot.playback.PlayerState.State;
 import com.github.bjoernpetersen.jmusicbot.provider.Suggester;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.HashSet;
@@ -49,7 +50,10 @@ public final class Player implements Loggable, Closeable {
     this.logger = createLogger();
 
     this.executorService = Executors.newSingleThreadExecutor(
-        new NamedThreadFactory("playerPool", true)
+        new ThreadFactoryBuilder()
+            .setDaemon(true)
+            .setNameFormat("playerPool-%d")
+            .build()
     );
 
     this.songPlayedNotifier = songPlayedNotifier;

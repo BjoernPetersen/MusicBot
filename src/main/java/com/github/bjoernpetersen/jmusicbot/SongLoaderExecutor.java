@@ -3,6 +3,7 @@ package com.github.bjoernpetersen.jmusicbot;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.RemovalListener;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -26,7 +27,11 @@ class SongLoaderExecutor implements Loggable {
   private final Cache<Song, Future<Boolean>> futures;
 
   private SongLoaderExecutor() {
-    this.service = Executors.newFixedThreadPool(2, new NamedThreadFactory("SongLoaderPool", true));
+    this.service = Executors.newFixedThreadPool(2, new ThreadFactoryBuilder()
+        .setDaemon(true)
+        .setNameFormat("SongLoaderPool-%d")
+        .build()
+    );
     this.logger = createLogger();
     this.futureLock = new ReentrantLock();
     futures = CacheBuilder.newBuilder()
