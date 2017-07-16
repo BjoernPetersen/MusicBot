@@ -18,18 +18,18 @@ class NamedThreadFactoryTest {
 
   @Test
   void nullName() {
-    assertThrows(NullPointerException.class, () -> new NamedThreadFactory((String) null));
+    assertThrows(NullPointerException.class, () -> new NamedThreadFactory((String) null, false));
   }
 
   @Test
   void nullSupplier() {
-    assertThrows(NullPointerException.class, () -> new NamedThreadFactory((Supplier<String>) null));
+    assertThrows(NullPointerException.class, () -> new NamedThreadFactory((Supplier<String>) null, false));
   }
 
   @ParameterizedTest
   @ValueSource(strings = {"testName", "otherName", "t", "123"})
   void nameContained(String name) {
-    ThreadFactory factory = new NamedThreadFactory(name);
+    ThreadFactory factory = new NamedThreadFactory(name, false);
     Thread created = factory.newThread(() -> {
     });
 
@@ -38,14 +38,14 @@ class NamedThreadFactoryTest {
 
   @Test
   void isNotStarted() {
-    assertFalse(new NamedThreadFactory("test").newThread(() -> {
+    assertFalse(new NamedThreadFactory("test", false).newThread(() -> {
     }).isAlive());
   }
 
   @Test
   void supplierIncreasingNumber() {
     AtomicInteger integer = new AtomicInteger(0);
-    ThreadFactory factory = new NamedThreadFactory(() -> "testName" + integer.getAndIncrement());
+    ThreadFactory factory = new NamedThreadFactory(() -> "testName" + integer.getAndIncrement(), false);
 
     Runnable runnable = () -> {
     };
