@@ -16,20 +16,10 @@ public final class NamedThreadFactory implements ThreadFactory {
   @Nonnull
   private final Supplier<String> prefixSupplier;
 
-  @Deprecated
-  public NamedThreadFactory(@Nonnull String name) {
-    this(createSupplier(name));
-  }
-
   @Nonnull
   private static Supplier<String> createSupplier(@Nonnull String name) {
     Objects.requireNonNull(name);
     return () -> name;
-  }
-
-  @Deprecated
-  public NamedThreadFactory(@Nonnull Supplier<String> nameSupplier) {
-    this(nameSupplier, false);
   }
 
   public NamedThreadFactory(@Nonnull String name, boolean daemon) {
