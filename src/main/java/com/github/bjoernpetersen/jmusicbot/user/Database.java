@@ -99,7 +99,7 @@ final class Database implements Closeable {
     return Streams.stream(Splitter.on(',')
         .omitEmptyStrings()
         .split(permissionString))
-        .map(Permission::valueOf);
+        .map(Permission::matchByLabel);
   }
 
   @Nonnull
