@@ -3,7 +3,6 @@ package com.github.bjoernpetersen.jmusicbot;
 import com.github.bjoernpetersen.jmusicbot.ProviderManager.State;
 import com.github.bjoernpetersen.jmusicbot.config.Config;
 import com.github.bjoernpetersen.jmusicbot.playback.Player;
-import com.github.bjoernpetersen.jmusicbot.playback.Queue;
 import com.github.bjoernpetersen.jmusicbot.playback.QueueChangeListener;
 import com.github.bjoernpetersen.jmusicbot.playback.QueueEntry;
 import com.github.bjoernpetersen.jmusicbot.provider.Provider;
@@ -48,7 +47,7 @@ public final class MusicBot implements Loggable, Closeable {
     initialized.add(userManager);
 
     Consumer<Song> songPlayedNotifier = song -> {
-      Provider provider = providerManager.getProvider(song.getProviderName());
+      Provider provider = song.getProvider();
       for (Suggester suggester : providerManager.getSuggestersFor(provider)) {
         suggester.notifyPlayed(song);
       }
@@ -70,7 +69,7 @@ public final class MusicBot implements Loggable, Closeable {
       @Override
       public void onAdd(@Nonnull QueueEntry entry) {
         Song song = entry.getSong();
-        Provider provider = providerManager.getProvider(song.getProviderName());
+        Provider provider = song.getProvider();
         for (Suggester suggester : providerManager.getSuggestersFor(provider)) {
           suggester.removeSuggestion(song);
         }

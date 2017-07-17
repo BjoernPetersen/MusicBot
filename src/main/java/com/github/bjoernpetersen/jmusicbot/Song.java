@@ -114,8 +114,8 @@ public final class Song {
   }
 
   @Nonnull
-  public String getProviderName() {
-    return provider.getName();
+  public Provider getProvider() {
+    return provider;
   }
 
   @Override
@@ -141,7 +141,7 @@ public final class Song {
   public String toString() {
     return "Song{"
         + "id='" + id + '\''
-        + ", providerName='" + getProviderName() + '\''
+        + ", providerName='" + getProvider().getName() + '\''
         + '}';
   }
 

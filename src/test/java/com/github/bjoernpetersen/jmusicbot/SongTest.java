@@ -39,8 +39,8 @@ class SongTest implements EqualsContract<Song> {
   }
 
   @Test
-  void getProviderNameNonnull() {
-    assertNotNull(song.getProviderName());
+  void getProviderNonnull() {
+    assertNotNull(song.getProvider());
   }
 
   @Test
