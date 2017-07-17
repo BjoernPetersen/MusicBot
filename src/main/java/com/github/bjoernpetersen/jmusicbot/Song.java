@@ -23,13 +23,15 @@ public final class Song {
   private final String title;
   @Nonnull
   private final String description;
+  @Nonnull
+  private final int duration;
   @Nullable
   private final String albumArtUrl;
 
 
   private Song(@Nonnull PlaybackSupplier playbackSupplier, @Nonnull SongLoader loader,
       @Nonnull Provider provider, @Nonnull String id, @Nonnull String title,
-      @Nonnull String description, @Nullable String albumArtUrl) {
+      @Nonnull String description, int duration, @Nullable String albumArtUrl) {
     this.playbackSupplier = playbackSupplier;
     this.loader = loader;
     this.provider = provider;
@@ -37,6 +39,7 @@ public final class Song {
     this.id = id;
     this.title = title;
     this.description = description;
+    this.duration = duration;
     this.albumArtUrl = albumArtUrl;
   }
 
@@ -106,6 +109,10 @@ public final class Song {
     return description;
   }
 
+  public int getDuration() {
+    return duration;
+  }
+
   @Nonnull
   public String getProviderName() {
     return provider.getName();
@@ -147,6 +154,7 @@ public final class Song {
     private String id;
     private String title;
     private String description;
+    private int duration = 0;
 
     private String albumArtUrl;
 
@@ -187,6 +195,15 @@ public final class Song {
     }
 
     @Nonnull
+    public Builder duration(int duration) {
+      if (duration < 0) {
+        throw new IllegalArgumentException();
+      }
+      this.duration = duration;
+      return this;
+    }
+
+    @Nonnull
     public Builder albumArtUrl(@Nullable String albumArtUrl) {
       this.albumArtUrl = albumArtUrl;
       return this;
@@ -202,7 +219,16 @@ public final class Song {
           || description == null) {
         throw new IllegalStateException("Not all values specified.");
       }
-      return new Song(playbackSupplier, songLoader, provider, id, title, description, albumArtUrl);
+      return new Song(
+          playbackSupplier,
+          songLoader,
+          provider,
+          id,
+          title,
+          description,
+          duration,
+          albumArtUrl
+      );
     }
 
   }
