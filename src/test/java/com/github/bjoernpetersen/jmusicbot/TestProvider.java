@@ -2,6 +2,8 @@ package com.github.bjoernpetersen.jmusicbot;
 
 import com.github.bjoernpetersen.jmusicbot.config.Config;
 import com.github.bjoernpetersen.jmusicbot.config.Config.Entry;
+import com.github.bjoernpetersen.jmusicbot.platform.Platform;
+import com.github.bjoernpetersen.jmusicbot.platform.Support;
 import com.github.bjoernpetersen.jmusicbot.playback.PlaybackFactory;
 import com.github.bjoernpetersen.jmusicbot.provider.NoSuchSongException;
 import com.github.bjoernpetersen.jmusicbot.provider.Provider;
@@ -12,6 +14,12 @@ import java.util.Set;
 import javax.annotation.Nonnull;
 
 public class TestProvider implements Provider {
+
+  @Nonnull
+  @Override
+  public Support getSupport(@Nonnull Platform platform) {
+    return Support.YES;
+  }
 
   @Nonnull
   @Override

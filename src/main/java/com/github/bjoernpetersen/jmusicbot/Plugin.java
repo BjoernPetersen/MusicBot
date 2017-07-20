@@ -3,6 +3,8 @@ package com.github.bjoernpetersen.jmusicbot;
 import com.github.bjoernpetersen.jmusicbot.config.Config;
 import com.github.bjoernpetersen.jmusicbot.config.Config.Entry;
 import com.github.bjoernpetersen.jmusicbot.config.DefaultConfigEntry;
+import com.github.bjoernpetersen.jmusicbot.platform.Platform;
+import com.github.bjoernpetersen.jmusicbot.platform.Support;
 import java.io.Closeable;
 import java.util.List;
 import javax.annotation.Nonnull;
@@ -48,4 +50,13 @@ public interface Plugin extends Closeable {
    * </code></pre>
    */
   void destructConfigEntries();
+
+  /**
+   * Indicates whether the specified Platform is supported.
+   *
+   * @param platform the current Plaform
+   * @return the support for the specified platform
+   */
+  @Nonnull
+  Support getSupport(@Nonnull Platform platform);
 }
