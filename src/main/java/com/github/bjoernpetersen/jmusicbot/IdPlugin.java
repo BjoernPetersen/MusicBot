@@ -1,5 +1,7 @@
 package com.github.bjoernpetersen.jmusicbot;
 
+import javax.annotation.Nonnull;
+
 public interface IdPlugin extends Plugin {
 
   /**
@@ -8,5 +10,6 @@ public interface IdPlugin extends Plugin {
    *
    * @return an ID
    */
+  @Nonnull
   String getId();
 }
