@@ -108,6 +108,7 @@ public interface Suggester extends NamedPlugin, IdPlugin {
     return Collections.emptySet();
   }
 
+  @Deprecated
   @Nonnull
   @Override
   default String getName() {

@@ -46,6 +46,7 @@ public interface Provider extends NamedPlugin, IdPlugin {
   @Nonnull
   Song lookup(@Nonnull String id) throws NoSuchSongException;
 
+  @Deprecated
   @Nonnull
   @Override
   default String getName() {
