@@ -23,7 +23,7 @@ public class TestProvider implements Provider {
 
   @Nonnull
   @Override
-  public String getName() {
+  public String getId() {
     return "testprovider";
   }
 
