@@ -1,7 +1,6 @@
 package com.github.bjoernpetersen.jmusicbot.playback;
 
 import com.github.bjoernpetersen.jmusicbot.Loggable;
-import com.github.bjoernpetersen.jmusicbot.NamedThreadFactory;
 import com.github.bjoernpetersen.jmusicbot.Song;
 import com.github.bjoernpetersen.jmusicbot.playback.PlayerState.State;
 import com.github.bjoernpetersen.jmusicbot.provider.Suggester;

@@ -141,7 +141,7 @@ public final class Song {
   public String toString() {
     return "Song{"
         + "id='" + id + '\''
-        + ", providerName='" + getProvider().getName() + '\''
+        + ", providerName='" + getProvider().getId() + '\''
         + '}';
   }
 
