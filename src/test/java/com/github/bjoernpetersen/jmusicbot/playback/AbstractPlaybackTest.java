@@ -38,7 +38,7 @@ class AbstractPlaybackTest {
   }
 
   @ParameterizedTest
-  @MethodSource(names = "doneCalls")
+  @MethodSource(value = "doneCalls")
   void waitFinishesOnDone(Callback<AbstractPlayback> doneCall) throws InterruptedException {
     Lock lock = new ReentrantLock();
     AtomicBoolean success = new AtomicBoolean(false);
