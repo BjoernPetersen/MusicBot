@@ -80,12 +80,15 @@ final class Database implements Closeable {
       try {
         getUser.clearParameters();
         getUser.setString(1, user);
-        ResultSet resultSet = getUser.executeQuery();
-        if (!resultSet.next()) {
-          throw new UserNotFoundException("No such user: " + user);
+        String hash;
+        String permissionString;
+        try (ResultSet resultSet = getUser.executeQuery()) {
+          if (!resultSet.next()) {
+            throw new UserNotFoundException("No such user: " + user);
+          }
+          hash = resultSet.getString("password");
+          permissionString = resultSet.getString("permissions");
         }
-        String hash = resultSet.getString("password");
-        String permissionString = resultSet.getString("permissions");
         Set<Permission> permissions = getPermissions(permissionString).collect(Collectors.toSet());
         return new User(user, hash, permissions);
       } catch (SQLException e) {
@@ -141,17 +144,19 @@ final class Database implements Closeable {
 
   List<User> getUsers() throws SQLException {
     synchronized (getUsers) {
-      ResultSet resultSet = getUsers.executeQuery();
-      List<User> users = new LinkedList<>();
-      while (resultSet.next()) {
-        String name = resultSet.getString("name");
-        String hash = resultSet.getString("password");
-        String permissionString = resultSet.getString("permissions");
-        Set<Permission> permissions = getPermissions(permissionString).collect(Collectors.toSet());
-        users.add(new User(name, hash, permissions));
-      }
+      try (ResultSet resultSet = getUsers.executeQuery()) {
+        List<User> users = new LinkedList<>();
+        while (resultSet.next()) {
+          String name = resultSet.getString("name");
+          String hash = resultSet.getString("password");
+          String permissionString = resultSet.getString("permissions");
+          Set<Permission> permissions = getPermissions(permissionString)
+              .collect(Collectors.toSet());
+          users.add(new User(name, hash, permissions));
+        }
 
-      return Collections.unmodifiableList(users);
+        return Collections.unmodifiableList(users);
+      }
     }
   }
 
