@@ -2,8 +2,8 @@ package com.github.bjoernpetersen.jmusicbot.platform
 
 import java.util.*
 
-enum class Platform {
-    WINDOWS, LINUX, ANDROID, UNKNOWN;
+enum class Platform(val readableName: String) {
+    WINDOWS("Windows"), LINUX("Linux"), ANDROID("Android"), UNKNOWN("Unknown");
 
     companion object {
         @JvmStatic
