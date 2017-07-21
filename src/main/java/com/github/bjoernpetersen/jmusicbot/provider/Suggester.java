@@ -107,4 +107,11 @@ public interface Suggester extends NamedPlugin, IdPlugin {
   default Set<String> getOptionalDependencies() {
     return Collections.emptySet();
   }
+
+  @Nonnull
+  @Override
+  default String getName() {
+    // new implementing classes should not be forced to override this method
+    return getClass().getSimpleName();
+  }
 }

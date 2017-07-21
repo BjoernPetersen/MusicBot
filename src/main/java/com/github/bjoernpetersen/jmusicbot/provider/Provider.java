@@ -45,4 +45,11 @@ public interface Provider extends NamedPlugin, IdPlugin {
    */
   @Nonnull
   Song lookup(@Nonnull String id) throws NoSuchSongException;
+
+  @Nonnull
+  @Override
+  default String getName() {
+    // new implementing classes should not be forced to override this method
+    return getClass().getSimpleName();
+  }
 }
