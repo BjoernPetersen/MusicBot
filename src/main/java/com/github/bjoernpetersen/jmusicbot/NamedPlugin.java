@@ -15,7 +15,9 @@ public interface NamedPlugin extends IdPlugin {
    * plugin.
    *
    * @return a name
+   * @deprecated in favor of {@link IdPlugin#getId()}
    */
+  @Deprecated
   @Nonnull
   String getName();
 
