@@ -52,6 +52,14 @@ public interface Plugin extends Closeable {
   void destructConfigEntries();
 
   /**
+   * An arbitrary, human readable name for this plugin.
+   *
+   * @return a name
+   */
+  @Nonnull
+  String getReadableName();
+
+  /**
    * Indicates whether the specified Platform is supported.
    *
    * @param platform the current Plaform

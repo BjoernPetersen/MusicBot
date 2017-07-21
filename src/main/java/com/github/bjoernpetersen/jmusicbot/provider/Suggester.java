@@ -1,5 +1,6 @@
 package com.github.bjoernpetersen.jmusicbot.provider;
 
+import com.github.bjoernpetersen.jmusicbot.IdPlugin;
 import com.github.bjoernpetersen.jmusicbot.InitStateWriter;
 import com.github.bjoernpetersen.jmusicbot.InitializationException;
 import com.github.bjoernpetersen.jmusicbot.NamedPlugin;
@@ -10,7 +11,7 @@ import java.util.Map;
 import java.util.Set;
 import javax.annotation.Nonnull;
 
-public interface Suggester extends NamedPlugin {
+public interface Suggester extends NamedPlugin, IdPlugin {
 
   /**
    * <p>Suggest the next song to play.</p>

@@ -113,8 +113,7 @@ public final class ProviderManager implements Loggable, Closeable {
   }
 
   /**
-   * Gets the provider with the specified name.
-   * Only returns active providers.
+   * Gets the provider with the specified name. Only returns active providers.
    *
    * @param name the provider name
    * @return a Provider
@@ -137,8 +136,7 @@ public final class ProviderManager implements Loggable, Closeable {
   }
 
   /**
-   * Gets the suggester with the specified name.
-   * Only returns active suggesters.
+   * Gets the suggester with the specified name. Only returns active suggesters.
    *
    * @param name the suggester name
    * @return a Suggester
@@ -161,7 +159,7 @@ public final class ProviderManager implements Loggable, Closeable {
   }
 
   @Nonnull
-  public List<? extends Config.Entry> getConfigEntries(@Nonnull NamedPlugin plugin) {
+  public List<? extends Config.Entry> getConfigEntries(@Nonnull IdPlugin plugin) {
     if (plugin instanceof Provider) {
       return providerManager.getConfigEntries((Provider) plugin);
     } else if (plugin instanceof Suggester) {
@@ -171,7 +169,7 @@ public final class ProviderManager implements Loggable, Closeable {
     }
   }
 
-  void initialize(@Nonnull NamedPlugin plugin, @Nonnull InitStateWriter initStateWriter)
+  void initialize(@Nonnull IdPlugin plugin, @Nonnull InitStateWriter initStateWriter)
       throws InitializationException, InterruptedException {
     initStateWriter.begin(plugin.getReadableName());
     if (plugin instanceof Provider) {
@@ -183,7 +181,7 @@ public final class ProviderManager implements Loggable, Closeable {
     }
   }
 
-  public void destructConfigEntries(@Nonnull NamedPlugin plugin) {
+  public void destructConfigEntries(@Nonnull IdPlugin plugin) {
     if (plugin instanceof Provider) {
       providerManager.destructConfigEntries((Provider) plugin);
     } else if (plugin instanceof Suggester) {
@@ -193,7 +191,7 @@ public final class ProviderManager implements Loggable, Closeable {
     }
   }
 
-  public void addStateListener(@Nonnull NamedPlugin plugin,
+  public void addStateListener(@Nonnull IdPlugin plugin,
       @Nonnull BiConsumer<State, State> listener) {
     if (plugin instanceof Provider) {
       addStateListener((Provider) plugin, listener);
@@ -204,7 +202,7 @@ public final class ProviderManager implements Loggable, Closeable {
     }
   }
 
-  public void removeStateListener(@Nonnull NamedPlugin plugin,
+  public void removeStateListener(@Nonnull IdPlugin plugin,
       @Nonnull BiConsumer<State, State> listener) {
     if (plugin instanceof Provider) {
       removeStateListener((Provider) plugin, listener);
@@ -216,7 +214,7 @@ public final class ProviderManager implements Loggable, Closeable {
   }
 
   @Nonnull
-  public State getState(@Nonnull NamedPlugin plugin) {
+  public State getState(@Nonnull IdPlugin plugin) {
     if (plugin instanceof Provider) {
       return providerManager.getState((Provider) plugin);
     } else if (plugin instanceof Suggester) {
@@ -257,7 +255,7 @@ public final class ProviderManager implements Loggable, Closeable {
     providerManager.close();
   }
 
-  private static class PluginManager<T extends NamedPlugin> implements Loggable, Closeable {
+  private static class PluginManager<T extends IdPlugin> implements Loggable, Closeable {
 
     @Nonnull
     private final Config config;
@@ -289,7 +287,7 @@ public final class ProviderManager implements Loggable, Closeable {
     private Map<String, T> loadPlugins(@Nonnull File pluginFolder, @Nonnull Class<T> type) {
       PluginLoader<T> loader = new PluginLoader<>(pluginFolder, type);
       return loader.load().stream().collect(Collectors.toMap(
-          NamedPlugin::getName,
+          IdPlugin::getId,
           Function.identity()
       ));
     }
@@ -314,7 +312,7 @@ public final class ProviderManager implements Loggable, Closeable {
       return states.entrySet().stream()
           .filter(e -> e.getValue() == State.ACTIVE)
           .collect(Collectors.toMap(
-              e -> e.getKey().getName(),
+              e -> e.getKey().getId(),
               Entry::getKey
           ));
     }
@@ -412,7 +410,7 @@ public final class ProviderManager implements Loggable, Closeable {
   }
 
   @FunctionalInterface
-  private interface Initializer<T extends NamedPlugin> {
+  private interface Initializer<T extends IdPlugin> {
 
     void initialize(@Nonnull InitStateWriter initStateWriter, @Nonnull T t)
         throws InitializationException, InterruptedException;
