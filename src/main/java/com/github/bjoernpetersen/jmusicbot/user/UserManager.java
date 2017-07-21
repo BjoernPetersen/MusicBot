@@ -13,6 +13,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.impl.crypto.MacSigner;
 import java.io.Closeable;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.time.Instant;
 import java.time.Period;
@@ -217,7 +218,7 @@ public final class UserManager implements Closeable {
   @Nonnull
   private String createSignatureKey() {
     byte[] encoded = Base64.getEncoder().encode(MacSigner.generateKey().getEncoded());
-    return new String(encoded);
+    return new String(encoded, StandardCharsets.UTF_8);
   }
 
   @Nonnull
