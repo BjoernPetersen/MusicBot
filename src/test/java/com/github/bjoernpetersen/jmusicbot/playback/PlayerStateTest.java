@@ -90,7 +90,7 @@ class PlayerStateTest implements EqualsContract<PlayerState> {
   }
 
   @ParameterizedTest
-  @MethodSource(value = "getPossibleStates")
+  @MethodSource(names = "getPossibleStates")
   void getSongNotNull(PlayerState state) {
     assertNotNull(state.getEntry());
   }

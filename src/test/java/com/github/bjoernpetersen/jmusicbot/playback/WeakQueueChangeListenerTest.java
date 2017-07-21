@@ -22,7 +22,7 @@ class WeakQueueChangeListenerTest {
   }
 
   @ParameterizedTest
-  @MethodSource(value = "getInterfaceMethods")
+  @MethodSource(names = "getInterfaceMethods")
   void methodIsCalled(BiConsumer<QueueChangeListener, QueueEntry> method) {
     AtomicReference<QueueEntry> called = new AtomicReference<>();
     QueueChangeListener listener = new QueueChangeListener() {
