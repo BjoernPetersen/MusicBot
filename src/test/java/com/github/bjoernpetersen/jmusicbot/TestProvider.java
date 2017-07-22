@@ -23,6 +23,12 @@ public class TestProvider implements Provider {
 
   @Nonnull
   @Override
+  public Class<? extends Provider> getBaseClass() {
+    return TestProvider.class;
+  }
+
+  @Nonnull
+  @Override
   public String getId() {
     return "testprovider";
   }
