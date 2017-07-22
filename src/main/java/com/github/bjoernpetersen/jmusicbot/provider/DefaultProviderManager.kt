@@ -41,15 +41,29 @@ internal class DefaultProviderManager : ProviderManager, Loggable {
         loadSuggesters(pluginFolder);
     }
 
+    private fun addProvider(provider: Provider) {
+        val baseClass = provider.baseClass
+        if (!baseClass.isInstance(provider)) {
+            logInfo("Provider ${provider.readableName} does not implement its base class")
+            return
+        }
+        providerByBase[baseClass] = provider
+        providerById[provider.id] = ProviderManager.ProviderWrapper.defaultWrapper(provider)
+    }
+
     private fun loadProviders(pluginFolder: File) {
         for (provider in PluginLoader(pluginFolder, Provider::class.java).load()) {
-            val baseClass = provider.baseClass
-            if (!baseClass.isInstance(provider)) {
-                logInfo("Provider ${provider.readableName} does not implement its base class")
-                continue
+            addProvider(provider)
+        }
+
+        val platform = Platform.get()
+        for (providerLoader in PluginLoader(pluginFolder, ProviderLoader::class.java).load()) {
+            val provider = providerLoader.load(platform)
+            if (provider != null) {
+                addProvider(provider)
+            } else {
+                logInfo("ProviderLoader ${providerLoader.readableName} does not support platform.")
             }
-            providerByBase[baseClass] = provider
-            providerById[provider.id] = ProviderManager.ProviderWrapper.defaultWrapper(provider)
         }
     }
 

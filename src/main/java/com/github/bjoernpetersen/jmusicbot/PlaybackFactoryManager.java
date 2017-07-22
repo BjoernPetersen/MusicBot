@@ -2,7 +2,9 @@ package com.github.bjoernpetersen.jmusicbot;
 
 import com.github.bjoernpetersen.jmusicbot.config.Config;
 import com.github.bjoernpetersen.jmusicbot.config.DefaultConfigEntry;
+import com.github.bjoernpetersen.jmusicbot.platform.Platform;
 import com.github.bjoernpetersen.jmusicbot.playback.PlaybackFactory;
+import com.github.bjoernpetersen.jmusicbot.playback.PlaybackFactoryLoader;
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
@@ -91,7 +93,7 @@ public final class PlaybackFactoryManager implements Loggable, Closeable {
       try {
         result.put(factory, storeFactoryForValidBases(factory));
       } catch (InvalidFactoryException | InitializationException e) {
-        logSevere(e, "Could not load included factory " + factory.toString());
+        logSevere(e, "Could not load included factory " + factory.getReadableName());
       }
     }
 
@@ -104,7 +106,22 @@ public final class PlaybackFactoryManager implements Loggable, Closeable {
       try {
         result.put(factory, storeFactoryForValidBases(factory));
       } catch (InvalidFactoryException | InitializationException e) {
-        logSevere(e, "Could not load factory " + factory.toString());
+        logInfo(e, "Could not load factory " + factory.getReadableName());
+      }
+    }
+
+    Platform platform = Platform.get();
+    for (PlaybackFactoryLoader loader : new PluginLoader<>(pluginFolder,
+        PlaybackFactoryLoader.class).load()) {
+      PlaybackFactory factory = loader.load(platform);
+      if (factory == null) {
+        logInfo("Platform not supported by PlaybackFactory %s", loader.getReadableName());
+      } else {
+        try {
+          result.put(factory, storeFactoryForValidBases(factory));
+        } catch (InvalidFactoryException | InitializationException e) {
+          logInfo(e, "Could not load factory %s", factory.getReadableName());
+        }
       }
     }
 
