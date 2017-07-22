@@ -90,6 +90,16 @@ public interface ProviderManager extends Closeable {
   ProviderWrapper getProvider(@Nonnull String id);
 
   /**
+   * Gets the provider implementing the specified base class. Only returns active providers. This
+   * method is guaranteed not to return a {@link PluginWrapper} instance.
+   *
+   * @param baseClass a provider base class
+   * @return a Provider, or null
+   */
+  @Nullable
+  Provider getProvider(@Nonnull Class<? extends Provider> baseClass);
+
+  /**
    * Gets the suggester with the specified name. Only returns active suggesters.
    *
    * @param id the suggester ID

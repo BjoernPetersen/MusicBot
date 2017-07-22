@@ -12,10 +12,12 @@ import java.io.IOException
 import java.util.*
 import java.util.function.BiConsumer
 import kotlin.collections.ArrayList
+import kotlin.collections.HashMap
 
 internal class DefaultProviderManager : ProviderManager, Loggable {
 
     private val providerById: MutableMap<String, ProviderManager.ProviderWrapper>
+    private val providerByBase: MutableMap<Class<out Provider>, Provider>
     private val suggesterById: MutableMap<String, ProviderManager.SuggesterWrapper>
     private val suggestersByProvider: MutableMap<Provider, MutableList<Suggester>>
 
@@ -24,6 +26,7 @@ internal class DefaultProviderManager : ProviderManager, Loggable {
 
     init {
         this.providerById = HashMap(64)
+        this.providerByBase = HashMap(64)
         this.suggesterById = HashMap(64)
         this.suggestersByProvider = HashMap(64)
     }
@@ -40,6 +43,12 @@ internal class DefaultProviderManager : ProviderManager, Loggable {
 
     private fun loadProviders(pluginFolder: File) {
         for (provider in PluginLoader(pluginFolder, Provider::class.java).load()) {
+            val baseClass = provider.baseClass
+            if (!baseClass.isInstance(provider)) {
+                logInfo("Provider ${provider.readableName} does not implement its base class")
+                continue
+            }
+            providerByBase[baseClass] = provider
             providerById[provider.id] = ProviderManager.ProviderWrapper.defaultWrapper(provider)
         }
     }
@@ -84,7 +93,7 @@ internal class DefaultProviderManager : ProviderManager, Loggable {
                         initStateWriter.begin(s.readableName)
                         initStateWriter.state("Initializing ${s.readableName}...")
                         val dependencies = buildDependencies(s)
-                        s.initialize(initStateWriter, dependencies)
+                        s.initialize(initStateWriter, DependencyMap(dependencies))
                         dependencies.values.forEach {
                             suggestersByProvider.computeIfAbsent(it, { LinkedList() }).add(s)
                         }
@@ -96,21 +105,21 @@ internal class DefaultProviderManager : ProviderManager, Loggable {
                 }
     }
 
-    private fun buildDependencies(suggester: Suggester): Map<String, Provider> {
+    private fun buildDependencies(suggester: Suggester): Map<Class<out Provider>, Provider> {
         val dependencies = suggester.dependencies
-        val loadedDependencies = LinkedHashMap<String, Provider>(dependencies.size * 2)
-        for (dependencyName in dependencies) {
-            val dependency = getProvider(dependencyName) ?: throw InitializationException(
-                    "Missing dependency for suggester ${suggester.readableName}: $dependencyName."
+        val loadedDependencies = LinkedHashMap<Class<out Provider>, Provider>(dependencies.size * 2)
+        for (dependencyClass in dependencies) {
+            val dependency = getProvider(dependencyClass) ?: throw InitializationException(
+                    "Missing dependency for suggester ${suggester.readableName}: ${dependencyClass.name}."
             )
 
-            loadedDependencies.put(dependencyName, dependency.wrapped)
+            loadedDependencies.put(dependencyClass, dependency)
         }
 
-        for (dependencyName in suggester.optionalDependencies) {
-            val dependency = getProvider(dependencyName)
+        for (dependencyClass in suggester.optionalDependencies) {
+            val dependency = getProvider(dependencyClass)
             if (dependency != null) {
-                loadedDependencies.put(dependencyName, dependency.wrapped)
+                loadedDependencies.put(dependencyClass, dependency)
             }
         }
 
@@ -119,6 +128,12 @@ internal class DefaultProviderManager : ProviderManager, Loggable {
 
     override fun getProvider(id: String): ProviderManager.ProviderWrapper? {
         return providerById[id]
+    }
+
+    override fun getProvider(baseClass: Class<out Provider>): Provider? {
+        val provider = providerByBase[baseClass] ?: return null
+        val wrapper = getWrapper(provider)
+        return if (wrapper.isActive) provider else null
     }
 
     override fun getSuggester(id: String): ProviderManager.SuggesterWrapper? {
@@ -262,6 +277,10 @@ open class DefaultProviderWrapper(plugin: Provider) : DefaultPluginWrapper<Provi
     override fun lookup(id: String): Song {
         return wrapped.lookup(id)
     }
+
+    override fun getBaseClass(): Class<out Provider> {
+        return wrapped.baseClass
+    }
 }
 
 open class DefaultSuggesterWrapper(plugin: Suggester) : DefaultPluginWrapper<Suggester>(plugin), ProviderManager.SuggesterWrapper {
@@ -279,7 +298,7 @@ open class DefaultSuggesterWrapper(plugin: Suggester) : DefaultPluginWrapper<Sug
     }
 
     @Throws(InitializationException::class, InterruptedException::class)
-    override fun initialize(initStateWriter: InitStateWriter, dependencies: Map<String, Provider>) {
+    override fun initialize(initStateWriter: InitStateWriter, dependencies: DependencyMap<Provider>) {
         if (state < Plugin.State.CONFIG) {
             throw IllegalStateException()
         } else if (state == Plugin.State.ACTIVE) {
@@ -302,11 +321,11 @@ open class DefaultSuggesterWrapper(plugin: Suggester) : DefaultPluginWrapper<Sug
         wrapped.removeSuggestion(song)
     }
 
-    override fun getDependencies(): MutableSet<String> {
+    override fun getDependencies(): Set<Class<out Provider>> {
         return wrapped.dependencies
     }
 
-    override fun getOptionalDependencies(): MutableSet<String> {
+    override fun getOptionalDependencies(): Set<Class<out Provider>> {
         return wrapped.optionalDependencies
     }
 }

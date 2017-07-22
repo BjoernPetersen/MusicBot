@@ -16,6 +16,17 @@ public interface Provider extends NamedPlugin, IdPlugin {
   Set<Class<? extends PlaybackFactory>> getPlaybackDependencies();
 
   /**
+   * Gets the base class for this provider. The base class should define relevant methods for {@link
+   * Suggester} implementations depending on this provider.
+   *
+   * This provider must implement the returned base class.
+   *
+   * @return a class
+   */
+  @Nonnull
+  Class<? extends Provider> getBaseClass();
+
+  /**
    * Signals to the provider that it can start doing work.
    *
    * @param manager a PlaybackFactoryManager to obtain PlaybackFactory instances from

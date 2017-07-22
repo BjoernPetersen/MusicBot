@@ -7,7 +7,6 @@ import com.github.bjoernpetersen.jmusicbot.NamedPlugin;
 import com.github.bjoernpetersen.jmusicbot.Song;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import javax.annotation.Nonnull;
 
@@ -87,24 +86,28 @@ public interface Suggester extends NamedPlugin, IdPlugin {
    * @throws InterruptedException if the thread is interrupted while initializing
    */
   void initialize(@Nonnull InitStateWriter initStateWriter,
-      @Nonnull Map<String, Provider> dependencies)
+      @Nonnull DependencyMap<Provider> dependencies)
       throws InitializationException, InterruptedException;
 
   /**
-   * <p>Gets a set of names of providers this Suggester depends on.</p>
+   * <p>Gets a set of providers this Suggester depends on.</p>
    *
-   * @return a set of provider names
+   * The default implementation returns an empty set.
+   *
+   * @return a set of provider base classes
    */
-  default Set<String> getDependencies() {
+  default Set<Class<? extends Provider>> getDependencies() {
     return Collections.emptySet();
   }
 
   /**
-   * <p>Gets a set of names of providers this Suggester may use, but doesn't need.</p>
+   * <p>Gets a set of providers this Suggester may use, but doesn't need.</p>
    *
-   * @return a set of provider names
+   * The default implementation returns an empty set.
+   *
+   * @return a set of provider base classes
    */
-  default Set<String> getOptionalDependencies() {
+  default Set<Class<? extends Provider>> getOptionalDependencies() {
     return Collections.emptySet();
   }
 
