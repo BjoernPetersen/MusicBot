@@ -1,11 +1,12 @@
 package com.github.bjoernpetersen.jmusicbot;
 
-import com.github.bjoernpetersen.jmusicbot.ProviderManager.State;
+import com.github.bjoernpetersen.jmusicbot.Plugin.State;
 import com.github.bjoernpetersen.jmusicbot.config.Config;
 import com.github.bjoernpetersen.jmusicbot.playback.Player;
 import com.github.bjoernpetersen.jmusicbot.playback.QueueChangeListener;
 import com.github.bjoernpetersen.jmusicbot.playback.QueueEntry;
 import com.github.bjoernpetersen.jmusicbot.provider.Provider;
+import com.github.bjoernpetersen.jmusicbot.provider.ProviderManager;
 import com.github.bjoernpetersen.jmusicbot.provider.Suggester;
 import com.github.bjoernpetersen.jmusicbot.user.UserManager;
 import java.io.Closeable;
@@ -48,12 +49,13 @@ public final class MusicBot implements Loggable, Closeable {
 
     Consumer<Song> songPlayedNotifier = song -> {
       Provider provider = song.getProvider();
-      for (Suggester suggester : providerManager.getSuggestersFor(provider)) {
+      for (Suggester suggester : providerManager.getSuggesters(provider)) {
         suggester.notifyPlayed(song);
       }
     };
 
-    if (defaultSuggester != null && providerManager.getState(defaultSuggester) != State.ACTIVE) {
+    if (defaultSuggester != null
+        && providerManager.getWrapper(defaultSuggester).getState() != State.ACTIVE) {
       logInfo("Default suggester is not active.");
       defaultSuggester = null;
     }
@@ -70,7 +72,7 @@ public final class MusicBot implements Loggable, Closeable {
       public void onAdd(@Nonnull QueueEntry entry) {
         Song song = entry.getSong();
         Provider provider = song.getProvider();
-        for (Suggester suggester : providerManager.getSuggestersFor(provider)) {
+        for (Suggester suggester : providerManager.getSuggesters(provider)) {
           suggester.removeSuggestion(song);
         }
       }
@@ -221,32 +223,8 @@ public final class MusicBot implements Loggable, Closeable {
       }
 
       playbackFactoryManager.initializeFactories(initStateWriter);
-
-      for (Provider provider : providerManager.getProviders().values()) {
-        if (providerManager.getState(provider) == State.CONFIG) {
-          try {
-            providerManager.initialize(provider, initStateWriter);
-          } catch (InitializationException e) {
-            logInfo(e, "Could not initialize Provider " + provider.getReadableName());
-            providerManager.destructConfigEntries(provider);
-          } catch (RuntimeException e) {
-            logSevere(e, "Unexpected error initializing Provider " + provider.getReadableName());
-          }
-        }
-      }
-
-      for (Suggester suggester : providerManager.getSuggesters().values()) {
-        if (providerManager.getState(suggester) == State.CONFIG) {
-          try {
-            providerManager.initialize(suggester, initStateWriter);
-          } catch (InitializationException e) {
-            logInfo(e, "Could not initialize Suggester " + suggester.getReadableName());
-            providerManager.destructConfigEntries(suggester);
-          } catch (RuntimeException e) {
-            logSevere(e, "Unexpected error initializing Suggester " + suggester.getReadableName());
-          }
-        }
-      }
+      providerManager.initializeProviders(initStateWriter);
+      providerManager.initializeSuggesters(initStateWriter);
 
       initStateWriter.close();
 

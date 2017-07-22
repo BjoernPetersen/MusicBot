@@ -67,4 +67,8 @@ public interface Plugin extends Closeable {
    */
   @Nonnull
   Support getSupport(@Nonnull Platform platform);
+
+  enum State {
+    INACTIVE, CONFIG, ACTIVE
+  }
 }
