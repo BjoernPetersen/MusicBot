@@ -3,6 +3,7 @@ package com.github.bjoernpetersen.jmusicbot.provider;
 import com.github.bjoernpetersen.jmusicbot.InitStateWriter;
 import com.github.bjoernpetersen.jmusicbot.PlaybackFactoryManager;
 import com.github.bjoernpetersen.jmusicbot.Plugin.State;
+import com.github.bjoernpetersen.jmusicbot.PluginLoader;
 import com.github.bjoernpetersen.jmusicbot.PluginWrapper;
 import com.github.bjoernpetersen.jmusicbot.Reference;
 import com.github.bjoernpetersen.jmusicbot.config.Config;
@@ -14,8 +15,19 @@ import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+/**
+ * Manages all instances of Providers and Suggesters and provides {@link PluginWrapper} instances
+ * for them.
+ */
 public interface ProviderManager extends Closeable {
 
+  /**
+   * Initialize the ProviderManager. This includes loading Providers and Suggesters with a {@link
+   * PluginLoader} instance.
+   *
+   * @param config a Config instance
+   * @param manager a PlaybackFactoryManager to initialize Providers later
+   */
   void initialize(@Nonnull Config config, @Nonnull PlaybackFactoryManager manager);
 
   /**
