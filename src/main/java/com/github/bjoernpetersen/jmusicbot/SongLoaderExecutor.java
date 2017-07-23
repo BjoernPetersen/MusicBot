@@ -15,7 +15,7 @@ import javax.annotation.Nonnull;
 
 class SongLoaderExecutor implements Loggable {
 
-  private static SongLoaderExecutor instance;
+  private static volatile SongLoaderExecutor instance;
 
   @Nonnull
   private final ExecutorService service;
