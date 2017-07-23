@@ -2,6 +2,8 @@ package com.github.bjoernpetersen.jmusicbot;
 
 import com.github.bjoernpetersen.jmusicbot.Plugin.State;
 import com.github.bjoernpetersen.jmusicbot.config.Config;
+import com.github.bjoernpetersen.jmusicbot.platform.ContextHolder;
+import com.github.bjoernpetersen.jmusicbot.platform.ContextSupplier;
 import com.github.bjoernpetersen.jmusicbot.playback.Player;
 import com.github.bjoernpetersen.jmusicbot.playback.QueueChangeListener;
 import com.github.bjoernpetersen.jmusicbot.playback.QueueEntry;
@@ -164,6 +166,8 @@ public final class MusicBot implements Loggable, Closeable {
     private UserManager userManager;
     @Nonnull
     private InitStateWriter initStateWriter;
+    @Nullable
+    private ContextSupplier contextSupplier;
 
     public Builder(@Nonnull Config config) {
       this.config = config;
@@ -213,6 +217,12 @@ public final class MusicBot implements Loggable, Closeable {
     }
 
     @Nonnull
+    public Builder contextSupplier(@Nonnull ContextSupplier contextSupplier) {
+      this.contextSupplier = Objects.requireNonNull(contextSupplier);
+      return this;
+    }
+
+    @Nonnull
     public MusicBot build() throws InitializationException, InterruptedException {
       if (providerManager == null
           || playbackFactoryManager == null
@@ -220,6 +230,10 @@ public final class MusicBot implements Loggable, Closeable {
           || apiInitializer == null
           || broadcasterInitializer == null) {
         throw new IllegalStateException("Not all required values set.");
+      }
+
+      if (contextSupplier != null) {
+        ContextHolder.INSTANCE.initialize(contextSupplier);
       }
 
       playbackFactoryManager.initializeFactories(initStateWriter);

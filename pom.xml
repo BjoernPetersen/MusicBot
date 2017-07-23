@@ -47,6 +47,7 @@
     <sqlite.version>3.18.0</sqlite.version>
     <jbcrypt.version>0.4</jbcrypt.version>
     <jjwt.version>0.7.0</jjwt.version>
+    <android.version>4.1.1.4</android.version>
 
     <!-- plugin versions -->
     <dokka.version>0.9.15</dokka.version>
@@ -117,6 +118,12 @@
       <artifactId>jjwt</artifactId>
       <version>${jjwt.version}</version>
       <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.google.android</groupId>
+      <artifactId>android</artifactId>
+      <version>${android.version}</version>
+      <scope>provided</scope>
     </dependency>
   </dependencies>
   <build>
