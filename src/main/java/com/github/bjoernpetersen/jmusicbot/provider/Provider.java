@@ -41,7 +41,7 @@ public interface Provider extends NamedPlugin, IdPlugin {
   /**
    * Searches for songs based on the given search query.
    *
-   * @param query a search query
+   * @param query a search query, trimmed and not empty
    * @return a list of songs
    */
   @Nonnull
