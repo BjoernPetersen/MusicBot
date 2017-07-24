@@ -7,11 +7,9 @@ enum class Permission(val label: String) {
     companion object {
         @JvmStatic
         fun matchByLabel(label: String): Permission {
-            for (permission in enumValues<Permission>()) {
-                if (permission.label == label) {
-                    return permission
-                }
-            }
+            Permission.values()
+                    .filter { it.label == label }
+                    .forEach { return it }
             throw IllegalArgumentException()
         }
     }
