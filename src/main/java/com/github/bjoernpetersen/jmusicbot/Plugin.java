@@ -5,6 +5,7 @@ import com.github.bjoernpetersen.jmusicbot.config.Config.Entry;
 import com.github.bjoernpetersen.jmusicbot.config.DefaultConfigEntry;
 import com.github.bjoernpetersen.jmusicbot.platform.Platform;
 import com.github.bjoernpetersen.jmusicbot.platform.Support;
+import com.github.zafarkhaja.semver.Version;
 import java.io.Closeable;
 import java.util.List;
 import javax.annotation.Nonnull;
@@ -67,6 +68,26 @@ public interface Plugin extends Closeable {
    */
   @Nonnull
   Support getSupport(@Nonnull Platform platform);
+
+  /**
+   * Gets the minimum supported version of MusicBot.
+   *
+   * @return a version
+   */
+  @Nonnull
+  default Version getMinSupportedVersion() {
+    return MusicBot.getVersion();
+  }
+
+  /**
+   * Gets the maximum supported version of MusicBot.
+   *
+   * @return a version of MusicBot
+   */
+  @Nonnull
+  default Version getMaxSupportedVersion() {
+    return MusicBot.getVersion();
+  }
 
   enum State {
     INACTIVE, CONFIG, ACTIVE

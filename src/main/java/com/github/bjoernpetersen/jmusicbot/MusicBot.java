@@ -11,11 +11,17 @@ import com.github.bjoernpetersen.jmusicbot.provider.Provider;
 import com.github.bjoernpetersen.jmusicbot.provider.ProviderManager;
 import com.github.bjoernpetersen.jmusicbot.provider.Suggester;
 import com.github.bjoernpetersen.jmusicbot.user.UserManager;
+import com.github.zafarkhaja.semver.ParseException;
+import com.github.zafarkhaja.semver.Version;
+import com.google.common.annotations.VisibleForTesting;
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.Properties;
+import java.util.StringJoiner;
 import java.util.function.Consumer;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -147,6 +153,26 @@ public final class MusicBot implements Loggable, Closeable {
     PluginLoader.reset();
   }
 
+  /**
+   * Gets the version of this MusicBot.
+   *
+   * @return a version
+   */
+  @Nonnull
+  public static Version getVersion() {
+    try {
+      Properties properties = new Properties();
+      properties.load(MusicBot.class.getResourceAsStream("version.properties"));
+      String version = properties.getProperty("version");
+      if (version == null) {
+        throw new IllegalStateException("Version is missing");
+      }
+      return Version.valueOf(version);
+    } catch (IOException | ParseException e) {
+      throw new IllegalStateException("Could not read version resource", e);
+    }
+  }
+
   public static class Builder implements Loggable {
 
     // TODO IP, port
@@ -236,6 +262,9 @@ public final class MusicBot implements Loggable, Closeable {
         ContextHolder.INSTANCE.initialize(contextSupplier);
       }
 
+      printUnsupported("PlaybackFactories", playbackFactoryManager.getPlaybackFactories());
+      printUnsupported("Providers", providerManager.getAllProviders().values());
+      printUnsupported("Suggesters", providerManager.getAllProviders().values());
       playbackFactoryManager.initializeFactories(initStateWriter);
       providerManager.initializeProviders(initStateWriter);
       providerManager.initializeSuggesters(initStateWriter);
@@ -252,5 +281,61 @@ public final class MusicBot implements Loggable, Closeable {
           broadcasterInitializer
       );
     }
+
+    private void printUnsupported(@Nonnull String kind,
+        @Nonnull Collection<? extends Plugin> plugins) {
+      String message = getUnsupportedMessage(kind, plugins);
+      if (message != null) {
+        logWarning(message);
+      }
+    }
+
+    @VisibleForTesting
+    @Nullable
+    String getUnsupportedMessage(@Nonnull String kind,
+        @Nonnull Collection<? extends Plugin> plugins) {
+      StringJoiner stringJoiner = new StringJoiner(", ");
+      plugins.stream()
+          .filter(this::isUnsupported)
+          .map(Plugin::getReadableName)
+          .forEach(stringJoiner::add);
+
+      String unsupported = stringJoiner.toString();
+      if (unsupported.isEmpty()) {
+        return null;
+      }
+
+      return String.format("The following %s are probably not supported: %s", kind, unsupported);
+    }
+
+    @VisibleForTesting
+    boolean isUnsupported(@Nonnull Plugin plugin) {
+      Version currentVersion = MusicBot.getVersion();
+      Version minVersion = plugin.getMinSupportedVersion();
+      Version maxVersion = plugin.getMaxSupportedVersion();
+      return isUnsupported(currentVersion, minVersion, maxVersion);
+    }
+
+    @VisibleForTesting
+    boolean isUnsupported(@Nonnull Version current,
+        @Nonnull Version min, @Nonnull Version max) {
+      if (current.getMajorVersion() != min.getMajorVersion()) {
+        if (current.getMajorVersion() < min.getMajorVersion()) {
+          return true;
+        }
+      } else if (current.getMinorVersion() < min.getMinorVersion()) {
+        return true;
+      }
+
+      if (current.getMajorVersion() != max.getMajorVersion()) {
+        if (current.getMajorVersion() > max.getMajorVersion()) {
+          return true;
+        }
+      } else if (current.getMinorVersion() > max.getMinorVersion()) {
+        return true;
+      }
+      return false;
+    }
+
   }
 }
