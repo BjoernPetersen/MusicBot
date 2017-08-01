@@ -55,18 +55,25 @@ public final class MusicBot implements Loggable, Closeable {
     initialized.add(providerManager);
     initialized.add(userManager);
 
+    if (defaultSuggester != null
+        && providerManager.getWrapper(defaultSuggester).getState() != State.ACTIVE) {
+      logInfo("Default suggester is not active.");
+      defaultSuggester = null;
+    }
+
+    try {
+      checkSanity(providerManager);
+    } catch (InitializationException e) {
+      closeAll(e, initialized);
+      throw e;
+    }
+
     Consumer<Song> songPlayedNotifier = song -> {
       Provider provider = song.getProvider();
       for (Suggester suggester : providerManager.getSuggesters(provider)) {
         suggester.notifyPlayed(song);
       }
     };
-
-    if (defaultSuggester != null
-        && providerManager.getWrapper(defaultSuggester).getState() != State.ACTIVE) {
-      logInfo("Default suggester is not active.");
-      defaultSuggester = null;
-    }
 
     try {
       this.player = new Player(songPlayedNotifier, defaultSuggester);
@@ -108,6 +115,13 @@ public final class MusicBot implements Loggable, Closeable {
     } catch (InitializationException e) {
       closeAll(e, initialized);
       throw new InitializationException("Exception during broadcaster init", e);
+    }
+  }
+
+  private void checkSanity(@Nonnull ProviderManager providerManager)
+      throws InitializationException {
+    if (providerManager.getProviders().count() == 0) {
+      throw new InitializationException("There are no active providers. This setup is useless.");
     }
   }
 
