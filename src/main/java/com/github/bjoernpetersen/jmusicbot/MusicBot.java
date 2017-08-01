@@ -40,7 +40,8 @@ public final class MusicBot implements Loggable, Closeable {
   private final Closeable restApi;
   private final Closeable broadcaster;
 
-  private MusicBot(@Nonnull Config config, @Nonnull PlaybackFactoryManager playbackFactoryManager,
+  private MusicBot(@Nonnull Config config, @Nonnull InitStateWriter initStateWriter,
+      @Nonnull PlaybackFactoryManager playbackFactoryManager,
       @Nonnull ProviderManager providerManager, @Nullable Suggester defaultSuggester,
       @Nonnull UserManager userManager, @Nonnull ApiInitializer apiInitializer,
       @Nonnull BroadcasterInitializer broadcasterInitializer)
@@ -57,7 +58,7 @@ public final class MusicBot implements Loggable, Closeable {
 
     if (defaultSuggester != null
         && providerManager.getWrapper(defaultSuggester).getState() != State.ACTIVE) {
-      logInfo("Default suggester is not active.");
+      initStateWriter.warning("Default suggester is not active.");
       defaultSuggester = null;
     }
 
@@ -276,24 +277,27 @@ public final class MusicBot implements Loggable, Closeable {
         ContextHolder.INSTANCE.initialize(contextSupplier);
       }
 
-      printUnsupported("PlaybackFactories", playbackFactoryManager.getPlaybackFactories());
-      printUnsupported("Providers", providerManager.getAllProviders().values());
-      printUnsupported("Suggesters", providerManager.getAllProviders().values());
-      playbackFactoryManager.initializeFactories(initStateWriter);
-      providerManager.initializeProviders(initStateWriter);
-      providerManager.initializeSuggesters(initStateWriter);
+      try {
+        printUnsupported("PlaybackFactories", playbackFactoryManager.getPlaybackFactories());
+        printUnsupported("Providers", providerManager.getAllProviders().values());
+        printUnsupported("Suggesters", providerManager.getAllProviders().values());
+        playbackFactoryManager.initializeFactories(initStateWriter);
+        providerManager.initializeProviders(initStateWriter);
+        providerManager.initializeSuggesters(initStateWriter);
 
-      initStateWriter.close();
-
-      return new MusicBot(
-          config,
-          playbackFactoryManager,
-          providerManager,
-          defaultSuggester,
-          userManager,
-          apiInitializer,
-          broadcasterInitializer
-      );
+        return new MusicBot(
+            config,
+            initStateWriter,
+            playbackFactoryManager,
+            providerManager,
+            defaultSuggester,
+            userManager,
+            apiInitializer,
+            broadcasterInitializer
+        );
+      } finally {
+        initStateWriter.close();
+      }
     }
 
     private void printUnsupported(@Nonnull String kind,
