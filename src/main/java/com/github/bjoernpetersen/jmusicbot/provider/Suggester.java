@@ -3,14 +3,13 @@ package com.github.bjoernpetersen.jmusicbot.provider;
 import com.github.bjoernpetersen.jmusicbot.IdPlugin;
 import com.github.bjoernpetersen.jmusicbot.InitStateWriter;
 import com.github.bjoernpetersen.jmusicbot.InitializationException;
-import com.github.bjoernpetersen.jmusicbot.NamedPlugin;
 import com.github.bjoernpetersen.jmusicbot.Song;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import javax.annotation.Nonnull;
 
-public interface Suggester extends NamedPlugin, IdPlugin {
+public interface Suggester extends IdPlugin {
 
   /**
    * <p>Suggest the next song to play.</p>
@@ -109,13 +108,5 @@ public interface Suggester extends NamedPlugin, IdPlugin {
    */
   default Set<Class<? extends Provider>> getOptionalDependencies() {
     return Collections.emptySet();
-  }
-
-  @Deprecated
-  @Nonnull
-  @Override
-  default String getName() {
-    // new implementing classes should not be forced to override this method
-    return getClass().getSimpleName();
   }
 }

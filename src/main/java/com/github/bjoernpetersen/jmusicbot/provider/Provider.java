@@ -3,7 +3,6 @@ package com.github.bjoernpetersen.jmusicbot.provider;
 import com.github.bjoernpetersen.jmusicbot.IdPlugin;
 import com.github.bjoernpetersen.jmusicbot.InitStateWriter;
 import com.github.bjoernpetersen.jmusicbot.InitializationException;
-import com.github.bjoernpetersen.jmusicbot.NamedPlugin;
 import com.github.bjoernpetersen.jmusicbot.PlaybackFactoryManager;
 import com.github.bjoernpetersen.jmusicbot.Song;
 import com.github.bjoernpetersen.jmusicbot.playback.PlaybackFactory;
@@ -11,7 +10,7 @@ import java.util.List;
 import java.util.Set;
 import javax.annotation.Nonnull;
 
-public interface Provider extends NamedPlugin, IdPlugin {
+public interface Provider extends IdPlugin {
 
   Set<Class<? extends PlaybackFactory>> getPlaybackDependencies();
 
@@ -56,12 +55,4 @@ public interface Provider extends NamedPlugin, IdPlugin {
    */
   @Nonnull
   Song lookup(@Nonnull String id) throws NoSuchSongException;
-
-  @Deprecated
-  @Nonnull
-  @Override
-  default String getName() {
-    // new implementing classes should not be forced to override this method
-    return getClass().getSimpleName();
-  }
 }
