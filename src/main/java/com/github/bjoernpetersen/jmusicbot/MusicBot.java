@@ -257,6 +257,12 @@ public final class MusicBot implements Loggable, Closeable {
       return this;
     }
 
+    /**
+     * Sets the context supplier. This is only needed on the android platform.
+     *
+     * @param contextSupplier a ContextSupplier
+     * @return this Builder
+     */
     @Nonnull
     public Builder contextSupplier(@Nonnull ContextSupplier contextSupplier) {
       this.contextSupplier = Objects.requireNonNull(contextSupplier);
