@@ -2,15 +2,15 @@ package com.github.bjoernpetersen.jmusicbot.playback
 
 
 object DummyPlayback : Playback {
-    override fun play() {}
+  override fun play() {}
 
-    override fun pause() {}
+  override fun pause() {}
 
-    @Throws(InterruptedException::class)
-    override fun waitForFinish() {
-        Thread.sleep(2000)
-    }
+  @Throws(InterruptedException::class)
+  override fun waitForFinish() {
+    Thread.sleep(2000)
+  }
 
-    override fun close() {}
+  override fun close() {}
 
 }

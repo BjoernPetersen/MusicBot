@@ -70,8 +70,8 @@ public final class Song {
   }
 
   /**
-   * Gets a Playback object for this Song.
-   * A call to this method indicates that the song will actually be played.
+   * Gets a Playback object for this Song. A call to this method indicates that the song will
+   * actually be played.
    *
    * @return a Playback object
    * @throws IOException if no Playback can be created

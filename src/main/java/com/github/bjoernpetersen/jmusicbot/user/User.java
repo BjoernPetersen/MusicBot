@@ -110,8 +110,8 @@ public final class User {
   }
 
   /**
-   * Gets the validity state of this object.
-   * If the object is invalid, calls to any other methods result in a IllegalStateException.
+   * Gets the validity state of this object. If the object is invalid, calls to any other methods
+   * result in a IllegalStateException.
    *
    * @return whether this user is invalid
    */

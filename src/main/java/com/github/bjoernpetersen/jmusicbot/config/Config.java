@@ -257,11 +257,8 @@ public final class Config implements Loggable {
   /**
    * <p>A config entry, holding it's key and description.</p>
    *
-   * There are two implementations of Config.Entry:<br>
-   * <ul>
-   * <li>{@link StringEntry} for string entries and secrets</li>
-   * <li>{@link BooleanEntry} for boolean entries</li>
-   * </ul>
+   * There are two implementations of Config.Entry:<br> <ul> <li>{@link StringEntry} for string
+   * entries and secrets</li> <li>{@link BooleanEntry} for boolean entries</li> </ul>
    */
   public abstract class Entry {
 
@@ -463,8 +460,8 @@ public final class Config implements Loggable {
    * <p>This implementation provides a {@link #get()} method to access the current value.</p>
    *
    * <p><b>Note:</b> a BooleanEntry will actually be stored as a string. {@link
-   * Boolean#parseBoolean(String)} will be used to parse a value from the config, which
-   * means <code>false</code> will be parsed if the value is anything other than "true".</p>
+   * Boolean#parseBoolean(String)} will be used to parse a value from the config, which means
+   * <code>false</code> will be parsed if the value is anything other than "true".</p>
    */
   public class ReadOnlyBooleanEntry extends Entry {
 
