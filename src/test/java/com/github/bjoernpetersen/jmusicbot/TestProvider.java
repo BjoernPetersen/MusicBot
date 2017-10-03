@@ -68,7 +68,7 @@ public class TestProvider implements Provider {
   }
 
   @Override
-  public void destructConfigEntries() {
+  public void dereferenceConfigEntries() {
   }
 
   @Override

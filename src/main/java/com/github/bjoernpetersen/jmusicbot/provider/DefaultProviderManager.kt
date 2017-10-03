@@ -3,7 +3,6 @@ package com.github.bjoernpetersen.jmusicbot.provider
 import com.github.bjoernpetersen.jmusicbot.*
 import com.github.bjoernpetersen.jmusicbot.config.Config
 import com.github.bjoernpetersen.jmusicbot.config.Config.Entry
-import com.github.bjoernpetersen.jmusicbot.config.DefaultConfigEntry
 import com.github.bjoernpetersen.jmusicbot.platform.Platform
 import com.github.bjoernpetersen.jmusicbot.platform.Support
 import com.github.bjoernpetersen.jmusicbot.playback.PlaybackFactory
@@ -35,7 +34,7 @@ internal class DefaultProviderManager : ProviderManager, Loggable {
     this.config = config
     this.playbackFactoryManager = manager
 
-    val pluginFolderName = DefaultConfigEntry.get(config).pluginFolder.getOrDefault()
+    val pluginFolderName = config.defaults.pluginFolder.value
     val pluginFolder = File(pluginFolderName)
     loadProviders(pluginFolder);
     loadSuggesters(pluginFolder);
@@ -215,14 +214,14 @@ open class DefaultPluginWrapper<T : Plugin> constructor(private val plugin: T) :
     return configEntries
   }
 
-  override fun destructConfigEntries() {
+  override fun dereferenceConfigEntries() {
     if (getState() > Plugin.State.CONFIG) {
       throw IllegalStateException()
     } else if (getState() < Plugin.State.CONFIG) {
       return
     }
     configEntries = emptyList()
-    wrapped.destructConfigEntries()
+    wrapped.dereferenceConfigEntries()
     setState(Plugin.State.INACTIVE)
   }
 

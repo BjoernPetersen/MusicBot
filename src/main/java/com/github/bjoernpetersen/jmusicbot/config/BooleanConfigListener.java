@@ -1,7 +1,6 @@
 package com.github.bjoernpetersen.jmusicbot.config;
 
+@Deprecated
 @FunctionalInterface
-public interface BooleanConfigListener {
-
-  void onChange(boolean before, boolean after);
+public interface BooleanConfigListener extends ConfigListener<Boolean> {
 }

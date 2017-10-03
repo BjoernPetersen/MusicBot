@@ -43,7 +43,7 @@ public final class UserManager implements Closeable {
   private final LoadingCache<String, User> users;
 
   public UserManager(@Nonnull Config config, @Nonnull String databaseUrl) throws SQLException {
-    this.signatureKey = config.secret(getClass(), "signatureKey", "");
+    this.signatureKey = config.new StringEntry(getClass(), "signatureKey", "", true);
     this.guestSignatureKey = createSignatureKey();
     this.database = new Database(databaseUrl);
 
@@ -205,9 +205,9 @@ public final class UserManager implements Closeable {
 
   @Nonnull
   private String getSignatureKey() {
-    Optional<String> configKey = signatureKey.get();
-    if (configKey.isPresent()) {
-      return configKey.get();
+    String configKey = signatureKey.getValue();
+    if (configKey != null) {
+      return configKey;
     } else {
       String key = createSignatureKey();
       signatureKey.set(key);

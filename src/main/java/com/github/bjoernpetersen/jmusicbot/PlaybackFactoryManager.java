@@ -1,7 +1,6 @@
 package com.github.bjoernpetersen.jmusicbot;
 
 import com.github.bjoernpetersen.jmusicbot.config.Config;
-import com.github.bjoernpetersen.jmusicbot.config.DefaultConfigEntry;
 import com.github.bjoernpetersen.jmusicbot.platform.Platform;
 import com.github.bjoernpetersen.jmusicbot.playback.PlaybackFactory;
 import com.github.bjoernpetersen.jmusicbot.playback.PlaybackFactoryLoader;
@@ -28,7 +27,7 @@ public final class PlaybackFactoryManager implements Loggable, Closeable {
     this.config = config;
     this.factories = new HashMap<>();
 
-    String pluginFolderName = DefaultConfigEntry.get(config).pluginFolder.getOrDefault();
+    String pluginFolderName = config.getDefaults().getPluginFolder().getValue();
     File pluginFolder = new File(pluginFolderName);
     this.configEntries = loadFactories(pluginFolder, included);
   }
@@ -167,7 +166,7 @@ public final class PlaybackFactoryManager implements Loggable, Closeable {
 
     for (PlaybackFactory factory : defective) {
       removeFactory(factory);
-      factory.destructConfigEntries();
+      factory.dereferenceConfigEntries();
     }
   }
 
