@@ -2,10 +2,7 @@ package com.github.bjoernpetersen.jmusicbot.config
 
 import com.github.bjoernpetersen.jmusicbot.Loggable
 import com.github.bjoernpetersen.jmusicbot.MusicBot
-import com.github.bjoernpetersen.jmusicbot.config.ui.CheckBox
-import com.github.bjoernpetersen.jmusicbot.config.ui.PasswordBox
-import com.github.bjoernpetersen.jmusicbot.config.ui.TextBox
-import com.github.bjoernpetersen.jmusicbot.config.ui.UiNode
+import com.github.bjoernpetersen.jmusicbot.config.ui.*
 import java.util.*
 import java.util.logging.Logger
 
@@ -99,7 +96,7 @@ class Config(private val adapter: ConfigStorageAdapter) : Loggable {
       val key: String,
       val description: String,
       val isSecret: Boolean,
-      val ui: UiNode) {
+      val ui: UiNode<*, *>) {
 
     init {
       checkExists(base, key)
@@ -136,7 +133,7 @@ class Config(private val adapter: ConfigStorageAdapter) : Loggable {
       key: String,
       description: String,
       isSecret: Boolean,
-      ui: UiNode,
+      ui: UiNode<StringEntry, *>,
       val defaultValue: String?,
       private val checker: ConfigChecker) : Entry(base, key, description, isSecret, ui) {
 
@@ -218,7 +215,8 @@ class Config(private val adapter: ConfigStorageAdapter) : Loggable {
       description: String,
       isSecret: Boolean,
       default: String? = null,
-      ui: UiNode = if (isSecret) PasswordBox() else TextBox(),
+      ui: UiNode<StringEntry, *> = if (isSecret) PasswordBox(DefaultStringConverter)
+      else TextBox(DefaultStringConverter),
       checker: ConfigChecker = ConfigChecker { null }) :
       ReadOnlyStringEntry(base, key, description, isSecret, ui, default, checker) {
 
@@ -261,7 +259,7 @@ class Config(private val adapter: ConfigStorageAdapter) : Loggable {
       key: String,
       description: String,
       val defaultValue: Boolean,
-      ui: UiNode) : Entry(base, key, description, false, ui) {
+      ui: UiNode<BooleanEntry, *>) : Entry(base, key, description, false, ui) {
 
     private val listeners: MutableSet<ConfigListener<Boolean>>
 
@@ -325,7 +323,8 @@ class Config(private val adapter: ConfigStorageAdapter) : Loggable {
       key: String,
       description: String,
       defaultValue: Boolean,
-      ui: UiNode = CheckBox()) : ReadOnlyBooleanEntry(base, key, description, defaultValue, ui) {
+      ui: UiNode<BooleanEntry, *> = CheckBox(DefaultBooleanConverter)) :
+      ReadOnlyBooleanEntry(base, key, description, defaultValue, ui) {
 
     /**
      * Sets the entry value to the specified new one.

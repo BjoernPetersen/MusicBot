@@ -1,73 +1,38 @@
 package com.github.bjoernpetersen.jmusicbot.config.ui
 
 import com.github.bjoernpetersen.jmusicbot.config.Config
-import com.github.bjoernpetersen.jmusicbot.config.ConfigChecker
-import com.github.bjoernpetersen.jmusicbot.config.ConfigStorageAdapter
-import java.util.*
-import kotlin.collections.ArrayList
 
-
-sealed class UiNode {
-  abstract val children: Collection<UiNode>
+interface ConfigValueConverter<in T : Config.Entry, U> {
+  fun getWithoutDefault(t: T): U
+  fun getDefault(t: T): U
+  fun set(t: T, u: U)
 }
 
-sealed class Container : UiNode() {
-  enum class Orientation {
-    HORIZONTAL, VERTICAL
-  }
-
-  override val children: MutableList<UiNode> = ArrayList()
+object DefaultBooleanConverter : ConfigValueConverter<Config.BooleanEntry, Boolean> {
+  override fun getDefault(t: Config.BooleanEntry): Boolean = t.defaultValue
+  override fun getWithoutDefault(t: Config.BooleanEntry): Boolean = t.value
+  override fun set(t: Config.BooleanEntry, u: Boolean) = t.set(u)
 }
 
-class LinearLayout(val orientation: Orientation = Orientation.HORIZONTAL) : Container()
-
-class TextBox() : UiNode() {
-  override val children: Set<UiNode>
-    get() = emptySet()
+object DefaultStringConverter : ConfigValueConverter<Config.StringEntry, String?> {
+  override fun getDefault(t: Config.StringEntry): String? = t.defaultValue
+  override fun getWithoutDefault(t: Config.StringEntry): String? = t.valueWithoutDefault
+  override fun set(t: Config.StringEntry, u: String?) = t.set(u)
 }
 
-class PasswordBox() : UiNode() {
-  override val children: Collection<UiNode>
-    get() = emptySet()
-}
+sealed class UiNode<in T : Config.Entry, U>(val converter: ConfigValueConverter<T, U>)
+class TextBox<in T : Config.Entry>(converter: ConfigValueConverter<T, String?>) :
+    UiNode<T, String?>(converter)
 
-class NumberBox() : UiNode() {
-  override val children: Collection<UiNode>
-    get() = emptySet()
-}
+class PasswordBox<in T : Config.Entry>(converter: ConfigValueConverter<T, String?>) :
+    UiNode<T, String?>(converter)
 
-class CheckBox() : UiNode() {
-  override val children: Set<UiNode>
-    get() = emptySet()
-}
+class NumberBox<in T : Config.Entry>(converter: ConfigValueConverter<T, Int?>,
+    val min: Int = 0, val max: Int = 100) : UiNode<T, Int?>(converter)
 
-class ChoiceBox(val refresh: () -> List<String>?) : UiNode() {
-  override val children: Collection<UiNode>
-    get() = emptySet()
-}
+class CheckBox<in T : Config.Entry>(converter: ConfigValueConverter<T, Boolean>) :
+    UiNode<T, Boolean>(converter)
+
+class ChoiceBox<in T : Config.Entry>(converter: ConfigValueConverter<T, String?>,
+    val refresh: () -> List<String>?) : UiNode<T, String?>(converter)
 // TODO: file chooser button
-
-fun test() {
-  val c = Config(object:ConfigStorageAdapter {
-    override fun loadPlaintext(): MutableMap<String, String> {
-      TODO(
-          "not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun loadSecrets(): MutableMap<String, String> {
-      TODO(
-          "not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun storePlaintext(plain: MutableMap<String, String>) {
-      TODO(
-          "not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun storeSecrets(secrets: MutableMap<String, String>) {
-      TODO(
-          "not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-  })
-  c.StringEntry(ChoiceBox::class.java, "", "", true);
-}
