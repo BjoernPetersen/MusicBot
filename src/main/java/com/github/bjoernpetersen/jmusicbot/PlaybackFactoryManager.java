@@ -166,7 +166,7 @@ public final class PlaybackFactoryManager implements Loggable, Closeable {
 
     for (PlaybackFactory factory : defective) {
       removeFactory(factory);
-      factory.dereferenceConfigEntries();
+      factory.destructConfigEntries();
     }
   }
 

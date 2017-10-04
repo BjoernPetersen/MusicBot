@@ -187,7 +187,7 @@ internal class PluginVersionTest {
             return emptyList()
         }
 
-        override fun dereferenceConfigEntries() {}
+        override fun destructConfigEntries() {}
 
         override fun getReadableName(): String {
             return "Version [$minVersion, $maxVersion]";

@@ -214,14 +214,14 @@ open class DefaultPluginWrapper<T : Plugin> constructor(private val plugin: T) :
     return configEntries
   }
 
-  override fun dereferenceConfigEntries() {
+  override fun destructConfigEntries() {
     if (getState() > Plugin.State.CONFIG) {
       throw IllegalStateException()
     } else if (getState() < Plugin.State.CONFIG) {
       return
     }
     configEntries = emptyList()
-    wrapped.dereferenceConfigEntries()
+    wrapped.destructConfigEntries()
     setState(Plugin.State.INACTIVE)
   }
 

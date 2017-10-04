@@ -39,19 +39,9 @@ public interface Plugin extends Closeable {
   List<? extends Entry> initializeConfigEntries(@Nonnull Config config);
 
   /**
-   * <p>Dereference all entries initialized in {@link #initializeConfigEntries(Config)}.</p>
-   *
-   * @deprecated in favor of {@link #dereferenceConfigEntries}
+   * <p>Destruct and dereference all entries initialized in {@link #initializeConfigEntries(Config)}.</p>
    */
-  @Deprecated
-  default void destructConfigEntries() {
-    dereferenceConfigEntries();
-  }
-
-  /**
-   * <p>Dereference and destruct all entries initialized in {@link #initializeConfigEntries(Config)}.</p>
-   */
-  void dereferenceConfigEntries();
+  void destructConfigEntries();
 
   /**
    * An arbitrary, human readable name for this plugin.
