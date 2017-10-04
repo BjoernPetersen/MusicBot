@@ -45,6 +45,6 @@ class ChoiceBox(val refresh: () -> List<String>?,
     converter: ConfigValueConverter<Config.StringEntry, String?> = DefaultStringConverter) :
     UiNode<Config.StringEntry, String?>(converter)
 
-class FileChooserButton(
+class FileChooserButton(val isFolder: Boolean = true,
     converter: ConfigValueConverter<Config.StringEntry, String?> = DefaultStringConverter) :
     UiNode<Config.StringEntry, String?>(converter)
