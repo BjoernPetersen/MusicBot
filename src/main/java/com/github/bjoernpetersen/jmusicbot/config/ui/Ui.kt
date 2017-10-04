@@ -5,18 +5,21 @@ import com.github.bjoernpetersen.jmusicbot.config.Config
 interface ConfigValueConverter<in T : Config.Entry, U> {
   fun getWithoutDefault(t: T): U
   fun getDefault(t: T): U
+  fun getWithDefault(t: T): U
   fun set(t: T, u: U)
 }
 
 object DefaultBooleanConverter : ConfigValueConverter<Config.BooleanEntry, Boolean> {
   override fun getDefault(t: Config.BooleanEntry): Boolean = t.defaultValue
   override fun getWithoutDefault(t: Config.BooleanEntry): Boolean = t.value
+  override fun getWithDefault(t: Config.BooleanEntry): Boolean = t.value
   override fun set(t: Config.BooleanEntry, u: Boolean) = t.set(u)
 }
 
 object DefaultStringConverter : ConfigValueConverter<Config.StringEntry, String?> {
   override fun getDefault(t: Config.StringEntry): String? = t.defaultValue
   override fun getWithoutDefault(t: Config.StringEntry): String? = t.valueWithoutDefault
+  override fun getWithDefault(t: Config.StringEntry): String? = t.value
   override fun set(t: Config.StringEntry, u: String?) = t.set(u)
 }
 
@@ -32,7 +35,9 @@ class NumberBox(val min: Int = 0, val max: Int = 100) :
         min
       }
 
-      override fun getWithoutDefault(t: Config.StringEntry): Int = try {
+      override fun getWithoutDefault(t: Config.StringEntry): Int = getWithDefault(t)
+
+      override fun getWithDefault(t: Config.StringEntry): Int = try {
         t.valueWithoutDefault?.toInt() ?: getDefault(t)
       } catch (e: NumberFormatException) {
         getDefault(t)
