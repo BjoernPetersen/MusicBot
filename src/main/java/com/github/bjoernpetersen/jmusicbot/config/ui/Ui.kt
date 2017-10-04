@@ -27,7 +27,7 @@ sealed class UiNode<in T : Config.Entry, U>(val converter: ConfigValueConverter<
 class TextBox() : UiNode<Config.StringEntry, String?>(DefaultStringConverter)
 class PasswordBox() : UiNode<Config.StringEntry, String?>(DefaultStringConverter)
 class CheckBox() : UiNode<Config.BooleanEntry, Boolean>(DefaultBooleanConverter)
-class NumberBox(val min: Int = 0, val max: Int = 100) :
+class NumberBox @JvmOverloads constructor(val min: Int = 0, val max: Int = 100) :
     UiNode<Config.StringEntry, Int>(object : ConfigValueConverter<Config.StringEntry, Int> {
       override fun getDefault(t: Config.StringEntry): Int = try {
         t.defaultValue?.toInt() ?: min
@@ -46,10 +46,11 @@ class NumberBox(val min: Int = 0, val max: Int = 100) :
       override fun set(t: Config.StringEntry, u: Int) = t.set(u.toString())
     })
 
-class ChoiceBox(val refresh: () -> List<String>?,
+class ChoiceBox @JvmOverloads constructor(val refresh: () -> List<String>?,
     converter: ConfigValueConverter<Config.StringEntry, String?> = DefaultStringConverter) :
     UiNode<Config.StringEntry, String?>(converter)
 
-class FileChooserButton(val isFolder: Boolean = true,
+
+class FileChooserButton @JvmOverloads constructor(val isFolder: Boolean = true,
     converter: ConfigValueConverter<Config.StringEntry, String?> = DefaultStringConverter) :
     UiNode<Config.StringEntry, String?>(converter)
