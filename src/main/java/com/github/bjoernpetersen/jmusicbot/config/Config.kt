@@ -215,8 +215,7 @@ class Config(private val adapter: ConfigStorageAdapter) : Loggable {
       description: String,
       isSecret: Boolean,
       default: String? = null,
-      ui: UiNode<StringEntry, *> = if (isSecret) PasswordBox(DefaultStringConverter)
-      else TextBox(DefaultStringConverter),
+      ui: UiNode<StringEntry, *> = if (isSecret) PasswordBox() else TextBox(),
       checker: ConfigChecker = ConfigChecker { null }) :
       ReadOnlyStringEntry(base, key, description, isSecret, ui, default, checker) {
 
@@ -323,7 +322,7 @@ class Config(private val adapter: ConfigStorageAdapter) : Loggable {
       key: String,
       description: String,
       defaultValue: Boolean,
-      ui: UiNode<BooleanEntry, *> = CheckBox(DefaultBooleanConverter)) :
+      ui: UiNode<BooleanEntry, *> = CheckBox()) :
       ReadOnlyBooleanEntry(base, key, description, defaultValue, ui) {
 
     /**

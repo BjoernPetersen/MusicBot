@@ -21,18 +21,30 @@ object DefaultStringConverter : ConfigValueConverter<Config.StringEntry, String?
 }
 
 sealed class UiNode<in T : Config.Entry, U>(val converter: ConfigValueConverter<T, U>)
-class TextBox<in T : Config.Entry>(converter: ConfigValueConverter<T, String?>) :
-    UiNode<T, String?>(converter)
+class TextBox() : UiNode<Config.StringEntry, String?>(DefaultStringConverter)
+class PasswordBox() : UiNode<Config.StringEntry, String?>(DefaultStringConverter)
+class CheckBox() : UiNode<Config.BooleanEntry, Boolean>(DefaultBooleanConverter)
+class NumberBox(val min: Int = 0, val max: Int = 100) :
+    UiNode<Config.StringEntry, Int>(object : ConfigValueConverter<Config.StringEntry, Int> {
+      override fun getDefault(t: Config.StringEntry): Int = try {
+        t.defaultValue?.toInt() ?: min
+      } catch (e: NumberFormatException) {
+        min
+      }
 
-class PasswordBox<in T : Config.Entry>(converter: ConfigValueConverter<T, String?>) :
-    UiNode<T, String?>(converter)
+      override fun getWithoutDefault(t: Config.StringEntry): Int = try {
+        t.valueWithoutDefault?.toInt() ?: getDefault(t)
+      } catch (e: NumberFormatException) {
+        getDefault(t)
+      }
 
-class NumberBox<in T : Config.Entry>(converter: ConfigValueConverter<T, Int?>,
-    val min: Int = 0, val max: Int = 100) : UiNode<T, Int?>(converter)
+      override fun set(t: Config.StringEntry, u: Int) = t.set(u.toString())
+    })
 
-class CheckBox<in T : Config.Entry>(converter: ConfigValueConverter<T, Boolean>) :
-    UiNode<T, Boolean>(converter)
+class ChoiceBox(val refresh: () -> List<String>?,
+    converter: ConfigValueConverter<Config.StringEntry, String?> = DefaultStringConverter) :
+    UiNode<Config.StringEntry, String?>(converter)
 
-class ChoiceBox<in T : Config.Entry>(converter: ConfigValueConverter<T, String?>,
-    val refresh: () -> List<String>?) : UiNode<T, String?>(converter)
-// TODO: file chooser button
+class FileChooserButton(
+    converter: ConfigValueConverter<Config.StringEntry, String?> = DefaultStringConverter) :
+    UiNode<Config.StringEntry, String?>(converter)
