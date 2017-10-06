@@ -1,5 +1,7 @@
 package com.github.bjoernpetersen.jmusicbot.platform
 
+import com.google.common.annotations.Beta
+import java.net.URL
 import java.util.*
 
 enum class Platform(val readableName: String) {
@@ -16,9 +18,11 @@ enum class Platform(val readableName: String) {
     private fun determinePlatform(): Platform =
         // TODO use something like apache commons SystemUtils
         System.getProperty("os.name").toLowerCase(Locale.US).let {
-          if (it.contains("win")) WINDOWS
-          else if (it.contains("linux")) determineLinux()
-          else UNKNOWN
+          when {
+            it.contains("win") -> WINDOWS
+            it.contains("linux") -> determineLinux()
+            else -> UNKNOWN
+          }
         }
 
     @JvmStatic
@@ -28,4 +32,16 @@ enum class Platform(val readableName: String) {
           else LINUX
         }
   }
+}
+
+enum class Support {
+  YES, NO, MAYBE
+}
+
+@Beta
+interface HostServices {
+
+  fun openBrowser(url: URL)
+  @Throws(IllegalStateException::class)
+  fun contextSupplier(): ContextSupplier
 }
