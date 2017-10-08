@@ -18,7 +18,7 @@ private object DefaultBooleanConverter :
   override fun set(t: Config.BooleanEntry, u: Boolean?) = t.set(u)
 }
 
-private object DefaultStringConverter : ConfigValueConverter<Config.StringEntry, String?, String?> {
+object DefaultStringConverter : ConfigValueConverter<Config.StringEntry, String?, String?> {
   override fun getDefault(t: Config.StringEntry): String? = t.defaultValue
   override fun getWithoutDefault(t: Config.StringEntry): String? = t.valueWithoutDefault
   override fun getWithDefault(t: Config.StringEntry): String? = t.value
@@ -53,15 +53,15 @@ class NumberBox @JvmOverloads constructor(val min: Int = 0, val max: Int = 100) 
         }
     )
 
-interface Choice {
+interface Choice<out I : Any> {
 
-  val id: String
+  val id: I
   val displayName: String
 }
 
-class ChoiceBox<out T : Choice> @JvmOverloads constructor(val refresh: () -> List<T>?,
-    val lazy: Boolean = false) :
-    UiNode<Config.StringEntry, String?, String?>(DefaultStringConverter)
+class ChoiceBox<I : Any, out T : Choice<I>> @JvmOverloads constructor(val refresh: () -> List<T>?,
+    val lazy: Boolean = false, converter: ConfigValueConverter<Config.StringEntry, I?, I?>) :
+    UiNode<Config.StringEntry, I?, I?>(converter)
 
 class FileChooserButton @JvmOverloads constructor(val isFolder: Boolean = true) :
     UiNode<Config.StringEntry, String?, String?>(DefaultStringConverter)
