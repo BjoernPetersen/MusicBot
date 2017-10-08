@@ -46,7 +46,7 @@
     <guava.version>23.0</guava.version>
     <sqlite.version>3.20.0</sqlite.version>
     <jbcrypt.version>0.4</jbcrypt.version>
-    <jjwt.version>0.7.0</jjwt.version>
+    <jjwt.version>0.8.0</jjwt.version>
     <android.version>4.1.1.4</android.version>
 
     <!-- plugin versions -->
