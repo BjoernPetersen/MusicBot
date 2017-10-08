@@ -20,7 +20,7 @@ internal class PluginVersionTest {
 
     @BeforeEach
     fun initBuilder() {
-        builder = Builder(Config(DummyConfigStorageAdapter()))
+        builder = Builder(Config(DummyConfigStorageAdapter(), TestHostServices()))
     }
 
     @BeforeEach
