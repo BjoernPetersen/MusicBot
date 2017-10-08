@@ -44,7 +44,7 @@
     <jsr305.version>3.0.2</jsr305.version>
     <kotlin.version>1.1.51</kotlin.version>
     <guava.version>23.0</guava.version>
-    <sqlite.version>3.18.0</sqlite.version>
+    <sqlite.version>3.20.0</sqlite.version>
     <jbcrypt.version>0.4</jbcrypt.version>
     <jjwt.version>0.7.0</jjwt.version>
     <android.version>4.1.1.4</android.version>
