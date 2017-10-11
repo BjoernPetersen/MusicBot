@@ -67,6 +67,12 @@ public class TestProvider implements Provider {
     return Collections.emptyList();
   }
 
+  @Nonnull
+  @Override
+  public List<? extends Entry> getMissingConfigEntries() {
+    return Collections.emptyList();
+  }
+
   @Override
   public void destructConfigEntries() {
   }

@@ -214,6 +214,10 @@ open class DefaultPluginWrapper<T : Plugin> constructor(private val plugin: T) :
     return configEntries
   }
 
+  override fun getMissingConfigEntries(): MutableList<out Entry> {
+    return wrapped.missingConfigEntries
+  }
+
   override fun destructConfigEntries() {
     if (getState() > Plugin.State.CONFIG) {
       throw IllegalStateException()

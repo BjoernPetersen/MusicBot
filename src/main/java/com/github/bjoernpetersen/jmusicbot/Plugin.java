@@ -16,7 +16,7 @@ import javax.annotation.Nonnull;
  * #close()}.</p>
  *
  * Lifecycle:<br> <ol> <li>{@link #initializeConfigEntries(Config)}</li> <li>initialize(...)</li>
- * <li>{@link #close()}</li> <li>{@link #dereferenceConfigEntries()}</li> </ol> <b>Note:</b> a
+ * <li>{@link #close()}</li> <li>{@link #destructConfigEntries()}</li> </ol> <b>Note:</b> a
  * successful call to one of the initialization methods guarantees that the respective destruction
  * method will be called in the future.
  */
@@ -42,6 +42,16 @@ public interface Plugin extends Closeable {
    * <p>Destruct and dereference all entries initialized in {@link #initializeConfigEntries(Config)}.</p>
    */
   void destructConfigEntries();
+
+  /**
+   * Gets the config entries which are not configured properly. Might be called multiple times.
+   *
+   * This will be called between {@link #initializeConfigEntries(Config)} and initialize(...).
+   *
+   * @return a list of config entries
+   */
+  @Nonnull
+  List<? extends Entry> getMissingConfigEntries();
 
   /**
    * An arbitrary, human readable name for this plugin.
