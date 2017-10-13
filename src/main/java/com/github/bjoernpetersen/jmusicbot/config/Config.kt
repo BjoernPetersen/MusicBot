@@ -84,7 +84,7 @@ class Config(private val adapter: ConfigStorageAdapter, val hostServices: HostSe
     return entries[qualify(base, key)]
   }
 
-  private fun checkExists(type: Class<*>, key: String): Unit {
+  private fun checkExists(type: Class<*>, key: String) {
     if (getEntry(type, key) != null) throw IllegalArgumentException()
   }
 

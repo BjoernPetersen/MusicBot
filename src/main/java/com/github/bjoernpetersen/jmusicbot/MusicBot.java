@@ -2,7 +2,6 @@ package com.github.bjoernpetersen.jmusicbot;
 
 import com.github.bjoernpetersen.jmusicbot.Plugin.State;
 import com.github.bjoernpetersen.jmusicbot.config.Config;
-import com.github.bjoernpetersen.jmusicbot.platform.HostServices;
 import com.github.bjoernpetersen.jmusicbot.playback.Player;
 import com.github.bjoernpetersen.jmusicbot.playback.QueueChangeListener;
 import com.github.bjoernpetersen.jmusicbot.playback.QueueEntry;
@@ -193,6 +192,8 @@ public final class MusicBot implements Loggable, Closeable {
     @Nonnull
     private final Config config;
     @Nullable
+    private Configurator configurator;
+    @Nullable
     private ProviderManager providerManager;
     @Nullable
     private PlaybackFactoryManager playbackFactoryManager;
@@ -210,6 +211,12 @@ public final class MusicBot implements Loggable, Closeable {
     public Builder(@Nonnull Config config) {
       this.config = config;
       this.initStateWriter = InitStateWriter.NO_OP;
+    }
+
+    @Nonnull
+    public Builder configurator(@Nonnull Configurator configurator) {
+      this.configurator = Objects.requireNonNull(configurator);
+      return this;
     }
 
     @Nonnull
@@ -256,7 +263,8 @@ public final class MusicBot implements Loggable, Closeable {
 
     @Nonnull
     public MusicBot build() throws InitializationException, InterruptedException {
-      if (providerManager == null
+      if (configurator == null
+          || providerManager == null
           || playbackFactoryManager == null
           || userManager == null
           || apiInitializer == null
@@ -268,8 +276,11 @@ public final class MusicBot implements Loggable, Closeable {
         printUnsupported("PlaybackFactories", playbackFactoryManager.getPlaybackFactories());
         printUnsupported("Providers", providerManager.getAllProviders().values());
         printUnsupported("Suggesters", providerManager.getAllProviders().values());
+        playbackFactoryManager.ensureConfigured(configurator);
         playbackFactoryManager.initializeFactories(initStateWriter);
+        providerManager.ensureProvidersConfigured(configurator);
         providerManager.initializeProviders(initStateWriter);
+        providerManager.ensureSuggestersConfigured(configurator);
         providerManager.initializeSuggesters(initStateWriter);
 
         return new MusicBot(

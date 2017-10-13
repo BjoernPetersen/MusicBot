@@ -60,7 +60,7 @@ interface Choice<out I : Any> {
 }
 
 class ChoiceBox<I : Any, out T : Choice<I>> @JvmOverloads constructor(val refresh: () -> List<T>?,
-    val lazy: Boolean = false, converter: ConfigValueConverter<Config.StringEntry, I?, I?>) :
+    converter: ConfigValueConverter<Config.StringEntry, I?, I?>, val lazy: Boolean = false) :
     UiNode<Config.StringEntry, I?, I?>(converter)
 
 class FileChooserButton @JvmOverloads constructor(val isFolder: Boolean = true) :

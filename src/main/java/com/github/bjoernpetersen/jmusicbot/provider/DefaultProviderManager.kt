@@ -83,6 +83,29 @@ internal class DefaultProviderManager : ProviderManager, Loggable {
   override fun getSuggesters(provider: Provider): Collection<Suggester> =
       suggestersByProvider[provider] ?: emptyList()
 
+  private fun removeProvider(provider: Provider) {
+    providerByBase.remove(provider.baseClass)
+    providerById.remove(provider.id)
+    provider.destructConfigEntries()
+  }
+
+  override fun ensureProvidersConfigured(configurator: Configurator) {
+    val unconfigured = LinkedList<Provider>()
+    allProviders.values
+        .filter { it.state == Plugin.State.CONFIG }
+        .forEach {
+          var missing = it.missingConfigEntries
+          while (!missing.isEmpty()) {
+            if (!configurator.configure(it.readableName, missing)) {
+              unconfigured.add(it)
+              break
+            }
+            missing = it.missingConfigEntries
+          }
+        }
+    unconfigured.forEach(this::removeProvider)
+  }
+
   override fun initializeProviders(initStateWriter: InitStateWriter) = providerById.values
       .filter { it.state == Plugin.State.CONFIG }
       .forEach {
@@ -92,11 +115,33 @@ internal class DefaultProviderManager : ProviderManager, Loggable {
           it.initialize(initStateWriter, playbackFactoryManager)
         } catch (e: InitializationException) {
           logInfo(e, "Could not initialize Provider ${it.readableName}")
+
         } catch (e: RuntimeException) {
           logInfo(e, "Unexpected error initializing Provider ${it.readableName}")
         }
       }
 
+  private fun removeSuggester(suggester: Suggester) {
+    suggesterById.remove(suggester.id)
+    suggester.destructConfigEntries()
+  }
+
+  override fun ensureSuggestersConfigured(configurator: Configurator) {
+    val unconfigured = LinkedList<Suggester>()
+    allSuggesters.values
+        .filter { it.state == Plugin.State.CONFIG }
+        .forEach {
+          var missing = it.missingConfigEntries
+          while (!missing.isEmpty()) {
+            if (!configurator.configure(it.readableName, missing)) {
+              unconfigured.add(it)
+              break
+            }
+            missing = it.missingConfigEntries
+          }
+        }
+    unconfigured.forEach(this::removeSuggester)
+  }
 
   override fun initializeSuggesters(initStateWriter: InitStateWriter) {
     suggesterById.values
