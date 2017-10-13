@@ -115,9 +115,10 @@ internal class DefaultProviderManager : ProviderManager, Loggable {
           it.initialize(initStateWriter, playbackFactoryManager)
         } catch (e: InitializationException) {
           logInfo(e, "Could not initialize Provider ${it.readableName}")
-
+          removeProvider(it)
         } catch (e: RuntimeException) {
           logInfo(e, "Unexpected error initializing Provider ${it.readableName}")
+          removeProvider(it)
         }
       }
 
@@ -157,8 +158,10 @@ internal class DefaultProviderManager : ProviderManager, Loggable {
             }
           } catch (e: InitializationException) {
             logInfo(e, "Could not initialize Suggester ${s.readableName}")
+            removeSuggester(s)
           } catch (e: RuntimeException) {
             logInfo(e, "Unexpected error initializing Suggester ${s.readableName}")
+            removeSuggester(s)
           }
         }
   }
