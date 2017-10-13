@@ -2,8 +2,6 @@ package com.github.bjoernpetersen.jmusicbot;
 
 import com.github.bjoernpetersen.jmusicbot.Plugin.State;
 import com.github.bjoernpetersen.jmusicbot.config.Config;
-import com.github.bjoernpetersen.jmusicbot.platform.ContextHolder;
-import com.github.bjoernpetersen.jmusicbot.platform.ContextSupplier;
 import com.github.bjoernpetersen.jmusicbot.playback.Player;
 import com.github.bjoernpetersen.jmusicbot.playback.QueueChangeListener;
 import com.github.bjoernpetersen.jmusicbot.playback.QueueEntry;
@@ -194,6 +192,8 @@ public final class MusicBot implements Loggable, Closeable {
     @Nonnull
     private final Config config;
     @Nullable
+    private Configurator configurator;
+    @Nullable
     private ProviderManager providerManager;
     @Nullable
     private PlaybackFactoryManager playbackFactoryManager;
@@ -207,12 +207,16 @@ public final class MusicBot implements Loggable, Closeable {
     private UserManager userManager;
     @Nonnull
     private InitStateWriter initStateWriter;
-    @Nullable
-    private ContextSupplier contextSupplier;
 
     public Builder(@Nonnull Config config) {
       this.config = config;
       this.initStateWriter = InitStateWriter.NO_OP;
+    }
+
+    @Nonnull
+    public Builder configurator(@Nonnull Configurator configurator) {
+      this.configurator = Objects.requireNonNull(configurator);
+      return this;
     }
 
     @Nonnull
@@ -257,21 +261,10 @@ public final class MusicBot implements Loggable, Closeable {
       return this;
     }
 
-    /**
-     * Sets the context supplier. This is only needed on the android platform.
-     *
-     * @param contextSupplier a ContextSupplier
-     * @return this Builder
-     */
-    @Nonnull
-    public Builder contextSupplier(@Nonnull ContextSupplier contextSupplier) {
-      this.contextSupplier = Objects.requireNonNull(contextSupplier);
-      return this;
-    }
-
     @Nonnull
     public MusicBot build() throws InitializationException, InterruptedException {
-      if (providerManager == null
+      if (configurator == null
+          || providerManager == null
           || playbackFactoryManager == null
           || userManager == null
           || apiInitializer == null
@@ -279,16 +272,15 @@ public final class MusicBot implements Loggable, Closeable {
         throw new IllegalStateException("Not all required values set.");
       }
 
-      if (contextSupplier != null) {
-        ContextHolder.INSTANCE.initialize(contextSupplier);
-      }
-
       try {
         printUnsupported("PlaybackFactories", playbackFactoryManager.getPlaybackFactories());
         printUnsupported("Providers", providerManager.getAllProviders().values());
         printUnsupported("Suggesters", providerManager.getAllProviders().values());
+        playbackFactoryManager.ensureConfigured(configurator);
         playbackFactoryManager.initializeFactories(initStateWriter);
+        providerManager.ensureProvidersConfigured(configurator);
         providerManager.initializeProviders(initStateWriter);
+        providerManager.ensureSuggestersConfigured(configurator);
         providerManager.initializeSuggesters(initStateWriter);
 
         return new MusicBot(

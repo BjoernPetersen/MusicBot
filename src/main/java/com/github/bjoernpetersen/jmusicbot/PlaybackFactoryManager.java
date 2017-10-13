@@ -1,7 +1,6 @@
 package com.github.bjoernpetersen.jmusicbot;
 
 import com.github.bjoernpetersen.jmusicbot.config.Config;
-import com.github.bjoernpetersen.jmusicbot.config.DefaultConfigEntry;
 import com.github.bjoernpetersen.jmusicbot.platform.Platform;
 import com.github.bjoernpetersen.jmusicbot.playback.PlaybackFactory;
 import com.github.bjoernpetersen.jmusicbot.playback.PlaybackFactoryLoader;
@@ -28,7 +27,7 @@ public final class PlaybackFactoryManager implements Loggable, Closeable {
     this.config = config;
     this.factories = new HashMap<>();
 
-    String pluginFolderName = DefaultConfigEntry.get(config).pluginFolder.getOrDefault();
+    String pluginFolderName = config.getDefaults().getPluginFolder().getValue();
     File pluginFolder = new File(pluginFolderName);
     this.configEntries = loadFactories(pluginFolder, included);
   }
@@ -153,14 +152,33 @@ public final class PlaybackFactoryManager implements Loggable, Closeable {
     return result;
   }
 
+  void ensureConfigured(@Nonnull Configurator configurator) {
+    List<PlaybackFactory> unconfigured = new LinkedList<>();
+    for (PlaybackFactory factory : factories.values()) {
+      List<? extends Config.Entry> missing;
+      while (!(missing = factory.getMissingConfigEntries()).isEmpty()) {
+        if (!configurator.configure(factory.getReadableName(), missing)) {
+          logInfo("Deactivating unconfigured plugin " + factory.getReadableName());
+          unconfigured.add(factory);
+          break;
+        }
+      }
+    }
+
+    for (PlaybackFactory factory : unconfigured) {
+      removeFactory(factory);
+      factory.destructConfigEntries();
+    }
+  }
+
   void initializeFactories(@Nonnull InitStateWriter initStateWriter) throws InterruptedException {
     List<PlaybackFactory> defective = new LinkedList<>();
     for (PlaybackFactory factory : factories.values()) {
       try {
-        initStateWriter.begin(factory.getClass().getSimpleName());
+        initStateWriter.begin(factory.getReadableName());
         factory.initialize(initStateWriter);
       } catch (InitializationException e) {
-        logSevere(e, "Could not initialize PlaybackFactory '%s'", factory);
+        logWarning(e, "Could not initialize PlaybackFactory '%s'", factory);
         defective.add(factory);
       }
     }

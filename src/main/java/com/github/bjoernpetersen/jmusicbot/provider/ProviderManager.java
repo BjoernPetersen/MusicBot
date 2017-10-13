@@ -1,5 +1,6 @@
 package com.github.bjoernpetersen.jmusicbot.provider;
 
+import com.github.bjoernpetersen.jmusicbot.Configurator;
 import com.github.bjoernpetersen.jmusicbot.InitStateWriter;
 import com.github.bjoernpetersen.jmusicbot.PlaybackFactoryManager;
 import com.github.bjoernpetersen.jmusicbot.Plugin.State;
@@ -55,12 +56,16 @@ public interface ProviderManager extends Closeable {
   @Nonnull
   Collection<? extends Suggester> getSuggesters(@Nonnull Provider provider);
 
+  void ensureProvidersConfigured(@Nonnull Configurator configurator);
+
   /**
    * Initializes all providers that are currently in the {@link State#CONFIG} state.
    *
    * @param initStateWriter an InitStateWriter
    */
   void initializeProviders(@Nonnull InitStateWriter initStateWriter);
+
+  void ensureSuggestersConfigured(@Nonnull Configurator configurator);
 
   /**
    * Initializes all suggesters that are currently in the {@link State#CONFIG} state.

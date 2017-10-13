@@ -108,10 +108,10 @@ public final class Player implements Loggable, Closeable {
     Lock stateLock = this.stateLock;
     stateLock.lock();
     try {
-      logInfo("Pausing...");
+      logFinest("Pausing...");
       PlayerState state = getState();
       if (state.getState() == State.PAUSE) {
-        logFiner("Already paused.");
+        logFinest("Already paused.");
         return;
       } else if (state.getState() != State.PLAY) {
         logFiner("Tried to pause player in state %s", state.getState());
@@ -128,9 +128,9 @@ public final class Player implements Loggable, Closeable {
     Lock stateLock = this.stateLock;
     stateLock.lock();
     try {
-      logInfo("Playing...");
+      logFinest("Playing...");
       if (getState().getState() == State.PLAY) {
-        logFiner("Already playing.");
+        logFinest("Already playing.");
         return;
       }
       playback.play();
@@ -145,7 +145,7 @@ public final class Player implements Loggable, Closeable {
     Lock stateLock = this.stateLock;
     stateLock.lock();
     try {
-      logInfo("Next...");
+      logFine("Next...");
       PlayerState newState = getState();
       if (isSignificantlyDifferent(state, newState)) {
         logFine("Skipping next call due to state change while waiting for lock.");
@@ -187,6 +187,7 @@ public final class Player implements Loggable, Closeable {
       }
 
       playback.setPlaybackStateListener(playbackState -> {
+        logFinest("Playback state update: %s", playbackState);
         switch (playbackState) {
           case PLAY:
             play();

@@ -3,10 +3,10 @@ package com.github.bjoernpetersen.jmusicbot;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public abstract class InitStateWriter implements Loggable {
+public interface InitStateWriter extends Loggable {
 
   @Nonnull
-  public static final InitStateWriter NO_OP = new InitStateWriter() {
+  InitStateWriter NO_OP = new InitStateWriter() {
     @Override
     public void begin(@Nonnull String pluginName) {
     }
@@ -21,7 +21,7 @@ public abstract class InitStateWriter implements Loggable {
   };
 
   @Nonnull
-  public static final InitStateWriter LOG = new InitStateWriter() {
+  InitStateWriter LOG = new InitStateWriter() {
     @Nullable
     private String activePlugin;
 
@@ -30,23 +30,28 @@ public abstract class InitStateWriter implements Loggable {
       this.activePlugin = pluginName;
     }
 
+    private String prepend(String prepended) {
+      String pluginName = activePlugin == null ? "Unknown plugin" : activePlugin;
+      return pluginName + ": " + prepended;
+    }
+
     @Override
     public void state(@Nonnull String state) {
-      logInfo(activePlugin + ": " + state);
+      logInfo(prepend(state));
     }
 
     @Override
     public void warning(@Nonnull String warning) {
-      logWarning(activePlugin + ": " + warning);
+      logWarning(prepend(warning));
     }
   };
 
-  public abstract void begin(@Nonnull String pluginName);
+  void begin(@Nonnull String pluginName);
 
-  public abstract void state(@Nonnull String state);
+  void state(@Nonnull String state);
 
-  public abstract void warning(@Nonnull String warning);
+  void warning(@Nonnull String warning);
 
-  public void close() {
+  default void close() {
   }
 }

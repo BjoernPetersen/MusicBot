@@ -3,7 +3,6 @@ package com.github.bjoernpetersen.jmusicbot.provider
 import com.github.bjoernpetersen.jmusicbot.*
 import com.github.bjoernpetersen.jmusicbot.config.Config
 import com.github.bjoernpetersen.jmusicbot.config.Config.Entry
-import com.github.bjoernpetersen.jmusicbot.config.DefaultConfigEntry
 import com.github.bjoernpetersen.jmusicbot.platform.Platform
 import com.github.bjoernpetersen.jmusicbot.platform.Support
 import com.github.bjoernpetersen.jmusicbot.playback.PlaybackFactory
@@ -35,7 +34,7 @@ internal class DefaultProviderManager : ProviderManager, Loggable {
     this.config = config
     this.playbackFactoryManager = manager
 
-    val pluginFolderName = DefaultConfigEntry.get(config).pluginFolder.getOrDefault()
+    val pluginFolderName = config.defaults.pluginFolder.value
     val pluginFolder = File(pluginFolderName)
     loadProviders(pluginFolder);
     loadSuggesters(pluginFolder);
@@ -84,6 +83,29 @@ internal class DefaultProviderManager : ProviderManager, Loggable {
   override fun getSuggesters(provider: Provider): Collection<Suggester> =
       suggestersByProvider[provider] ?: emptyList()
 
+  private fun removeProvider(provider: Provider) {
+    providerByBase.remove(provider.baseClass)
+    providerById.remove(provider.id)
+    provider.destructConfigEntries()
+  }
+
+  override fun ensureProvidersConfigured(configurator: Configurator) {
+    val unconfigured = LinkedList<Provider>()
+    allProviders.values
+        .filter { it.state == Plugin.State.CONFIG }
+        .forEach {
+          var missing = it.missingConfigEntries
+          while (!missing.isEmpty()) {
+            if (!configurator.configure(it.readableName, missing)) {
+              unconfigured.add(it)
+              break
+            }
+            missing = it.missingConfigEntries
+          }
+        }
+    unconfigured.forEach(this::removeProvider)
+  }
+
   override fun initializeProviders(initStateWriter: InitStateWriter) = providerById.values
       .filter { it.state == Plugin.State.CONFIG }
       .forEach {
@@ -93,11 +115,34 @@ internal class DefaultProviderManager : ProviderManager, Loggable {
           it.initialize(initStateWriter, playbackFactoryManager)
         } catch (e: InitializationException) {
           logInfo(e, "Could not initialize Provider ${it.readableName}")
+          removeProvider(it)
         } catch (e: RuntimeException) {
           logInfo(e, "Unexpected error initializing Provider ${it.readableName}")
+          removeProvider(it)
         }
       }
 
+  private fun removeSuggester(suggester: Suggester) {
+    suggesterById.remove(suggester.id)
+    suggester.destructConfigEntries()
+  }
+
+  override fun ensureSuggestersConfigured(configurator: Configurator) {
+    val unconfigured = LinkedList<Suggester>()
+    allSuggesters.values
+        .filter { it.state == Plugin.State.CONFIG }
+        .forEach {
+          var missing = it.missingConfigEntries
+          while (!missing.isEmpty()) {
+            if (!configurator.configure(it.readableName, missing)) {
+              unconfigured.add(it)
+              break
+            }
+            missing = it.missingConfigEntries
+          }
+        }
+    unconfigured.forEach(this::removeSuggester)
+  }
 
   override fun initializeSuggesters(initStateWriter: InitStateWriter) {
     suggesterById.values
@@ -113,8 +158,10 @@ internal class DefaultProviderManager : ProviderManager, Loggable {
             }
           } catch (e: InitializationException) {
             logInfo(e, "Could not initialize Suggester ${s.readableName}")
+            removeSuggester(s)
           } catch (e: RuntimeException) {
             logInfo(e, "Unexpected error initializing Suggester ${s.readableName}")
+            removeSuggester(s)
           }
         }
   }
@@ -213,6 +260,10 @@ open class DefaultPluginWrapper<T : Plugin> constructor(private val plugin: T) :
       setState(Plugin.State.CONFIG)
     }
     return configEntries
+  }
+
+  override fun getMissingConfigEntries(): MutableList<out Entry> {
+    return wrapped.missingConfigEntries
   }
 
   override fun destructConfigEntries() {

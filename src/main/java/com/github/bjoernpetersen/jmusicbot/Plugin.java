@@ -2,7 +2,6 @@ package com.github.bjoernpetersen.jmusicbot;
 
 import com.github.bjoernpetersen.jmusicbot.config.Config;
 import com.github.bjoernpetersen.jmusicbot.config.Config.Entry;
-import com.github.bjoernpetersen.jmusicbot.config.DefaultConfigEntry;
 import com.github.bjoernpetersen.jmusicbot.platform.Platform;
 import com.github.bjoernpetersen.jmusicbot.platform.Support;
 import com.github.zafarkhaja.semver.Version;
@@ -27,7 +26,8 @@ public interface Plugin extends Closeable {
    * <p>Initializes the config entries for this plugin.</p>
    *
    * <p>This method should only return config entries introduced by this plugin. If config entries
-   * from {@link DefaultConfigEntry} are used, they should be excluded from the returned list.</p>
+   * from {@link Config#getDefaults()} are used, they should be excluded from the returned
+   * list.</p>
    *
    * <p>If the plugin wants prevent a config entry from being viewed/edited by the user, it can omit
    * it in this list.</p>
@@ -39,18 +39,19 @@ public interface Plugin extends Closeable {
   List<? extends Entry> initializeConfigEntries(@Nonnull Config config);
 
   /**
-   * <p>Destruct all entries initialized in {@link #initializeConfigEntries(Config)}.</p>
-   *
-   * <p>Example of destroying a config entry called 'apiKey':</p>
-   * <pre><code>
-   * // marks the entry as 'abandoned', it may or may not be garbage collected in the future
-   * apiKey.tryDestruct();
-   * // makes sure the entry can be garbage collected, if there are no other references to
-   * // it in the current JVM
-   * apiKey = null;
-   * </code></pre>
+   * <p>Destruct and dereference all entries initialized in {@link #initializeConfigEntries(Config)}.</p>
    */
   void destructConfigEntries();
+
+  /**
+   * Gets the config entries which are not configured properly. Might be called multiple times.
+   *
+   * This will be called between {@link #initializeConfigEntries(Config)} and initialize(...).
+   *
+   * @return a list of config entries
+   */
+  @Nonnull
+  List<? extends Entry> getMissingConfigEntries();
 
   /**
    * An arbitrary, human readable name for this plugin.

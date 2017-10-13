@@ -6,6 +6,8 @@ import com.github.bjoernpetersen.jmusicbot.InitializationException;
 import com.github.bjoernpetersen.jmusicbot.PlaybackFactoryManager;
 import com.github.bjoernpetersen.jmusicbot.Song;
 import com.github.bjoernpetersen.jmusicbot.playback.PlaybackFactory;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import javax.annotation.Nonnull;
@@ -55,4 +57,23 @@ public interface Provider extends IdPlugin {
    */
   @Nonnull
   Song lookup(@Nonnull String id) throws NoSuchSongException;
+
+  /**
+   * Looks up a batch of song IDs. If any can't be looked up, they will be dropped.
+   *
+   * @param ids a list of song IDs
+   * @return a list of songs
+   */
+  @Nonnull
+  default List<Song> lookupBatch(@Nonnull List<String> ids) {
+    List<Song> result = new ArrayList<>(ids.size());
+    for (String id : ids) {
+      try {
+        result.add(lookup(id));
+      } catch (NoSuchSongException e) {
+        // TODO log or something
+      }
+    }
+    return Collections.unmodifiableList(result);
+  }
 }
