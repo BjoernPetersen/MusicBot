@@ -23,7 +23,6 @@ public final class Song {
   private final String title;
   @Nonnull
   private final String description;
-  @Nonnull
   private final int duration;
   @Nullable
   private final String albumArtUrl;

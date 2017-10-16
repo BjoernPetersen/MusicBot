@@ -16,9 +16,12 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
+import java.util.Set;
 import java.util.StringJoiner;
 import java.util.function.Consumer;
 import javax.annotation.Nonnull;
@@ -37,12 +40,14 @@ public final class MusicBot implements Loggable, Closeable {
   private final UserManager userManager;
   private final Closeable restApi;
   private final Closeable broadcaster;
+  private final Set<AdminPlugin> adminPlugins;
 
   private MusicBot(@Nonnull Config config, @Nonnull InitStateWriter initStateWriter,
       @Nonnull PlaybackFactoryManager playbackFactoryManager,
       @Nonnull ProviderManager providerManager, @Nullable Suggester defaultSuggester,
       @Nonnull UserManager userManager, @Nonnull ApiInitializer apiInitializer,
-      @Nonnull BroadcasterInitializer broadcasterInitializer)
+      @Nonnull BroadcasterInitializer broadcasterInitializer,
+      @Nonnull Set<AdminPlugin> adminPlugins)
       throws InitializationException {
     this.config = config;
     this.playbackFactoryManager = playbackFactoryManager;
@@ -115,6 +120,17 @@ public final class MusicBot implements Loggable, Closeable {
       closeAll(e, initialized);
       throw new InitializationException("Exception during broadcaster init", e);
     }
+
+    this.adminPlugins = adminPlugins;
+    try {
+      for (AdminPlugin plugin : adminPlugins) {
+        plugin.initialize(initStateWriter, this);
+        initialized.add(plugin);
+      }
+    } catch (InitializationException e) {
+      closeAll(e, initialized);
+      throw new InitializationException("Exception during admin plugin init", e);
+    }
   }
 
   private void checkSanity(@Nonnull ProviderManager providerManager)
@@ -154,16 +170,42 @@ public final class MusicBot implements Loggable, Closeable {
     return userManager;
   }
 
+  @Nullable
+  private IOException tryClose(ExceptionThrower closer, @Nullable IOException e) {
+    try {
+      closer.close();
+    } catch (Throwable throwable) {
+      if (e == null) {
+        return new IOException(throwable);
+      } else {
+        e.addSuppressed(throwable);
+      }
+    }
+    return e;
+  }
+
+  @FunctionalInterface
+  private interface ExceptionThrower<E extends Throwable> {
+
+    void close() throws E;
+  }
+
   @Override
   public void close() throws IOException {
-    broadcaster.close();
-    restApi.close();
-    userManager.close();
-    player.close();
-    getProviderManager().close();
-    getPlaybackFactoryManager().close();
-    SongLoaderExecutor.getInstance().close();
-    PluginLoader.reset();
+    IOException e = tryClose(broadcaster::close, null);
+    for (AdminPlugin adminPlugin : adminPlugins) {
+      e = tryClose(adminPlugin::close, e);
+    }
+    e = tryClose(restApi::close, e);
+    e = tryClose(userManager::close, e);
+    e = tryClose(player::close, e);
+    e = tryClose(getProviderManager()::close, e);
+    e = tryClose(getPlaybackFactoryManager()::close, e);
+    e = tryClose(SongLoaderExecutor.getInstance()::close, e);
+    e = tryClose(PluginLoader::reset, e);
+    if (e != null) {
+      throw e;
+    }
   }
 
   /**
@@ -207,10 +249,13 @@ public final class MusicBot implements Loggable, Closeable {
     private UserManager userManager;
     @Nonnull
     private InitStateWriter initStateWriter;
+    @Nonnull
+    private Set<AdminPlugin> adminPlugins;
 
     public Builder(@Nonnull Config config) {
       this.config = config;
       this.initStateWriter = InitStateWriter.NO_OP;
+      this.adminPlugins = new HashSet<>();
     }
 
     @Nonnull
@@ -262,6 +307,33 @@ public final class MusicBot implements Loggable, Closeable {
     }
 
     @Nonnull
+    public Builder addAdminPlugin(@Nonnull AdminPlugin adminPlugin) {
+      this.adminPlugins.add(Objects.requireNonNull(adminPlugin));
+      return this;
+    }
+
+    private boolean ensureConfigured(@Nonnull Configurator configurator, AdminPlugin plugin) {
+      List<? extends Config.Entry> missing;
+      while (!(missing = plugin.getMissingConfigEntries()).isEmpty()) {
+        if (!configurator.configure(plugin.getReadableName(), missing)) {
+          return false;
+        }
+      }
+      return true;
+    }
+
+    private void ensureConfigured(@Nonnull Configurator configurator, Set<AdminPlugin> plugins) {
+      Iterator<AdminPlugin> iterator = plugins.iterator();
+      while (iterator.hasNext()) {
+        AdminPlugin plugin = iterator.next();
+        if (!ensureConfigured(configurator, plugin)) {
+          plugin.destructConfigEntries();
+          iterator.remove();
+        }
+      }
+    }
+
+    @Nonnull
     public MusicBot build() throws InitializationException, InterruptedException {
       if (configurator == null
           || providerManager == null
@@ -283,6 +355,8 @@ public final class MusicBot implements Loggable, Closeable {
         providerManager.ensureSuggestersConfigured(configurator);
         providerManager.initializeSuggesters(initStateWriter);
 
+        ensureConfigured(configurator, adminPlugins);
+
         return new MusicBot(
             config,
             initStateWriter,
@@ -291,7 +365,8 @@ public final class MusicBot implements Loggable, Closeable {
             defaultSuggester,
             userManager,
             apiInitializer,
-            broadcasterInitializer
+            broadcasterInitializer,
+            adminPlugins
         );
       } finally {
         initStateWriter.close();
