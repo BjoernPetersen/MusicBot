@@ -63,5 +63,12 @@ class ChoiceBox<I : Any, out T : Choice<I>> @JvmOverloads constructor(val refres
     converter: ConfigValueConverter<Config.StringEntry, I?, I?>, val lazy: Boolean = false) :
     UiNode<Config.StringEntry, I?, I?>(converter)
 
+/**
+ * A button which lets the user choose a file or directory.
+ *
+ * The current value is shown in an uneditable TextBox next to the button.
+ *
+ * @param isFolder whether to choose a folder (default true)
+ */
 class FileChooserButton @JvmOverloads constructor(val isFolder: Boolean = true) :
     UiNode<Config.StringEntry, String?, String?>(DefaultStringConverter)
