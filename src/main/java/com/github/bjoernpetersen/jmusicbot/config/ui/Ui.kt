@@ -53,12 +53,27 @@ class NumberBox @JvmOverloads constructor(val min: Int = 0, val max: Int = 100) 
         }
     )
 
+/**
+ * A choice for dropdown boxes.
+ */
 interface Choice<out I : Any> {
 
   val id: I
   val displayName: String
 }
 
+class StringChoice(override val id: String, override val displayName: String) : Choice<String>
+
+/**
+ * A dropdown box.
+ *
+ * @param refresh a function to call for choice items. If the function returns null, the list is not updated.
+ * @param converter a ConfigValueConverter (most of the time it's DefaultStringConverter)
+ * @param lazy should be set to true if refresh is slow
+ *
+ * @param I the type of ID for choices (most of the time it's String)
+ * @param T the type of choice (most of the time it's StringChoice)
+ */
 class ChoiceBox<I : Any, out T : Choice<I>> @JvmOverloads constructor(val refresh: () -> List<T>?,
     converter: ConfigValueConverter<Config.StringEntry, I?, I?>, val lazy: Boolean = false) :
     UiNode<Config.StringEntry, I?, I?>(converter)
