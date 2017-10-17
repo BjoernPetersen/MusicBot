@@ -129,8 +129,12 @@ public final class Player implements Loggable, Closeable {
     stateLock.lock();
     try {
       logFinest("Playing...");
-      if (getState().getState() == State.PLAY) {
+      PlayerState state = getState();
+      if (state.getState() == State.PLAY) {
         logFinest("Already playing.");
+        return;
+      } else if (state.getState() != State.PAUSE) {
+        logFiner("Tried to play in state %s", state.getState());
         return;
       }
       playback.play();
