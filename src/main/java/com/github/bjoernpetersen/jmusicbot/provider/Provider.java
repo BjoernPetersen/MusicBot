@@ -42,6 +42,8 @@ public interface Provider extends IdPlugin {
   /**
    * Searches for songs based on the given search query.
    *
+   * It is recommended only to return about 30 songs.
+   *
    * @param query a search query, trimmed and not empty
    * @return a list of songs
    */
