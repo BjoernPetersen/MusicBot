@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.github.bjoernpetersen</groupId>
   <artifactId>musicbot</artifactId>
-  <version>0.11.0-SNAPSHOT</version>
+  <version>0.11.0</version>
   <url>https://github.com/BjoernPetersen/jmusicbot</url>
   <description>Core library of JMusicBot, which plays music from various providers.</description>
   <name>${project.groupId}:${project.artifactId}</name>
