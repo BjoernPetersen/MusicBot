@@ -144,6 +144,13 @@ public final class Song {
         + '}';
   }
 
+  /**
+   * A Builder for Song objects.<br>
+   *
+   * It is recommended to keep an instance of this class in your Provider with the following values
+   * set: <ul> <li>{@link #provider(Provider)}</li> <li>{@link #playbackSupplier(PlaybackSupplier)}</li>
+   * <li>{@link #songLoader(SongLoader)}</li> </ul>
+   */
   public static final class Builder {
 
     private PlaybackSupplier playbackSupplier;
@@ -157,42 +164,90 @@ public final class Song {
 
     private String albumArtUrl;
 
+    /**
+     * Sets the PlaybackSupplier which will delegate to a PlaybackFactory to actually play the
+     * song.
+     *
+     * @param playbackSupplier a PlaybackSupplier
+     * @return this Builder
+     */
     @Nonnull
     public Builder playbackSupplier(@Nonnull PlaybackSupplier playbackSupplier) {
       this.playbackSupplier = Objects.requireNonNull(playbackSupplier);
       return this;
     }
 
+    /**
+     * Sets a song loader to prepare the song for playing.
+     *
+     * If you don't need to prepare the song, use {@link SongLoader#DUMMY}.
+     *
+     * @param songLoader a song loader
+     * @return this Builder
+     */
     @Nonnull
     public Builder songLoader(@Nonnull SongLoader songLoader) {
       this.songLoader = Objects.requireNonNull(songLoader);
       return this;
     }
 
+    /**
+     * Sets the provider which created this song.
+     *
+     * @param provider a provider
+     * @return this Builder
+     */
     @Nonnull
     public Builder provider(@Nonnull Provider provider) {
       this.provider = Objects.requireNonNull(provider);
       return this;
     }
 
+    /**
+     * Sets the song ID. This ID should be unique for the provider.
+     *
+     * @param id an ID
+     * @return this Builder
+     */
     @Nonnull
     public Builder id(@Nonnull String id) {
       this.id = Objects.requireNonNull(id);
       return this;
     }
 
+    /**
+     * Sets the song title.
+     *
+     * If you can't separate the title from the artist, the full string goes here.
+     *
+     * @param title the title
+     * @return this Builder
+     */
     @Nonnull
     public Builder title(@Nonnull String title) {
       this.title = Objects.requireNonNull(title);
       return this;
     }
 
+    /**
+     * Sets the song description. Usually this should the the artist.
+     *
+     * @param description a description
+     * @return this Builder
+     */
     @Nonnull
     public Builder description(@Nonnull String description) {
       this.description = Objects.requireNonNull(description);
       return this;
     }
 
+    /**
+     * Sets the song duration in seconds. Optional with default value 0.
+     *
+     * @param duration the duration in seconds
+     * @return this Builder
+     * @throws IllegalArgumentException if duration is less than 0
+     */
     @Nonnull
     public Builder duration(int duration) {
       if (duration < 0) {
@@ -202,6 +257,12 @@ public final class Song {
       return this;
     }
 
+    /**
+     * Sets the URL to the album art. Optional.
+     *
+     * @param albumArtUrl a URL, or null
+     * @return this Builder
+     */
     @Nonnull
     public Builder albumArtUrl(@Nullable String albumArtUrl) {
       this.albumArtUrl = albumArtUrl;
