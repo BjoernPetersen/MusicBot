@@ -312,29 +312,39 @@ public final class MusicBot implements Loggable, Closeable {
       return this;
     }
 
-    private boolean ensureConfigured(@Nonnull Configurator configurator, AdminPlugin plugin) {
+    private Configurator.Result ensureConfigured(@Nonnull Configurator configurator,
+        @Nonnull AdminPlugin plugin) {
       List<? extends Config.Entry> missing;
       while (!(missing = plugin.getMissingConfigEntries()).isEmpty()) {
-        if (!configurator.configure(plugin.getReadableName(), missing)) {
-          return false;
+        Configurator.Result result = configurator.configure(plugin.getReadableName(), missing);
+        if (!result.equals(Configurator.Result.OK)) {
+          return result;
         }
       }
-      return true;
+      return Configurator.Result.OK;
     }
 
-    private void ensureConfigured(@Nonnull Configurator configurator, Set<AdminPlugin> plugins) {
+    private void ensureConfigured(@Nonnull Configurator configurator,
+        @Nonnull Set<AdminPlugin> plugins) throws CancelException {
       Iterator<AdminPlugin> iterator = plugins.iterator();
       while (iterator.hasNext()) {
         AdminPlugin plugin = iterator.next();
-        if (!ensureConfigured(configurator, plugin)) {
-          plugin.destructConfigEntries();
-          iterator.remove();
+        Configurator.Result result = ensureConfigured(configurator, plugin);
+        switch (result) {
+          case CANCEL:
+            throw new CancelException("User cancelled config");
+          case DISABLE:
+            plugin.destructConfigEntries();
+            iterator.remove();
+          case OK:
+          default:
+            // just continue
         }
       }
     }
 
     @Nonnull
-    public MusicBot build() throws InitializationException, InterruptedException {
+    public MusicBot build() throws CancelException, InitializationException, InterruptedException {
       if (configurator == null
           || providerManager == null
           || playbackFactoryManager == null
@@ -348,14 +358,15 @@ public final class MusicBot implements Loggable, Closeable {
         printUnsupported("PlaybackFactories", playbackFactoryManager.getPlaybackFactories());
         printUnsupported("Providers", providerManager.getAllProviders().values());
         printUnsupported("Suggesters", providerManager.getAllProviders().values());
-        playbackFactoryManager.ensureConfigured(configurator);
-        playbackFactoryManager.initializeFactories(initStateWriter);
-        providerManager.ensureProvidersConfigured(configurator);
-        providerManager.initializeProviders(initStateWriter);
-        providerManager.ensureSuggestersConfigured(configurator);
-        providerManager.initializeSuggesters(initStateWriter);
 
+        playbackFactoryManager.ensureConfigured(configurator);
+        providerManager.ensureProvidersConfigured(configurator);
+        providerManager.ensureSuggestersConfigured(configurator);
         ensureConfigured(configurator, adminPlugins);
+
+        playbackFactoryManager.initializeFactories(initStateWriter);
+        providerManager.initializeProviders(initStateWriter);
+        providerManager.initializeSuggesters(initStateWriter);
 
         return new MusicBot(
             config,

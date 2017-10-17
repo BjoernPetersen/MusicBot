@@ -89,20 +89,29 @@ internal class DefaultProviderManager : ProviderManager, Loggable {
     provider.destructConfigEntries()
   }
 
+  @Throws(CancelException::class)
+  private fun <P : Plugin> ensureConfigured(plugin: P,
+      configurator: Configurator,
+      unconfigured: MutableList<P>) {
+    var missing = plugin.missingConfigEntries
+    while (!missing.isEmpty()) {
+      missing = when (configurator.configure(plugin.readableName, missing)) {
+        Configurator.Result.OK -> plugin.missingConfigEntries
+        Configurator.Result.DISABLE -> {
+          unconfigured.add(plugin)
+          emptyList()
+        }
+        Configurator.Result.CANCEL -> throw CancelException("Config cancelled")
+      }
+    }
+  }
+
+  @Throws(CancelException::class)
   override fun ensureProvidersConfigured(configurator: Configurator) {
     val unconfigured = LinkedList<Provider>()
     allProviders.values
         .filter { it.state == Plugin.State.CONFIG }
-        .forEach {
-          var missing = it.missingConfigEntries
-          while (!missing.isEmpty()) {
-            if (!configurator.configure(it.readableName, missing)) {
-              unconfigured.add(it)
-              break
-            }
-            missing = it.missingConfigEntries
-          }
-        }
+        .forEach { ensureConfigured(it, configurator, unconfigured) }
     unconfigured.forEach(this::removeProvider)
   }
 
@@ -127,20 +136,12 @@ internal class DefaultProviderManager : ProviderManager, Loggable {
     suggester.destructConfigEntries()
   }
 
+  @Throws(CancelException::class)
   override fun ensureSuggestersConfigured(configurator: Configurator) {
     val unconfigured = LinkedList<Suggester>()
     allSuggesters.values
         .filter { it.state == Plugin.State.CONFIG }
-        .forEach {
-          var missing = it.missingConfigEntries
-          while (!missing.isEmpty()) {
-            if (!configurator.configure(it.readableName, missing)) {
-              unconfigured.add(it)
-              break
-            }
-            missing = it.missingConfigEntries
-          }
-        }
+        .forEach { ensureConfigured(it, configurator, unconfigured) }
     unconfigured.forEach(this::removeSuggester)
   }
 

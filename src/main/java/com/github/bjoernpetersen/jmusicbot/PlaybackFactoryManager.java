@@ -1,5 +1,6 @@
 package com.github.bjoernpetersen.jmusicbot;
 
+import com.github.bjoernpetersen.jmusicbot.Configurator.Result;
 import com.github.bjoernpetersen.jmusicbot.config.Config;
 import com.github.bjoernpetersen.jmusicbot.platform.Platform;
 import com.github.bjoernpetersen.jmusicbot.playback.PlaybackFactory;
@@ -152,15 +153,23 @@ public final class PlaybackFactoryManager implements Loggable, Closeable {
     return result;
   }
 
-  void ensureConfigured(@Nonnull Configurator configurator) {
+  void ensureConfigured(@Nonnull Configurator configurator) throws CancelException {
     List<PlaybackFactory> unconfigured = new LinkedList<>();
     for (PlaybackFactory factory : factories.values()) {
       List<? extends Config.Entry> missing;
+      wh:
       while (!(missing = factory.getMissingConfigEntries()).isEmpty()) {
-        if (!configurator.configure(factory.getReadableName(), missing)) {
-          logInfo("Deactivating unconfigured plugin " + factory.getReadableName());
-          unconfigured.add(factory);
-          break;
+        Result result = configurator.configure(factory.getReadableName(), missing);
+        switch (result) {
+          case CANCEL:
+            throw new CancelException("User cancelled configuration");
+          case DISABLE:
+            logInfo("Deactivating unconfigured plugin " + factory.getReadableName());
+            unconfigured.add(factory);
+            break wh; // I feel dirty
+          case OK:
+          default:
+            // just continue
         }
       }
     }
