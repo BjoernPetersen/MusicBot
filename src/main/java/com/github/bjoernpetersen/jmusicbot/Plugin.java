@@ -89,7 +89,12 @@ public interface Plugin extends Closeable {
    */
   @Nonnull
   default Version getMaxSupportedVersion() {
-    return MusicBot.getVersion();
+    Version version = MusicBot.getVersion();
+    if (getMinSupportedVersion().greaterThan(version)) {
+      return getMinSupportedVersion();
+    } else {
+      return version;
+    }
   }
 
   enum State {
