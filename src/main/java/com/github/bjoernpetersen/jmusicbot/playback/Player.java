@@ -149,22 +149,22 @@ public final class Player implements Loggable, Closeable {
     Lock stateLock = this.stateLock;
     stateLock.lock();
     try {
-      logFine("Next...");
+      logFiner("Next...");
       PlayerState newState = getState();
       if (isSignificantlyDifferent(state, newState)) {
-        logFine("Skipping next call due to state change while waiting for lock.");
+        logFinest("Skipping next call due to state change while waiting for lock.");
         return;
       }
 
       try {
         playback.close();
       } catch (Exception e) {
-        logSevere(e, "Error closing playback");
+        logWarning(e, "Error closing playback");
       }
 
       Optional<QueueEntry> nextOptional = queue.pop();
       if (!nextOptional.isPresent() && suggester == null) {
-        logInfo("Queue is empty. Stopping.");
+        logFinest("Queue is empty. Stopping.");
         playback = DummyPlayback.INSTANCE;
         setState(PlayerState.stop());
         return;
@@ -179,11 +179,11 @@ public final class Player implements Loggable, Closeable {
 
       Song nextSong = nextEntry.getSong();
       songPlayedNotifier.accept(nextSong);
-      logInfo("Next song is: " + nextSong);
+      logFiner("Next song is: " + nextSong);
       try {
         playback = nextSong.getPlayback();
       } catch (IOException e) {
-        logSevere(e, "Error creating playback");
+        logWarning(e, "Error creating playback");
 
         setState(PlayerState.error());
         playback = DummyPlayback.INSTANCE;
@@ -231,9 +231,9 @@ public final class Player implements Loggable, Closeable {
       try {
         // Prevent auto next calls if next was manually called
         if (isSignificantlyDifferent(getState(), state)) {
-          logFine("Skipping auto call to next()");
+          logFinest("Skipping auto call to next()");
         } else {
-          logFine("Auto call to next()");
+          logFinest("Auto call to next()");
           next();
         }
       } finally {
