@@ -22,13 +22,15 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import javax.annotation.Nonnull;
 import org.mindrot.jbcrypt.BCrypt;
 
 public final class UserManager implements Closeable {
+
+  private static final String BOT_NAME = "MusicBot";
 
   @Nonnull
   private final Config.StringEntry signatureKey;
@@ -41,6 +43,8 @@ public final class UserManager implements Closeable {
   private final Map<String, User> temporaryUsers;
   @Nonnull
   private final LoadingCache<String, User> users;
+  @Nonnull
+  private final User botUser;
 
   public UserManager(@Nonnull Config config, @Nonnull String databaseUrl) throws SQLException {
     this.signatureKey = config.new StringEntry(getClass(), "signatureKey", "", true);
@@ -57,10 +61,26 @@ public final class UserManager implements Closeable {
             return user == null ? database.getUser(name) : user;
           }
         });
+    this.botUser = new User(BOT_NAME, UUID.randomUUID().toString());
+  }
+
+  /**
+   * Gets the bot user. This user is dedicated to perform all your admin needs.
+   *
+   * <p>The ID of this bot may change over time.</p>
+   *
+   * @return a User
+   */
+  @Nonnull
+  public User getBotUser() {
+    return botUser;
   }
 
   @Nonnull
   public User createTemporaryUser(String name, String uuid) throws DuplicateUserException {
+    if (BOT_NAME.equals(name)) {
+      throw new DuplicateUserException("Invalid username");
+    }
     try {
       // TODO create "hasUser" method in Database
       getUser(name);
