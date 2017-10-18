@@ -171,7 +171,8 @@ class Config(private val adapter: ConfigStorageAdapter, val hostServices: HostSe
       return value?.let { checker.check(it) }
     }
 
-    val isNullOrError: Boolean = value == null || checkError() != null
+    val isNullOrError: Boolean
+      get() = value == null || checkError() != null
 
     /**
      * Gets the value of the entry. If a default value is present, it is ignored.
