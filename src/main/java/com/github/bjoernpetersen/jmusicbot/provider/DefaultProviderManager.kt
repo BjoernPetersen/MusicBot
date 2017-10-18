@@ -6,6 +6,7 @@ import com.github.bjoernpetersen.jmusicbot.config.Config.Entry
 import com.github.bjoernpetersen.jmusicbot.platform.Platform
 import com.github.bjoernpetersen.jmusicbot.platform.Support
 import com.github.bjoernpetersen.jmusicbot.playback.PlaybackFactory
+import com.github.zafarkhaja.semver.Version
 import java.io.File
 import java.io.IOException
 import java.util.*
@@ -293,6 +294,9 @@ open class DefaultPluginWrapper<T : Plugin> constructor(private val plugin: T) :
   override fun getSupport(platform: Platform): Support {
     return wrapped.getSupport(platform)
   }
+
+  override fun getMinSupportedVersion(): Version = wrapped.minSupportedVersion
+  override fun getMaxSupportedVersion(): Version = wrapped.maxSupportedVersion
 
   @Throws(IOException::class)
   override fun close() {
