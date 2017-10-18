@@ -68,6 +68,26 @@ public final class Player implements Loggable, Closeable {
     this.stateListeners = new HashSet<>();
 
     executorService.submit(this::autoPlay);
+    queue.addListener(new QueueChangeListener() {
+      @Override
+      public void onAdd(@Nonnull QueueEntry entry) {
+        entry.getSong().load();
+      }
+
+      @Override
+      public void onRemove(@Nonnull QueueEntry entry) {
+      }
+    });
+
+    if (suggester != null) {
+      addListener(state -> preloadSuggestion(suggester));
+    }
+  }
+
+  private void preloadSuggestion(@Nonnull Suggester suggester) {
+    if (queue.isEmpty()) {
+      suggester.getNextSuggestions(1).get(0).load();
+    }
   }
 
   @Override

@@ -50,6 +50,10 @@ public final class Queue {
     }
   }
 
+  public boolean isEmpty() {
+    return queue.isEmpty();
+  }
+
   public void clear() {
     queue.clear();
   }
