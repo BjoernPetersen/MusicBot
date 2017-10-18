@@ -44,9 +44,11 @@ public interface Plugin extends Closeable {
   void destructConfigEntries();
 
   /**
-   * Gets the config entries which are not configured properly. Might be called multiple times.
+   * Gets the config entries which are not configured properly. Might be called multiple times.<br>
    *
    * This will be called between {@link #initializeConfigEntries(Config)} and initialize(...).
+   *
+   * <p>Note: Config.StringEntry.isNullOrError() might be helpful here.</p>
    *
    * @return a list of config entries
    */

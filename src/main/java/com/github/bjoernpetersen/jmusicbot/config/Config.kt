@@ -163,9 +163,15 @@ class Config(private val adapter: ConfigStorageAdapter, val hostServices: HostSe
       }
     }
 
+    /**
+     * Calls the config checker passed to the constructor with the current value, if the value is not null.
+     * @return an error message, or null
+     */
     fun checkError(): String? {
-      return valueWithoutDefault?.let { checker.check(it) }
+      return value?.let { checker.check(it) }
     }
+
+    val isNullOrError: Boolean = value == null || checkError() != null
 
     /**
      * Gets the value of the entry. If a default value is present, it is ignored.
