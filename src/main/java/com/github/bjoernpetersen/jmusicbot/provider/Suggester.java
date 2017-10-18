@@ -42,20 +42,19 @@ public interface Suggester extends IdPlugin {
    *
    * <p>It is guaranteed that the song comes from a provider this suggester depends on.</p>
    *
+   * <p>The default implementation calls {@link #removeSuggestion(Song)}.</p>
+   *
    * @param song a Song
    */
   default void notifyPlayed(@Nonnull Song song) {
   }
 
   /**
-   * <p>Removes the specified song from the suggestions.</p>
-   *
-   * The default implementation does nothing.
+   * <p>Removes the specified song from the {@link #getNextSuggestions(int) suggestions}.</p>
    *
    * @param song a song
    */
-  default void removeSuggestion(@Nonnull Song song) {
-  }
+  void removeSuggestion(@Nonnull Song song);
 
   /**
    * <p>Indicates a user disliking the specified song.</p>
