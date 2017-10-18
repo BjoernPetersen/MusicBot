@@ -33,8 +33,8 @@ class ActionButton(val text: String, val action: () -> Boolean) :
     UiNode<Config.StringEntry, String?, String?>(DefaultStringConverter)
 
 class NumberBox @JvmOverloads constructor(val min: Int = 0, val max: Int = 100) :
-    UiNode<Config.StringEntry, Int, Int>(
-        object : ConfigValueConverter<Config.StringEntry, Int, Int> {
+    UiNode<Config.StringEntry, Int?, Int>(
+        object : ConfigValueConverter<Config.StringEntry, Int?, Int> {
           override fun getDefault(t: Config.StringEntry): Int = try {
             t.defaultValue?.toInt() ?: min
           } catch (e: NumberFormatException) {
@@ -49,7 +49,7 @@ class NumberBox @JvmOverloads constructor(val min: Int = 0, val max: Int = 100) 
             getDefault(t)
           }
 
-          override fun set(t: Config.StringEntry, u: Int) = t.set(u.toString())
+          override fun set(t: Config.StringEntry, u: Int?) = t.set(u?.toString())
         }
     )
 
