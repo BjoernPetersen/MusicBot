@@ -222,7 +222,7 @@ public final class MusicBot implements Loggable, Closeable {
       if (version == null) {
         throw new IllegalStateException("Version is missing");
       }
-      return Version.valueOf(version);
+      return Version.valueOf(Version.valueOf(version).getNormalVersion());
     } catch (IOException | ParseException e) {
       throw new IllegalStateException("Could not read version resource", e);
     }
