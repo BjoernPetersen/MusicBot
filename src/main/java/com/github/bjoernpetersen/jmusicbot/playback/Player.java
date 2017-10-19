@@ -3,6 +3,7 @@ package com.github.bjoernpetersen.jmusicbot.playback;
 import com.github.bjoernpetersen.jmusicbot.Loggable;
 import com.github.bjoernpetersen.jmusicbot.Song;
 import com.github.bjoernpetersen.jmusicbot.playback.PlayerState.State;
+import com.github.bjoernpetersen.jmusicbot.provider.BrokenSuggesterException;
 import com.github.bjoernpetersen.jmusicbot.provider.Suggester;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import java.io.Closeable;
@@ -174,7 +175,14 @@ public final class Player implements Loggable, Closeable {
       if (nextOptional.isPresent()) {
         nextEntry = nextOptional.get();
       } else {
-        nextEntry = new SuggestedSongEntry(suggester.suggestNext());
+        try {
+          nextEntry = new SuggestedSongEntry(suggester.suggestNext());
+        } catch (BrokenSuggesterException e) {
+          logFine("Default suggester could not suggest anything. Stopping.");
+          playback = DummyPlayback.INSTANCE;
+          setState(PlayerState.stop());
+          return;
+        }
       }
 
       Song nextSong = nextEntry.getSong();

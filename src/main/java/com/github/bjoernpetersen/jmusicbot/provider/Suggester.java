@@ -19,21 +19,23 @@ public interface Suggester extends IdPlugin {
    * This means it should be removed from the 'next suggestions' list.</p>
    *
    * @return a song to play
+   * @throws BrokenSuggesterException if the suggester can't suggest anything
    */
   @Nonnull
-  Song suggestNext();
+  Song suggestNext() throws BrokenSuggesterException;
 
   /**
    * <p>Gets a list of next suggestions which will be returned by calling {@link
    * #suggestNext()}.</p>
    *
-   * <p>The returned list will contain at least one element.</p>
+   * <p>The returned list must contain at least one element.</p>
    *
    * @param maxLength the maximum length of the returned list
    * @return a list of next suggestions
+   * @throws BrokenSuggesterException if the suggester can't suggest anything
    */
   @Nonnull
-  List<Song> getNextSuggestions(int maxLength);
+  List<Song> getNextSuggestions(int maxLength) throws BrokenSuggesterException;
 
   /**
    * <p>Notifies this Suggester that the specified song entry has been played.</p>
