@@ -28,7 +28,7 @@ public final class Player implements Loggable, Closeable {
   private final ExecutorService executorService;
 
   @Nonnull
-  private final Consumer<Song> songPlayedNotifier;
+  private final Consumer<SongEntry> songPlayedNotifier;
 
   @Nonnull
   private final Queue queue;
@@ -45,7 +45,7 @@ public final class Player implements Loggable, Closeable {
   @Nonnull
   private final Set<PlayerStateListener> stateListeners;
 
-  public Player(@Nonnull Consumer<Song> songPlayedNotifier, @Nullable Suggester suggester) {
+  public Player(@Nonnull Consumer<SongEntry> songPlayedNotifier, @Nullable Suggester suggester) {
     this.logger = createLogger();
 
     this.executorService = Executors.newSingleThreadExecutor(
@@ -178,7 +178,7 @@ public final class Player implements Loggable, Closeable {
       }
 
       Song nextSong = nextEntry.getSong();
-      songPlayedNotifier.accept(nextSong);
+      songPlayedNotifier.accept(nextEntry);
       logFiner("Next song is: " + nextSong);
       try {
         playback = nextSong.getPlayback();

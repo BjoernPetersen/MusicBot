@@ -4,6 +4,7 @@ import com.github.bjoernpetersen.jmusicbot.IdPlugin;
 import com.github.bjoernpetersen.jmusicbot.InitStateWriter;
 import com.github.bjoernpetersen.jmusicbot.InitializationException;
 import com.github.bjoernpetersen.jmusicbot.Song;
+import com.github.bjoernpetersen.jmusicbot.playback.SongEntry;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -35,7 +36,7 @@ public interface Suggester extends IdPlugin {
   List<Song> getNextSuggestions(int maxLength);
 
   /**
-   * <p>Notifies this Suggester that the specified song has been played.</p>
+   * <p>Notifies this Suggester that the specified song entry has been played.</p>
    *
    * <p>It is recommended that the song will be removed from the next suggestions when this method
    * is called.</p>
@@ -44,9 +45,10 @@ public interface Suggester extends IdPlugin {
    *
    * <p>The default implementation calls {@link #removeSuggestion(Song)}.</p>
    *
-   * @param song a Song
+   * @param songEntry a SongEntry
    */
-  default void notifyPlayed(@Nonnull Song song) {
+  default void notifyPlayed(@Nonnull SongEntry songEntry) {
+    removeSuggestion(songEntry.getSong());
   }
 
   /**

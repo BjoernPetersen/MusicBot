@@ -6,6 +6,7 @@ import com.github.bjoernpetersen.jmusicbot.config.Config.Entry
 import com.github.bjoernpetersen.jmusicbot.platform.Platform
 import com.github.bjoernpetersen.jmusicbot.platform.Support
 import com.github.bjoernpetersen.jmusicbot.playback.PlaybackFactory
+import com.github.bjoernpetersen.jmusicbot.playback.SongEntry
 import com.github.zafarkhaja.semver.Version
 import java.io.File
 import java.io.IOException
@@ -225,7 +226,7 @@ internal class DefaultProviderManager : ProviderManager, Loggable {
   }
 }
 
-open class DefaultPluginWrapper<T : Plugin> constructor(private val plugin: T) : PluginWrapper<T> {
+open class DefaultPluginWrapper<T : Plugin> constructor(private val plugin: T) : PluginWrapper<T>{
   private val listeners: MutableSet<BiConsumer<Plugin.State, Plugin.State>>
 
   private var configEntries: List<Config.Entry>
@@ -385,8 +386,8 @@ open class DefaultSuggesterWrapper(plugin: Suggester) : DefaultPluginWrapper<Sug
     wrapped.dislike(song)
   }
 
-  override fun notifyPlayed(song: Song) {
-    wrapped.notifyPlayed(song)
+  override fun notifyPlayed(entry: SongEntry) {
+    wrapped.notifyPlayed(entry)
   }
 
   override fun removeSuggestion(song: Song) {

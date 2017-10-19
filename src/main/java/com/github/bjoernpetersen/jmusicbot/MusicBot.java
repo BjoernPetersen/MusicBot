@@ -5,6 +5,7 @@ import com.github.bjoernpetersen.jmusicbot.config.Config;
 import com.github.bjoernpetersen.jmusicbot.playback.Player;
 import com.github.bjoernpetersen.jmusicbot.playback.QueueChangeListener;
 import com.github.bjoernpetersen.jmusicbot.playback.QueueEntry;
+import com.github.bjoernpetersen.jmusicbot.playback.SongEntry;
 import com.github.bjoernpetersen.jmusicbot.provider.Provider;
 import com.github.bjoernpetersen.jmusicbot.provider.ProviderManager;
 import com.github.bjoernpetersen.jmusicbot.provider.Suggester;
@@ -72,10 +73,11 @@ public final class MusicBot implements Loggable, Closeable {
       throw e;
     }
 
-    Consumer<Song> songPlayedNotifier = song -> {
+    Consumer<SongEntry> songPlayedNotifier = songEntry -> {
+      Song song = songEntry.getSong();
       Provider provider = song.getProvider();
       for (Suggester suggester : providerManager.getSuggesters(provider)) {
-        suggester.notifyPlayed(song);
+        suggester.notifyPlayed(songEntry);
       }
     };
 
