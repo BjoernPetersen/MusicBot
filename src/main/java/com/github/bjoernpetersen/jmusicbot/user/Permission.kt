@@ -2,7 +2,7 @@ package com.github.bjoernpetersen.jmusicbot.user
 
 
 enum class Permission(val label: String) {
-  SKIP("skip"), DISLIKE("dislike");
+  SKIP("skip"), DISLIKE("dislike"), MOVE("move");
 
   companion object {
     @JvmStatic
