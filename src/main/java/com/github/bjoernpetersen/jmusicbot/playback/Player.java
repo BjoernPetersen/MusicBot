@@ -9,6 +9,7 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
@@ -86,7 +87,13 @@ public final class Player implements Loggable, Closeable {
 
   private void preloadSuggestion(@Nonnull Suggester suggester) {
     if (queue.isEmpty()) {
-      suggester.getNextSuggestions(1).get(0).load();
+      List<Song> suggestions;
+      try {
+        suggestions = suggester.getNextSuggestions(1);
+      } catch (BrokenSuggesterException e) {
+        return;
+      }
+      suggestions.get(0).load();
     }
   }
 
