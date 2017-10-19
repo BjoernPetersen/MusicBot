@@ -75,6 +75,66 @@ class QueueTest implements EqualsContract<Queue> {
   }
 
   @Test
+  void move() {
+    Queue queue = createValue();
+    QueueEntry entry = mock(QueueEntry.class);
+    queue.append(mock(QueueEntry.class));
+    queue.append(mock(QueueEntry.class));
+    queue.append(entry);
+    queue.append(mock(QueueEntry.class));
+    queue.append(mock(QueueEntry.class));
+    assertEquals(2, queue.toList().indexOf(entry));
+    queue.move(entry, 1);
+    assertEquals(1, queue.toList().indexOf(entry));
+  }
+
+  @Test
+  void moveToStart() {
+    Queue queue = createValue();
+    QueueEntry entry = mock(QueueEntry.class);
+    queue.append(mock(QueueEntry.class));
+    queue.append(mock(QueueEntry.class));
+    queue.append(entry);
+    assertEquals(2, queue.toList().indexOf(entry));
+    queue.move(entry, 0);
+    assertEquals(0, queue.toList().indexOf(entry));
+  }
+
+  @Test
+  void moveToEnd() {
+    Queue queue = createValue();
+    QueueEntry entry = mock(QueueEntry.class);
+    queue.append(mock(QueueEntry.class));
+    queue.append(entry);
+    queue.append(mock(QueueEntry.class));
+    assertEquals(1, queue.toList().indexOf(entry));
+    queue.move(entry, 2);
+    assertEquals(2, queue.toList().indexOf(entry));
+  }
+
+  @Test
+  void moveToEndTooBig() {
+    Queue queue = createValue();
+    QueueEntry entry = mock(QueueEntry.class);
+    queue.append(mock(QueueEntry.class));
+    queue.append(entry);
+    queue.append(mock(QueueEntry.class));
+    assertEquals(1, queue.toList().indexOf(entry));
+    queue.move(entry, 3);
+    assertEquals(2, queue.toList().indexOf(entry));
+  }
+
+  @Test
+  void moveBelowZero() {
+    Queue queue = createValue();
+    QueueEntry entry = mock(QueueEntry.class);
+    queue.append(mock(QueueEntry.class));
+    queue.append(entry);
+    queue.append(mock(QueueEntry.class));
+    assertThrows(IllegalArgumentException.class, () -> queue.move(entry, -1));
+  }
+
+  @Test
   void toList() {
     Queue queue = createValue();
     QueueEntry entry1 = mock(QueueEntry.class);

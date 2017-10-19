@@ -23,7 +23,6 @@ public final class Queue {
     this.listeners = new HashSet<>();
   }
 
-  // TODO append entry, not song
   public void append(@Nonnull QueueEntry entry) {
     Objects.requireNonNull(entry);
     if (!queue.contains(entry)) {
@@ -63,6 +62,26 @@ public final class Queue {
     return Collections.unmodifiableList(queue);
   }
 
+  /**
+   * <p>Moves the specified QueueEntry to the specified index in the queue.</p>
+   *
+   * <ul> <li>If the QueueEntry is not in the queue, this method does nothing.</li> <li>If the index
+   * is greater than the size of the queue, the entry is moved to the end of the queue.</li> </ul>
+   *
+   * @param queueEntry a QueueEntry
+   * @param index a 0-based index
+   * @throws IllegalArgumentException if the index is smaller than 0
+   */
+  public void move(QueueEntry queueEntry, int index) {
+    if (index < 0) {
+      throw new IllegalArgumentException("Index below 0");
+    }
+    if (queue.remove(queueEntry)) {
+      index = Math.min(index, queue.size());
+      queue.add(index, queueEntry);
+    }
+  }
+
   public void addListener(@Nonnull QueueChangeListener listener) {
     listeners.add(Objects.requireNonNull(listener));
   }
@@ -76,6 +95,4 @@ public final class Queue {
       notifier.accept(listener);
     }
   }
-
-  // TODO move
 }
