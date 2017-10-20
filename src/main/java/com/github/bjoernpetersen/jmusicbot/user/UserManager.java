@@ -95,6 +95,10 @@ public final class UserManager implements Closeable {
   @Nonnull
   public User getUser(String name) throws UserNotFoundException {
     User user;
+    if (BOT_NAME.equals(name)) {
+      return botUser;
+    }
+
     try {
       user = users.get(name);
     } catch (ExecutionException e) {
