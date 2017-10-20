@@ -101,6 +101,10 @@ public final class MusicBot implements Loggable, Closeable {
       @Override
       public void onRemove(@Nonnull QueueEntry entry) {
       }
+
+      @Override
+      public void onMove(@Nonnull QueueEntry entry, int fromIndex, int toIndex) {
+      }
     });
 
     try {

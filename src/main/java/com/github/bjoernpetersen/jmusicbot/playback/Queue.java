@@ -76,9 +76,16 @@ public final class Queue {
     if (index < 0) {
       throw new IllegalArgumentException("Index below 0");
     }
-    if (queue.remove(queueEntry)) {
-      index = Math.min(index, queue.size());
-      queue.add(index, queueEntry);
+
+    int oldIndex = queue.indexOf(queueEntry);
+    if (oldIndex > -1) {
+      int newIndex = Math.min(queue.size(), index);
+      if (oldIndex != newIndex) {
+        if (queue.remove(queueEntry)) {
+          queue.add(newIndex, queueEntry);
+          listeners.forEach(l -> l.onMove(queueEntry, oldIndex, newIndex));
+        }
+      }
     }
   }
 

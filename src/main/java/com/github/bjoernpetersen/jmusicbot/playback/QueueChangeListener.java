@@ -8,5 +8,5 @@ public interface QueueChangeListener {
 
   void onRemove(@Nonnull QueueEntry entry);
 
-  // TODO move
+  void onMove(@Nonnull QueueEntry entry, int fromIndex, int toIndex);
 }
