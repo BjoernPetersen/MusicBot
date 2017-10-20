@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.Mockito.mock;
 
-import com.github.bjoernpetersen.jmusicbot.Song;
 import java.lang.ref.WeakReference;
 import java.util.Arrays;
 import java.util.List;
@@ -35,6 +34,11 @@ class WeakQueueChangeListenerTest {
       public void onRemove(@Nonnull QueueEntry song) {
         called.set(song);
       }
+
+      @Override
+      public void onMove(@Nonnull QueueEntry entry, int fromIndex, int toIndex) {
+        // TODO test this one
+      }
     };
     QueueChangeListener weak = new WeakQueueChangeListener(listener);
 
@@ -46,23 +50,12 @@ class WeakQueueChangeListenerTest {
 
   @Test
   void isWeak() throws InterruptedException {
-    QueueChangeListener listener = new DummyListener();
+    QueueChangeListener listener = new DummyQueueChangeListener();
     WeakReference<QueueChangeListener> weakListener = new WeakReference<>(listener);
     QueueChangeListener weak = new WeakQueueChangeListener(listener);
 
     listener = null;
     System.gc();
     assertNull(weakListener.get());
-  }
-
-  private static final class DummyListener implements QueueChangeListener {
-
-    @Override
-    public void onAdd(@Nonnull QueueEntry song) {
-    }
-
-    @Override
-    public void onRemove(@Nonnull QueueEntry song) {
-    }
   }
 }

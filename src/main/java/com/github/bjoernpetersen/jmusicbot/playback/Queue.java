@@ -79,7 +79,7 @@ public final class Queue {
 
     int oldIndex = queue.indexOf(queueEntry);
     if (oldIndex > -1) {
-      int newIndex = Math.min(queue.size(), index);
+      int newIndex = Math.min(queue.size() - 1, index);
       if (oldIndex != newIndex) {
         if (queue.remove(queueEntry)) {
           queue.add(newIndex, queueEntry);

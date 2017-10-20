@@ -164,15 +164,7 @@ class QueueTest implements EqualsContract<Queue> {
 
   @Test
   void removeUnregisteredListener() {
-    createValue().removeListener(new QueueChangeListener() {
-      @Override
-      public void onAdd(@Nonnull QueueEntry song) {
-      }
-
-      @Override
-      public void onRemove(@Nonnull QueueEntry song) {
-      }
-    });
+    createValue().removeListener(new DummyQueueChangeListener());
   }
 
   @Test
@@ -181,12 +173,16 @@ class QueueTest implements EqualsContract<Queue> {
     AtomicBoolean added = new AtomicBoolean();
     queue.addListener(new QueueChangeListener() {
       @Override
-      public void onAdd(@Nonnull QueueEntry song) {
+      public void onAdd(@Nonnull QueueEntry entry) {
         added.set(true);
       }
 
       @Override
-      public void onRemove(@Nonnull QueueEntry song) {
+      public void onRemove(@Nonnull QueueEntry entry) {
+      }
+
+      @Override
+      public void onMove(@Nonnull QueueEntry entry, int fromIndex, int toIndex) {
       }
     });
     queue.append(mock(QueueEntry.class));
@@ -208,6 +204,10 @@ class QueueTest implements EqualsContract<Queue> {
       public void onRemove(@Nonnull QueueEntry song) {
         removed.set(true);
       }
+
+      @Override
+      public void onMove(@Nonnull QueueEntry entry, int fromIndex, int toIndex) {
+      }
     });
 
     queue.pop();
@@ -226,6 +226,11 @@ class QueueTest implements EqualsContract<Queue> {
 
       @Override
       public void onRemove(@Nonnull QueueEntry song) {
+        called.set(true);
+      }
+
+      @Override
+      public void onMove(@Nonnull QueueEntry entry, int fromIndex, int toIndex) {
         called.set(true);
       }
     };
