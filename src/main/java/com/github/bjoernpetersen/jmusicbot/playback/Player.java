@@ -78,6 +78,10 @@ public final class Player implements Loggable, Closeable {
       @Override
       public void onRemove(@Nonnull QueueEntry entry) {
       }
+
+      @Override
+      public void onMove(@Nonnull QueueEntry entry, int fromIndex, int toIndex) {
+      }
     });
 
     if (suggester != null) {
