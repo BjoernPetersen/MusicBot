@@ -57,7 +57,7 @@ public final class UserManager implements Closeable {
         .build(new CacheLoader<String, User>() {
           @Override
           public User load(@Nonnull String name) throws Exception {
-            User user = temporaryUsers.get(name);
+            User user = temporaryUsers.get(name.toLowerCase());
             return user == null ? database.getUser(name) : user;
           }
         });
@@ -78,7 +78,7 @@ public final class UserManager implements Closeable {
 
   @Nonnull
   public User createTemporaryUser(String name, String uuid) throws DuplicateUserException {
-    if (BOT_NAME.equals(name)) {
+    if (BOT_NAME.equalsIgnoreCase(name)) {
       throw new DuplicateUserException("Invalid username");
     }
     try {
@@ -87,7 +87,7 @@ public final class UserManager implements Closeable {
       throw new DuplicateUserException("User already exists: " + name);
     } catch (UserNotFoundException expected) {
       User user = new User(name, uuid);
-      temporaryUsers.put(name, user);
+      temporaryUsers.put(name.toLowerCase(), user);
       return user;
     }
   }
@@ -135,7 +135,7 @@ public final class UserManager implements Closeable {
     User newUser;
     if (user.isTemporary()) {
       newUser = database.createUser(user.getName(), hash(password));
-      temporaryUsers.remove(name);
+      temporaryUsers.remove(name.toLowerCase());
     } else {
       newUser = database.updatePassword(user, hash(password));
     }

@@ -41,20 +41,21 @@ final class Database implements Closeable {
 
     try (Statement statement = connection.createStatement()) {
       statement.execute("CREATE TABLE IF NOT EXISTS users("
-          + "name TEXT PRIMARY KEY NOT NULL,"
+          + "id TEXT PRIMARY KEY NOT NULL,"
+          + "name TEXT NOT NULL,"
           + "password TEXT NOT NULL,"
           + "permissions TEXT NOT NULL)");
     }
 
     this.createUser = connection.prepareStatement(
-        "INSERT OR ABORT INTO users(name, password, permissions) VALUES(?, ?, ?)"
+        "INSERT OR ABORT INTO users(id, name, password, permissions) VALUES(?, ?, ?, ?)"
     );
     this.getUser = connection
-        .prepareStatement("SELECT password, permissions FROM users WHERE name=?");
-    this.updatePassword = connection.prepareStatement("UPDATE users SET password=? WHERE name=?");
+        .prepareStatement("SELECT name, password, permissions FROM users WHERE id=?");
+    this.updatePassword = connection.prepareStatement("UPDATE users SET password=? WHERE id=?");
     this.updatePermissions = connection
-        .prepareStatement("UPDATE users SET permissions=? WHERE name=?");
-    this.dropUser = connection.prepareStatement("DELETE FROM users WHERE name=?");
+        .prepareStatement("UPDATE users SET permissions=? WHERE id=?");
+    this.dropUser = connection.prepareStatement("DELETE FROM users WHERE id=?");
     this.getUsers = connection.prepareStatement("SELECT * FROM users");
   }
 
@@ -63,9 +64,10 @@ final class Database implements Closeable {
     synchronized (createUser) {
       try {
         createUser.clearParameters();
-        createUser.setString(1, user);
-        createUser.setString(2, passwordHash);
-        createUser.setString(3, "");
+        createUser.setString(1, user.toLowerCase());
+        createUser.setString(2, user);
+        createUser.setString(3, passwordHash);
+        createUser.setString(4, "");
         createUser.execute();
       } catch (SQLException e) {
         throw new DuplicateUserException(e);
@@ -79,18 +81,20 @@ final class Database implements Closeable {
     synchronized (getUser) {
       try {
         getUser.clearParameters();
-        getUser.setString(1, user);
+        getUser.setString(1, user.toLowerCase());
+        String name;
         String hash;
         String permissionString;
         try (ResultSet resultSet = getUser.executeQuery()) {
           if (!resultSet.next()) {
             throw new UserNotFoundException("No such user: " + user);
           }
+          name = resultSet.getString("name");
           hash = resultSet.getString("password");
           permissionString = resultSet.getString("permissions");
         }
         Set<Permission> permissions = getPermissions(permissionString).collect(Collectors.toSet());
-        return new User(user, hash, permissions);
+        return new User(name, hash, permissions);
       } catch (SQLException e) {
         throw new UserNotFoundException(e);
       }
@@ -110,7 +114,7 @@ final class Database implements Closeable {
     synchronized (updatePassword) {
       updatePassword.clearParameters();
       updatePassword.setString(1, passwordHash);
-      updatePassword.setString(2, user.getName());
+      updatePassword.setString(2, user.getName().toLowerCase());
       updatePassword.execute();
     }
     user.invalidate();
@@ -125,7 +129,7 @@ final class Database implements Closeable {
           .map(Permission::getLabel)
           .reduce("", (l, r) -> l + ',' + r);
       updatePermissions.setString(1, permissions);
-      updatePermissions.setString(2, user.getName());
+      updatePermissions.setString(2, user.getName().toLowerCase());
       updatePermissions.execute();
     }
     User newUser = new User(user.getName(), user.getHash(), newPermissions);
@@ -136,7 +140,7 @@ final class Database implements Closeable {
   void dropUser(User user) throws SQLException {
     synchronized (dropUser) {
       dropUser.clearParameters();
-      dropUser.setString(1, user.getName());
+      dropUser.setString(1, user.getName().toLowerCase());
       dropUser.execute();
     }
     user.invalidate();
