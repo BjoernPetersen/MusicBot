@@ -48,6 +48,11 @@
     <jbcrypt.version>0.4</jbcrypt.version>
     <jjwt.version>0.8.0</jjwt.version>
     <android.version>4.1.1.4</android.version>
+    <semver.version>0.9.0</semver.version>
+    <rxjava.version>2.1.6</rxjava.version>
+    <rxjavafx.version>2.2.0</rxjavafx.version>
+    <rxkotlin.version>2.1.0</rxkotlin.version>
+    <rxkotlinfx.version>2.2.0</rxkotlinfx.version>
 
     <!-- plugin versions -->
     <dokka.version>0.9.15</dokka.version>
@@ -122,7 +127,33 @@
     <dependency>
       <groupId>com.github.zafarkhaja</groupId>
       <artifactId>java-semver</artifactId>
-      <version>0.9.0</version>
+      <version>${semver.version}</version>
+      <scope>compile</scope>
+    </dependency>
+
+    <!-- RxJava and bindings -->
+    <dependency>
+      <groupId>io.reactivex.rxjava2</groupId>
+      <artifactId>rxjava</artifactId>
+      <version>${rxjava.version}</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.reactivex.rxjava2</groupId>
+      <artifactId>rxjavafx</artifactId>
+      <version>${rxjavafx.version}</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.reactivex.rxjava2</groupId>
+      <artifactId>rxkotlin</artifactId>
+      <version>${rxkotlin.version}</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.github.thomasnield</groupId>
+      <artifactId>rxkotlinfx</artifactId>
+      <version>${rxkotlinfx.version}</version>
       <scope>compile</scope>
     </dependency>
 
