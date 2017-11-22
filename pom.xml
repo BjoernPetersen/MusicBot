@@ -52,7 +52,6 @@
     <rxjava.version>2.1.6</rxjava.version>
     <rxjavafx.version>2.2.0</rxjavafx.version>
     <rxkotlin.version>2.1.0</rxkotlin.version>
-    <rxkotlinfx.version>2.2.0</rxkotlinfx.version>
 
     <!-- plugin versions -->
     <dokka.version>0.9.15</dokka.version>
@@ -148,12 +147,6 @@
       <groupId>io.reactivex.rxjava2</groupId>
       <artifactId>rxkotlin</artifactId>
       <version>${rxkotlin.version}</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.github.thomasnield</groupId>
-      <artifactId>rxkotlinfx</artifactId>
-      <version>${rxkotlinfx.version}</version>
       <scope>compile</scope>
     </dependency>
 
