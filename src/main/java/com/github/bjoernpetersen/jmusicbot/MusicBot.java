@@ -15,6 +15,7 @@ import com.github.zafarkhaja.semver.Version;
 import com.google.common.annotations.VisibleForTesting;
 import java.io.Closeable;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -223,7 +224,9 @@ public final class MusicBot implements Loggable, Closeable {
   public static Version getVersion() {
     try {
       Properties properties = new Properties();
-      properties.load(MusicBot.class.getResourceAsStream("version.properties"));
+      try (InputStream versionStream = MusicBot.class.getResourceAsStream("version.properties")) {
+        properties.load(versionStream);
+      }
       String version = properties.getProperty("version");
       if (version == null) {
         throw new IllegalStateException("Version is missing");
@@ -345,6 +348,7 @@ public final class MusicBot implements Loggable, Closeable {
           case OK:
           default:
             // just continue
+            break;
         }
       }
     }

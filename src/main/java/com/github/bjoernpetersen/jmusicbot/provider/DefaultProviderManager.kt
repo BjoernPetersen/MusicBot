@@ -22,7 +22,6 @@ internal class DefaultProviderManager : ProviderManager, Loggable {
   private val suggesterById: MutableMap<String, ProviderManager.SuggesterWrapper>
   private val suggestersByProvider: MutableMap<Provider, MutableList<Suggester>>
 
-  private lateinit var config: Config
   private lateinit var playbackFactoryManager: PlaybackFactoryManager
 
   init {
@@ -33,7 +32,6 @@ internal class DefaultProviderManager : ProviderManager, Loggable {
   }
 
   override fun initialize(config: Config, manager: PlaybackFactoryManager) {
-    this.config = config
     this.playbackFactoryManager = manager
 
     val pluginFolderName = config.defaults.pluginFolder.value
