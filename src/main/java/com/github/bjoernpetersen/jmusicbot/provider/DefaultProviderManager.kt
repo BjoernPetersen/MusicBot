@@ -17,19 +17,12 @@ import kotlin.collections.HashMap
 
 internal class DefaultProviderManager : ProviderManager, Loggable {
 
-  private val providerById: MutableMap<String, ProviderManager.ProviderWrapper>
-  private val providerByBase: MutableMap<Class<out Provider>, Provider>
-  private val suggesterById: MutableMap<String, ProviderManager.SuggesterWrapper>
-  private val suggestersByProvider: MutableMap<Provider, MutableList<Suggester>>
+  private val providerById: MutableMap<String, ProviderManager.ProviderWrapper> = HashMap(64)
+  private val providerByBase: MutableMap<Class<out Provider>, Provider> = HashMap(64)
+  private val suggesterById: MutableMap<String, ProviderManager.SuggesterWrapper> = HashMap(64)
+  private val suggestersByProvider: MutableMap<Provider, MutableList<Suggester>> = HashMap(64)
 
   private lateinit var playbackFactoryManager: PlaybackFactoryManager
-
-  init {
-    this.providerById = HashMap(64)
-    this.providerByBase = HashMap(64)
-    this.suggesterById = HashMap(64)
-    this.suggestersByProvider = HashMap(64)
-  }
 
   override fun initialize(config: Config, manager: PlaybackFactoryManager) {
     this.playbackFactoryManager = manager
@@ -72,16 +65,11 @@ internal class DefaultProviderManager : ProviderManager, Loggable {
     }
   }
 
-  override fun getAllProviders(): Map<String, ProviderManager.ProviderWrapper> {
-    return providerById
-  }
+  override fun getAllProviders(): Map<String, ProviderManager.ProviderWrapper> = providerById
 
-  override fun getAllSuggesters(): Map<String, ProviderManager.SuggesterWrapper> {
-    return suggesterById
-  }
+  override fun getAllSuggesters(): Map<String, ProviderManager.SuggesterWrapper> = suggesterById
 
-  override fun getSuggesters(provider: Provider): Collection<Suggester> =
-      suggestersByProvider[provider] ?: emptyList()
+  override fun getSuggesters(provider: Provider): Collection<Suggester> = suggestersByProvider[provider] ?: emptyList()
 
   private fun removeProvider(provider: Provider) {
     providerByBase.remove(provider.baseClass)
@@ -188,9 +176,7 @@ internal class DefaultProviderManager : ProviderManager, Loggable {
     return loadedDependencies
   }
 
-  override fun getProvider(id: String): ProviderManager.ProviderWrapper? {
-    return providerById[id]
-  }
+  override fun getProvider(id: String): ProviderManager.ProviderWrapper? = providerById[id]
 
   override fun getProvider(baseClass: Class<out Provider>): Provider? {
     val provider = providerByBase[baseClass] ?: return null
@@ -198,9 +184,7 @@ internal class DefaultProviderManager : ProviderManager, Loggable {
     return if (wrapper.isActive) provider else null
   }
 
-  override fun getSuggester(id: String): ProviderManager.SuggesterWrapper? {
-    return suggesterById[id]
-  }
+  override fun getSuggester(id: String): ProviderManager.SuggesterWrapper? = suggesterById[id]
 
   private fun close(plugin: PluginWrapper<*>) {
     try {
@@ -224,36 +208,23 @@ internal class DefaultProviderManager : ProviderManager, Loggable {
   }
 }
 
-open class DefaultPluginWrapper<T : Plugin> constructor(private val plugin: T) : PluginWrapper<T>{
-  private val listeners: MutableSet<BiConsumer<Plugin.State, Plugin.State>>
+open class DefaultPluginWrapper<T : Plugin> constructor(private val plugin: T) : PluginWrapper<T> {
+  private val listeners: MutableSet<BiConsumer<Plugin.State, Plugin.State>> = HashSet()
 
-  private var configEntries: List<Config.Entry>
-  private var state: Plugin.State
+  private var configEntries: List<Config.Entry> = emptyList()
+  private var state: Plugin.State = Plugin.State.INACTIVE
 
-  init {
-    this.listeners = HashSet()
+  override fun getState(): Plugin.State = state
 
-    this.configEntries = emptyList()
-    this.state = Plugin.State.INACTIVE
-  }
-
-  override fun getState(): Plugin.State {
-    return state
-  }
-
-  internal fun setState(state: Plugin.State) {
+  protected fun setState(state: Plugin.State) {
     val old = this.state
     this.state = state
     listeners.forEach { l -> l.accept(old, state) }
   }
 
-  override fun getWrapped(): T {
-    return plugin
-  }
+  override fun getWrapped(): T = plugin
 
-  override fun getConfigEntries(): List<Config.Entry> {
-    return configEntries
-  }
+  override fun getConfigEntries(): List<Config.Entry> = configEntries
 
   override fun initializeConfigEntries(config: Config): List<Entry> {
     if (getState() < Plugin.State.CONFIG) {
@@ -263,9 +234,7 @@ open class DefaultPluginWrapper<T : Plugin> constructor(private val plugin: T) :
     return configEntries
   }
 
-  override fun getMissingConfigEntries(): MutableList<out Entry> {
-    return wrapped.missingConfigEntries
-  }
+  override fun getMissingConfigEntries(): List<Entry> = wrapped.missingConfigEntries
 
   override fun destructConfigEntries() {
     if (getState() > Plugin.State.CONFIG) {
@@ -286,13 +255,9 @@ open class DefaultPluginWrapper<T : Plugin> constructor(private val plugin: T) :
     listeners.remove(listener)
   }
 
-  override fun getReadableName(): String {
-    return wrapped.readableName
-  }
+  override fun getReadableName(): String = wrapped.readableName
 
-  override fun getSupport(platform: Platform): Support {
-    return wrapped.getSupport(platform)
-  }
+  override fun getSupport(platform: Platform): Support = wrapped.getSupport(platform)
 
   override fun getMinSupportedVersion(): Version = wrapped.minSupportedVersion
   override fun getMaxSupportedVersion(): Version = wrapped.maxSupportedVersion
@@ -319,13 +284,9 @@ open class DefaultProviderWrapper(plugin: Provider) : DefaultPluginWrapper<Provi
 
   fun addSuggester(suggester: Suggester) = _suggesters.add(suggester)
 
-  override fun getPlaybackDependencies(): Set<Class<out PlaybackFactory>> {
-    return wrapped.playbackDependencies
-  }
+  override fun getPlaybackDependencies(): Set<Class<out PlaybackFactory>> = wrapped.playbackDependencies
 
-  override fun getId(): String {
-    return wrapped.id
-  }
+  override fun getId(): String = wrapped.id
 
   @Throws(InitializationException::class, InterruptedException::class)
   override fun initialize(initStateWriter: InitStateWriter, manager: PlaybackFactoryManager) {
@@ -339,34 +300,22 @@ open class DefaultProviderWrapper(plugin: Provider) : DefaultPluginWrapper<Provi
     state = Plugin.State.ACTIVE
   }
 
-  override fun search(query: String): List<Song> {
-    return wrapped.search(query)
-  }
+  override fun search(query: String): List<Song> = wrapped.search(query)
 
   @Throws(NoSuchSongException::class)
-  override fun lookup(id: String): Song {
-    return wrapped.lookup(id)
-  }
+  override fun lookup(id: String): Song = wrapped.lookup(id)
 
-  override fun getBaseClass(): Class<out Provider> {
-    return wrapped.baseClass
-  }
+  override fun getBaseClass(): Class<out Provider> = wrapped.baseClass
 }
 
 open class DefaultSuggesterWrapper(plugin: Suggester) : DefaultPluginWrapper<Suggester>(plugin),
     ProviderManager.SuggesterWrapper {
 
-  override fun suggestNext(): Song {
-    return wrapped.suggestNext()
-  }
+  override fun suggestNext(): Song = wrapped.suggestNext()
 
-  override fun getNextSuggestions(maxLength: Int): List<Song> {
-    return wrapped.getNextSuggestions(maxLength)
-  }
+  override fun getNextSuggestions(maxLength: Int): List<Song> = wrapped.getNextSuggestions(maxLength)
 
-  override fun getId(): String {
-    return wrapped.id
-  }
+  override fun getId(): String = wrapped.id
 
   @Throws(InitializationException::class, InterruptedException::class)
   override fun initialize(initStateWriter: InitStateWriter, dependencies: DependencyMap<Provider>) {
@@ -392,11 +341,7 @@ open class DefaultSuggesterWrapper(plugin: Suggester) : DefaultPluginWrapper<Sug
     wrapped.removeSuggestion(song)
   }
 
-  override fun getDependencies(): Set<Class<out Provider>> {
-    return wrapped.dependencies
-  }
+  override fun getDependencies(): Set<Class<out Provider>> = wrapped.dependencies
 
-  override fun getOptionalDependencies(): Set<Class<out Provider>> {
-    return wrapped.optionalDependencies
-  }
+  override fun getOptionalDependencies(): Set<Class<out Provider>> = wrapped.optionalDependencies
 }
