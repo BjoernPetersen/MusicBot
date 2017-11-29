@@ -6,25 +6,22 @@ import com.github.bjoernpetersen.jmusicbot.PlaybackFactoryManager;
 import com.github.bjoernpetersen.jmusicbot.Plugin.State;
 import com.github.bjoernpetersen.jmusicbot.PluginLoader;
 import com.github.bjoernpetersen.jmusicbot.PluginWrapper;
-import com.github.bjoernpetersen.jmusicbot.Reference;
 import com.github.bjoernpetersen.jmusicbot.config.Config;
 import java.io.Closeable;
 import java.util.Collection;
 import java.util.Map;
-import java.util.function.Function;
 import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
- * Manages all instances of Providers and Suggesters and provides {@link PluginWrapper} instances
- * for them.
+ * Manages all instances of Providers and Suggesters and provides {@link PluginWrapper} instances for them.
  */
 public interface ProviderManager extends Closeable {
 
   /**
-   * Initialize the ProviderManager. This includes loading Providers and Suggesters with a {@link
-   * PluginLoader} instance.
+   * Initialize the ProviderManager. This includes loading Providers and Suggesters with a {@link PluginLoader}
+   * instance.
    *
    * @param config a Config instance
    * @param manager a PlaybackFactoryManager to initialize Providers later
@@ -107,8 +104,8 @@ public interface ProviderManager extends Closeable {
   ProviderWrapper getProvider(@Nonnull String id);
 
   /**
-   * Gets the provider implementing the specified base class. Only returns active providers. This
-   * method is guaranteed not to return a {@link PluginWrapper} instance.
+   * Gets the provider implementing the specified base class. Only returns active providers. This method is guaranteed
+   * not to return a {@link PluginWrapper} instance.
    *
    * @param baseClass a provider base class
    * @return a Provider, or null
@@ -154,33 +151,29 @@ public interface ProviderManager extends Closeable {
 
   interface ProviderWrapper extends PluginWrapper<Provider>, Provider {
 
-    Reference<Function<Provider, ProviderWrapper>> factoryRef =
-        new Reference<>(DefaultProviderWrapper::new);
+  }
 
-    static void setDefaultFactory(@Nonnull Function<Provider, ProviderWrapper> factory) {
-      ProviderWrapper.factoryRef.set(factory);
-    }
+  @FunctionalInterface
+  interface ProviderWrapperFactory {
 
-    static ProviderWrapper defaultWrapper(@Nonnull Provider provider) {
-      return factoryRef.get().apply(provider);
-    }
+    @Nonnull
+    ProviderWrapper make(@Nonnull Provider provider);
   }
 
   interface SuggesterWrapper extends PluginWrapper<Suggester>, Suggester {
 
-    Reference<Function<Suggester, SuggesterWrapper>> factoryRef =
-        new Reference<>(DefaultSuggesterWrapper::new);
-
-    static void setDefaultFactory(@Nonnull Function<Suggester, SuggesterWrapper> factory) {
-      SuggesterWrapper.factoryRef.set(factory);
-    }
-
-    static SuggesterWrapper defaultWrapper(@Nonnull Suggester suggester) {
-      return factoryRef.get().apply(suggester);
-    }
   }
 
-  static ProviderManager defaultManager() {
-    return new DefaultProviderManager();
+  @FunctionalInterface
+  interface SuggesterWrapperFactory {
+
+    @Nonnull
+    SuggesterWrapper make(@Nonnull Suggester suggester);
+  }
+
+  @Nonnull
+  static ProviderManager defaultManager(ProviderWrapperFactory providerWrapperFactory,
+      SuggesterWrapperFactory suggesterWrapperFactory) {
+    return new DefaultProviderManager(providerWrapperFactory, suggesterWrapperFactory);
   }
 }

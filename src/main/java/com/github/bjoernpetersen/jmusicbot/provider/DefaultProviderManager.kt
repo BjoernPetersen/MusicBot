@@ -15,7 +15,8 @@ import java.util.function.BiConsumer
 import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 
-internal class DefaultProviderManager : ProviderManager, Loggable {
+internal class DefaultProviderManager(private val providerWrapperFactory: ProviderManager.ProviderWrapperFactory,
+    private val suggesterWrapperFactory: ProviderManager.SuggesterWrapperFactory) : ProviderManager, Loggable {
 
   private val providerById: MutableMap<String, ProviderManager.ProviderWrapper> = HashMap(64)
   private val providerByBase: MutableMap<Class<out Provider>, Provider> = HashMap(64)
@@ -40,7 +41,7 @@ internal class DefaultProviderManager : ProviderManager, Loggable {
       return
     }
     providerByBase[baseClass] = provider
-    providerById[provider.id] = ProviderManager.ProviderWrapper.defaultWrapper(provider)
+    providerById[provider.id] = providerWrapperFactory.make(provider)
   }
 
   private fun loadProviders(pluginFolder: File) {
@@ -61,7 +62,7 @@ internal class DefaultProviderManager : ProviderManager, Loggable {
 
   private fun loadSuggesters(pluginFolder: File) {
     for (suggester in PluginLoader(pluginFolder, Suggester::class.java).load()) {
-      suggesterById[suggester.id] = ProviderManager.SuggesterWrapper.defaultWrapper(suggester)
+      suggesterById[suggester.id] = suggesterWrapperFactory.make(suggester)
     }
   }
 
