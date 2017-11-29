@@ -6,6 +6,8 @@ import com.github.bjoernpetersen.jmusicbot.PlaybackFactoryManager;
 import com.github.bjoernpetersen.jmusicbot.Plugin.State;
 import com.github.bjoernpetersen.jmusicbot.PluginLoader;
 import com.github.bjoernpetersen.jmusicbot.PluginWrapper;
+import com.github.bjoernpetersen.jmusicbot.ProviderWrapper;
+import com.github.bjoernpetersen.jmusicbot.SuggesterWrapper;
 import com.github.bjoernpetersen.jmusicbot.config.Config;
 import java.io.Closeable;
 import java.util.Collection;
@@ -149,19 +151,11 @@ public interface ProviderManager extends Closeable {
     }
   }
 
-  interface ProviderWrapper extends PluginWrapper<Provider>, Provider {
-
-  }
-
   @FunctionalInterface
   interface ProviderWrapperFactory {
 
     @Nonnull
     ProviderWrapper make(@Nonnull Provider provider);
-  }
-
-  interface SuggesterWrapper extends PluginWrapper<Suggester>, Suggester {
-
   }
 
   @FunctionalInterface

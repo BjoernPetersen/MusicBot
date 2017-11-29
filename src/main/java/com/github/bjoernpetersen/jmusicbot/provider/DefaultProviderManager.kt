@@ -18,9 +18,9 @@ import kotlin.collections.HashMap
 internal class DefaultProviderManager(private val providerWrapperFactory: ProviderManager.ProviderWrapperFactory,
     private val suggesterWrapperFactory: ProviderManager.SuggesterWrapperFactory) : ProviderManager, Loggable {
 
-  private val providerById: MutableMap<String, ProviderManager.ProviderWrapper> = HashMap(64)
+  private val providerById: MutableMap<String, ProviderWrapper> = HashMap(64)
   private val providerByBase: MutableMap<Class<out Provider>, Provider> = HashMap(64)
-  private val suggesterById: MutableMap<String, ProviderManager.SuggesterWrapper> = HashMap(64)
+  private val suggesterById: MutableMap<String, SuggesterWrapper> = HashMap(64)
   private val suggestersByProvider: MutableMap<Provider, MutableList<Suggester>> = HashMap(64)
 
   private lateinit var playbackFactoryManager: PlaybackFactoryManager
@@ -66,9 +66,9 @@ internal class DefaultProviderManager(private val providerWrapperFactory: Provid
     }
   }
 
-  override fun getAllProviders(): Map<String, ProviderManager.ProviderWrapper> = providerById
+  override fun getAllProviders(): Map<String, ProviderWrapper> = providerById
 
-  override fun getAllSuggesters(): Map<String, ProviderManager.SuggesterWrapper> = suggesterById
+  override fun getAllSuggesters(): Map<String, SuggesterWrapper> = suggesterById
 
   override fun getSuggesters(provider: Provider): Collection<Suggester> = suggestersByProvider[provider] ?: emptyList()
 
@@ -177,7 +177,7 @@ internal class DefaultProviderManager(private val providerWrapperFactory: Provid
     return loadedDependencies
   }
 
-  override fun getProvider(id: String): ProviderManager.ProviderWrapper? = providerById[id]
+  override fun getProvider(id: String): ProviderWrapper? = providerById[id]
 
   override fun getProvider(baseClass: Class<out Provider>): Provider? {
     val provider = providerByBase[baseClass] ?: return null
@@ -185,7 +185,7 @@ internal class DefaultProviderManager(private val providerWrapperFactory: Provid
     return if (wrapper.isActive) provider else null
   }
 
-  override fun getSuggester(id: String): ProviderManager.SuggesterWrapper? = suggesterById[id]
+  override fun getSuggester(id: String): SuggesterWrapper? = suggesterById[id]
 
   private fun close(plugin: PluginWrapper<*>) {
     try {
@@ -209,140 +209,4 @@ internal class DefaultProviderManager(private val providerWrapperFactory: Provid
   }
 }
 
-open class DefaultPluginWrapper<T : Plugin> constructor(private val plugin: T) : PluginWrapper<T> {
-  private val listeners: MutableSet<BiConsumer<Plugin.State, Plugin.State>> = HashSet()
 
-  private var configEntries: List<Config.Entry> = emptyList()
-  private var state: Plugin.State = Plugin.State.INACTIVE
-
-  override fun getState(): Plugin.State = state
-
-  protected fun setState(state: Plugin.State) {
-    val old = this.state
-    this.state = state
-    listeners.forEach { l -> l.accept(old, state) }
-  }
-
-  override fun getWrapped(): T = plugin
-
-  override fun getConfigEntries(): List<Config.Entry> = configEntries
-
-  override fun initializeConfigEntries(config: Config): List<Entry> {
-    if (getState() < Plugin.State.CONFIG) {
-      configEntries = wrapped.initializeConfigEntries(config)
-      setState(Plugin.State.CONFIG)
-    }
-    return configEntries
-  }
-
-  override fun getMissingConfigEntries(): List<Entry> = wrapped.missingConfigEntries
-
-  override fun destructConfigEntries() {
-    if (getState() > Plugin.State.CONFIG) {
-      throw IllegalStateException()
-    } else if (getState() < Plugin.State.CONFIG) {
-      return
-    }
-    configEntries = emptyList()
-    wrapped.destructConfigEntries()
-    setState(Plugin.State.INACTIVE)
-  }
-
-  override fun addStateListener(listener: BiConsumer<Plugin.State, Plugin.State>) {
-    listeners.add(listener)
-  }
-
-  override fun removeStateListener(listener: BiConsumer<Plugin.State, Plugin.State>) {
-    listeners.remove(listener)
-  }
-
-  override fun getReadableName(): String = wrapped.readableName
-
-  override fun getSupport(platform: Platform): Support = wrapped.getSupport(platform)
-
-  override fun getMinSupportedVersion(): Version = wrapped.minSupportedVersion
-  override fun getMaxSupportedVersion(): Version = wrapped.maxSupportedVersion
-
-  @Throws(IOException::class)
-  override fun close() {
-    if (getState() < Plugin.State.ACTIVE) {
-      return
-    }
-    try {
-      wrapped.close()
-    } finally {
-      setState(Plugin.State.CONFIG)
-    }
-  }
-}
-
-open class DefaultProviderWrapper(plugin: Provider) : DefaultPluginWrapper<Provider>(plugin),
-    ProviderManager.ProviderWrapper {
-
-  private val _suggesters: MutableList<Suggester> = ArrayList(16)
-  val suggesters: List<Suggester>
-    get() = _suggesters
-
-  fun addSuggester(suggester: Suggester) = _suggesters.add(suggester)
-
-  override fun getPlaybackDependencies(): Set<Class<out PlaybackFactory>> = wrapped.playbackDependencies
-
-  override fun getId(): String = wrapped.id
-
-  @Throws(InitializationException::class, InterruptedException::class)
-  override fun initialize(initStateWriter: InitStateWriter, manager: PlaybackFactoryManager) {
-    if (state < Plugin.State.CONFIG) {
-      throw IllegalStateException()
-    } else if (state == Plugin.State.ACTIVE) {
-      return
-    }
-
-    wrapped.initialize(initStateWriter, manager)
-    state = Plugin.State.ACTIVE
-  }
-
-  override fun search(query: String): List<Song> = wrapped.search(query)
-
-  @Throws(NoSuchSongException::class)
-  override fun lookup(id: String): Song = wrapped.lookup(id)
-
-  override fun getBaseClass(): Class<out Provider> = wrapped.baseClass
-}
-
-open class DefaultSuggesterWrapper(plugin: Suggester) : DefaultPluginWrapper<Suggester>(plugin),
-    ProviderManager.SuggesterWrapper {
-
-  override fun suggestNext(): Song = wrapped.suggestNext()
-
-  override fun getNextSuggestions(maxLength: Int): List<Song> = wrapped.getNextSuggestions(maxLength)
-
-  override fun getId(): String = wrapped.id
-
-  @Throws(InitializationException::class, InterruptedException::class)
-  override fun initialize(initStateWriter: InitStateWriter, dependencies: DependencyMap<Provider>) {
-    if (state < Plugin.State.CONFIG) {
-      throw IllegalStateException()
-    } else if (state == Plugin.State.ACTIVE) {
-      return
-    }
-
-    wrapped.initialize(initStateWriter, dependencies)
-    state = Plugin.State.ACTIVE
-  }
-
-  override fun dislike(song: Song) {
-    wrapped.dislike(song)
-  }
-
-  override fun notifyPlayed(entry: SongEntry) {
-    wrapped.notifyPlayed(entry)
-  }
-
-  override fun removeSuggestion(song: Song) {
-    wrapped.removeSuggestion(song)
-  }
-
-  override fun getDependencies(): Set<Class<out Provider>> = wrapped.dependencies
-
-  override fun getOptionalDependencies(): Set<Class<out Provider>> = wrapped.optionalDependencies
-}
