@@ -85,7 +85,8 @@ class Config(private val adapter: ConfigStorageAdapter, val hostServices: HostSe
   }
 
   private fun checkExists(type: Class<*>, key: String) {
-    if (getEntry(type, key) != null) throw IllegalArgumentException()
+    if (getEntry(type, key) != null)
+      throw IllegalArgumentException("Config entry already exists: ${type.name}.$key")
   }
 
   /**
