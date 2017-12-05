@@ -10,6 +10,8 @@ public interface BroadcasterInitializer {
    * Initialized a UDP broadcaster. The broadcaster should broadcast the specified message every few
    * seconds with the specified destination port and group address.
    *
+   * The message should be encoded with UTF-8.
+   *
    * @param port a port number
    * @param groupAddress a UDP multicast group IPv4 address
    * @param message a message to broadcast
