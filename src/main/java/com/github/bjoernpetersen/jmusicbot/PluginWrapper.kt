@@ -43,9 +43,9 @@ sealed class DefaultPluginWrapper<T : Plugin> constructor(override val wrapped: 
   override var configEntries: List<Config.Entry> = emptyList()
   override var state: Plugin.State = Plugin.State.INACTIVE
     protected set(value) {
-      val old = this.state
-      field = state
-      listeners.forEach { it(old, state) }
+      val old = field
+      field = value
+      listeners.forEach { it(old, value) }
     }
 
   override fun initializeConfigEntries(config: Config): List<Config.Entry> {
