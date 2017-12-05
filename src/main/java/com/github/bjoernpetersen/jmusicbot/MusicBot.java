@@ -32,6 +32,7 @@ import javax.annotation.Nullable;
 @Nonnull
 public final class MusicBot implements Loggable, Closeable {
 
+  private static final String BROADCAST_ID = "MusicBot";
   private static final int PORT = 42945;
   private static final String GROUP_ADDRESS = "224.0.0.142";
 
@@ -120,7 +121,7 @@ public final class MusicBot implements Loggable, Closeable {
       this.broadcaster = broadcasterInitializer.initialize(
           PORT,
           GROUP_ADDRESS,
-          PORT + ";1.0"
+          BROADCAST_ID + ';' + PORT + ';' + getVersion().toString()
       );
       initialized.add(this.broadcaster);
     } catch (InitializationException e) {
