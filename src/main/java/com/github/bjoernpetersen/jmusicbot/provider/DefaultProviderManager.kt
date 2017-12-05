@@ -108,7 +108,7 @@ internal class DefaultProviderManager(private val providerWrapperFactory: Provid
       .filter { it.state == Plugin.State.CONFIG }
       .forEach {
         try {
-          initStateWriter.begin(it.readableName)
+          initStateWriter.begin(it)
           initStateWriter.state("Initializing provider ${it.readableName}...")
           it.initialize(initStateWriter, playbackFactoryManager)
         } catch (e: InitializationException) {
@@ -139,7 +139,7 @@ internal class DefaultProviderManager(private val providerWrapperFactory: Provid
         .filter { it.state == Plugin.State.CONFIG }
         .forEach { s ->
           try {
-            initStateWriter.begin(s.readableName)
+            initStateWriter.begin(s)
             initStateWriter.state("Initializing ${s.readableName}...")
             val dependencies = buildDependencies(s)
             s.initialize(initStateWriter, DependencyMap(dependencies))

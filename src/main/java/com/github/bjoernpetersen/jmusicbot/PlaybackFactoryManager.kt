@@ -146,10 +146,10 @@ class PlaybackFactoryManager(config: Config, private val wrapperFactory: Playbac
     val defective = LinkedList<PlaybackFactory>()
     for (factory in playbackFactories.filter { it.state == Plugin.State.CONFIG }) {
       try {
-        initStateWriter.begin(factory.readableName)
+        initStateWriter.begin(factory)
         factory.initialize(initStateWriter)
       } catch (e: InitializationException) {
-        logWarning(e, "Could not initialize PlaybackFactory '%s'", factory)
+        logWarning(e, "Could not initialize PlaybackFactory '%s'", factory.readableName)
         defective.add(factory)
       }
     }

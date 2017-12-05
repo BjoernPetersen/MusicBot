@@ -8,7 +8,7 @@ public interface InitStateWriter extends Loggable {
   @Nonnull
   InitStateWriter NO_OP = new InitStateWriter() {
     @Override
-    public void begin(@Nonnull String pluginName) {
+    public void begin(@Nonnull Plugin plugin) {
     }
 
     @Override
@@ -26,8 +26,8 @@ public interface InitStateWriter extends Loggable {
     private String activePlugin;
 
     @Override
-    public void begin(@Nonnull String pluginName) {
-      this.activePlugin = pluginName;
+    public void begin(@Nonnull Plugin plugin) {
+      this.activePlugin = plugin.getReadableName();
     }
 
     private String prepend(String prepended) {
@@ -46,7 +46,7 @@ public interface InitStateWriter extends Loggable {
     }
   };
 
-  void begin(@Nonnull String pluginName);
+  void begin(@Nonnull Plugin plugin);
 
   void state(@Nonnull String state);
 
