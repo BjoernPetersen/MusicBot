@@ -2,17 +2,10 @@ package com.github.bjoernpetersen.jmusicbot.provider
 
 import com.github.bjoernpetersen.jmusicbot.*
 import com.github.bjoernpetersen.jmusicbot.config.Config
-import com.github.bjoernpetersen.jmusicbot.config.Config.Entry
 import com.github.bjoernpetersen.jmusicbot.platform.Platform
-import com.github.bjoernpetersen.jmusicbot.platform.Support
-import com.github.bjoernpetersen.jmusicbot.playback.PlaybackFactory
-import com.github.bjoernpetersen.jmusicbot.playback.SongEntry
-import com.github.zafarkhaja.semver.Version
 import java.io.File
 import java.io.IOException
 import java.util.*
-import java.util.function.BiConsumer
-import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 
 internal class DefaultProviderManager(private val providerWrapperFactory: ProviderManager.ProviderWrapperFactory,
@@ -187,10 +180,16 @@ internal class DefaultProviderManager(private val providerWrapperFactory: Provid
 
   override fun getSuggester(id: String): SuggesterWrapper? = suggesterById[id]
 
+  /**
+   * Completely close a plugin (close() and destructConfigEntries()).
+   */
   private fun close(plugin: PluginWrapper<*>) {
     try {
-      if (plugin.isActive) {
+      if (plugin.state == Plugin.State.ACTIVE) {
         plugin.close()
+      }
+      if (plugin.state == Plugin.State.CONFIG) {
+        plugin.destructConfigEntries()
       }
     } catch (e: IOException) {
       logSevere(e, "Error closing plugin %s", plugin.readableName)
@@ -199,11 +198,11 @@ internal class DefaultProviderManager(private val providerWrapperFactory: Provid
 
   @Throws(IOException::class)
   override fun close() {
-    for (provider in providerById.values) {
+    for (provider in allProviders.values) {
       close(provider)
     }
 
-    for (suggester in suggesterById.values) {
+    for (suggester in allSuggesters.values) {
       close(suggester)
     }
   }
