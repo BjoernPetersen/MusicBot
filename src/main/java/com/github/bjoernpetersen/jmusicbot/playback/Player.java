@@ -2,6 +2,7 @@ package com.github.bjoernpetersen.jmusicbot.playback;
 
 import com.github.bjoernpetersen.jmusicbot.Loggable;
 import com.github.bjoernpetersen.jmusicbot.Song;
+import com.github.bjoernpetersen.jmusicbot.playback.PlaybackStateListener.PlaybackState;
 import com.github.bjoernpetersen.jmusicbot.playback.PlayerState.State;
 import com.github.bjoernpetersen.jmusicbot.provider.BrokenSuggesterException;
 import com.github.bjoernpetersen.jmusicbot.provider.Suggester;
@@ -229,22 +230,33 @@ public final class Player implements Loggable, Closeable {
         return;
       }
 
-      playback.setPlaybackStateListener(playbackState -> {
-        logFinest("Playback state update: %s", playbackState);
-        switch (playbackState) {
-          case PLAY:
-            play();
-            break;
-          case PAUSE:
-            pause();
-            break;
-          default:
-            throw new IllegalArgumentException("Unknown PlaybackState: " + playbackState);
-        }
-      });
+      playback.setPlaybackStateListener(this::onPlaybackFeedback);
 
       setState(PlayerState.pause(nextEntry));
       play();
+    } finally {
+      stateLock.unlock();
+    }
+  }
+
+  private void onPlaybackFeedback(@Nonnull PlaybackState feedback) {
+    logFinest("Playback state update: %s", feedback);
+    stateLock.lock();
+    try {
+      switch (feedback) {
+        case PLAY:
+          if (state.getState() == State.PAUSE) {
+            setState(PlayerState.play(state.getEntry().get()));
+          }
+          break;
+        case PAUSE:
+          if (state.getState() == State.PLAY) {
+            setState(PlayerState.pause(state.getEntry().get()));
+          }
+          break;
+        default:
+          logWarning("Unknown PlaybackState: %s", feedback);
+      }
     } finally {
       stateLock.unlock();
     }

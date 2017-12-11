@@ -6,8 +6,13 @@ import javax.annotation.Nonnull;
 public interface PlaybackStateListener {
 
   enum PlaybackState {
-    PLAY, PAUSE
+    PLAY, PAUSE // TODO add broken?
   }
 
+  /**
+   * Notify the listener that the PlaybackState has changed.
+   *
+   * @param state a PlaybackState
+   */
   void notify(@Nonnull PlaybackState state);
 }
