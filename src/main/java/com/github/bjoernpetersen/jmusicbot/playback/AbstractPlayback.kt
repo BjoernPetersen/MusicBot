@@ -19,7 +19,7 @@ abstract class AbstractPlayback private constructor(protected val lock: Lock,
 
   private var playbackListener: PlaybackStateListener? = null
 
-  override fun setPlaybackStateListener(listener: PlaybackStateListener?) {
+  override fun setPlaybackStateListener(listener: PlaybackStateListener) {
     playbackListener = listener
   }
 
