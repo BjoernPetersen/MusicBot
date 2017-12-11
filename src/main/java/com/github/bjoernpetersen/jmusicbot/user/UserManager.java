@@ -252,6 +252,7 @@ public final class UserManager implements Closeable {
 
   @Override
   public void close() throws IOException {
+    signatureKey.destruct();
     database.close();
   }
 }
