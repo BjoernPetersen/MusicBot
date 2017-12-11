@@ -17,7 +17,7 @@ class WeakPlayerStateListenerTest {
     PlayerStateListener weak = new WeakPlayerStateListener(listener);
 
     assertNull(called.get());
-    PlayerState state = PlayerState.stop();
+    PlayerState state = new StopState();
     weak.onChanged(state);
     assertSame(state, called.get());
   }

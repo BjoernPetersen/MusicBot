@@ -2,20 +2,15 @@ package com.github.bjoernpetersen.jmusicbot.playback;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 
 import com.github.bjoernpetersen.jmusicbot.EqualsContract;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
 import javax.annotation.Nonnull;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.MethodSource;
 
 class PlayerStateTest implements EqualsContract<PlayerState> {
 
@@ -29,77 +24,50 @@ class PlayerStateTest implements EqualsContract<PlayerState> {
   @Test
   void play() {
     SongEntry entry = mockEntry();
-    PlayerState state = PlayerState.play(entry);
-
-    assertSame(PlayerState.State.PLAY, state.getState());
-    Optional<SongEntry> songOptional = state.getEntry();
-    assertTrue(songOptional.isPresent());
-    assertEquals(entry, songOptional.get());
-    assertSame(entry, songOptional.get());
+    PlayerState state = new PlayState(entry);
+    assertSame(entry, state.getEntry());
+    assertTrue(state.hasSong());
   }
 
   @Test
   void playNullSong() {
-    assertThrows(NullPointerException.class, () -> PlayerState.play(null));
+    assertThrows(RuntimeException.class, () -> new PlayState(null));
   }
 
   @Test
   void pause() {
     SongEntry song = mockEntry();
-    PlayerState state = PlayerState.pause(song);
-
-    assertSame(PlayerState.State.PAUSE, state.getState());
-    Optional<SongEntry> songOptional = state.getEntry();
-    assertTrue(songOptional.isPresent());
-    assertEquals(song, songOptional.get());
-    assertSame(song, songOptional.get());
+    PlayerState state = new PauseState(song);
+    assertSame(song, state.getEntry());
+    assertTrue(state.hasSong());
   }
 
   @Test
   void pauseNullSong() {
-    assertThrows(NullPointerException.class, () -> PlayerState.pause(null));
+    assertThrows(RuntimeException.class, () -> new PauseState(null));
   }
 
   @Test
   void stop() {
-    assertSame(PlayerState.State.STOP, PlayerState.stop().getState());
-  }
-
-  @Test
-  void stopNoSong() {
-    assertFalse(PlayerState.stop().getEntry().isPresent());
+    PlayerState state = new StopState();
+    assertNull(state.getEntry());
+    assertFalse(state.hasSong());
+    assertEquals(state.getClass().getSimpleName(), state.toString());
   }
 
   @Test
   void error() {
-    assertSame(PlayerState.State.ERROR, PlayerState.error().getState());
-  }
-
-  @Test
-  void errorNoSong() {
-    assertFalse(PlayerState.error().getEntry().isPresent());
-  }
-
-  @SuppressWarnings("unused") // used as MethodSource
-  private static List<PlayerState> getPossibleStates() {
-    SongEntry song = mockEntry();
-    return Arrays.asList(
-        PlayerState.play(song), PlayerState.pause(song),
-        PlayerState.stop(), PlayerState.error()
-    );
-  }
-
-  @ParameterizedTest
-  @MethodSource(value = "getPossibleStates")
-  void getSongNotNull(PlayerState state) {
-    assertNotNull(state.getEntry());
+    PlayerState state = new ErrorState();
+    assertNull(state.getEntry());
+    assertFalse(state.hasSong());
+    assertEquals(state.getClass().getSimpleName(), state.toString());
   }
 
   @Nonnull
   @Override
   public PlayerState createValue() {
     songEntry = mockEntry();
-    return PlayerState.play(songEntry);
+    return new PlayState(songEntry);
   }
 
   @Override
@@ -112,15 +80,15 @@ class PlayerStateTest implements EqualsContract<PlayerState> {
   public PlayerState createNotEqualValue(int valueIndex) {
     switch (valueIndex) {
       case 0:
-        return PlayerState.play(mockEntry());
+        return new PlayState(mockEntry());
       case 1:
-        return PlayerState.pause(songEntry);
+        return new PauseState(songEntry);
       case 2:
-        return PlayerState.pause(mockEntry());
+        return new PauseState(mockEntry());
       case 3:
-        return PlayerState.stop();
+        return new StopState();
       case 4:
-        return PlayerState.error();
+        return new ErrorState();
       default:
         throw new IllegalArgumentException();
     }
