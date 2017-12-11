@@ -29,7 +29,6 @@
   <properties>
     <encoding>UTF-8</encoding>
     <project.build.sourceEncoding>${encoding}</project.build.sourceEncoding>
-    <project.build.sourceEncoding>${encoding}</project.build.sourceEncoding>
     <project.reporting.outputEncoding>${encoding}</project.reporting.outputEncoding>
     <!--TODO experimental, disabled for now
     <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
