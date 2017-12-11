@@ -9,6 +9,11 @@ import javax.annotation.Nonnull;
 @FunctionalInterface
 public interface ContextSupplier {
 
+  /**
+   * Gets the application context of the currently running Android app.
+   *
+   * @return a {@link Context}
+   */
   @Nonnull
   Context supply();
 }

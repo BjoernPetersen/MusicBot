@@ -10,13 +10,29 @@ import com.github.bjoernpetersen.jmusicbot.platform.HostServices
 import java.util.*
 import java.util.logging.Logger
 
+/**
+ * Some global settings of the MusicBot.
+ */
 interface Defaults {
+
+  /**
+   * The path to the plugin folder.
+   */
   val pluginFolder: Config.StringEntry
+  /**
+   * A list of all default entries.
+   */
   val entries: List<Config.Entry>
     get() = listOf(pluginFolder)
 }
 
+/**
+ * A persistent config holding Boolean and String entries.
+ * @param adapter a ConfigStorageAdapter to load and save the config with
+ * @param hostServices the HostServices implementation to use in a session with this config.
+ */
 class Config(private val adapter: ConfigStorageAdapter, val hostServices: HostServices) : Loggable {
+
   private val logger: Logger = createLogger()
   private val config: MutableMap<String, String>
   private val secrets: MutableMap<String, String>
@@ -93,8 +109,16 @@ class Config(private val adapter: ConfigStorageAdapter, val hostServices: HostSe
    *
    * A config entry, holding it's key and description.
    *
-   * There are two implementations of Config.Entry:<br></br>   * [StringEntry] for string
-   * entries and secrets  * [BooleanEntry] for boolean entries
+   * There are two implementations of Config.Entry:
+   *
+   * * [StringEntry] for String entries and secrets
+   * * [BooleanEntry] for Boolean entries
+   *
+   * @param base the base part of the config key
+   * @param key the actual config key, which will be qualified by the base
+   * @param description a user-friendly description of this config entry
+   * @param isSecret whether this entry is a secret
+   * @param ui a UiNode to show to configure this entry
    */
   abstract inner class Entry protected constructor(
       val base: Class<*>,
@@ -129,7 +153,6 @@ class Config(private val adapter: ConfigStorageAdapter, val hostServices: HostSe
    *
    * Read-only implementation of Entry supporting string values.
    *
-   *
    * This implementation provides various possibilities to access the entry value and/or the
    * default value.
    */
@@ -148,10 +171,17 @@ class Config(private val adapter: ConfigStorageAdapter, val hostServices: HostSe
       this.listeners = HashSet()
     }
 
+    /**
+     * Registers a ConfigListener for this entry which will be called for every value change.
+     * @param listener a listener
+     */
     fun addListener(listener: ConfigListener<String?>) {
       listeners.add(listener)
     }
 
+    /**
+     * Removes a listener registered in [addListener].
+     */
     fun removeListener(listener: ConfigListener<String?>) {
       listeners.remove(listener)
     }
@@ -172,8 +202,10 @@ class Config(private val adapter: ConfigStorageAdapter, val hostServices: HostSe
       return value?.let { checker.check(it) }
     }
 
-    val isNullOrError: Boolean
-      get() = value == null || checkError() != null
+    /**
+     * Checks whether the current value is null or, if it isn't, whether [checkError] returns an error.
+     */
+    fun isNullOrError() = value == null || checkError() != null
 
     /**
      * Gets the value of the entry. If a default value is present, it is ignored.
@@ -259,11 +291,11 @@ class Config(private val adapter: ConfigStorageAdapter, val hostServices: HostSe
    * This implementation must have a default value.
    *
    *
-   * This implementation provides a [.get] method to access the current value.
+   * This implementation provides a [get] method to access the current value.
    *
    *
-   * **Note:** a BooleanEntry will actually be stored as a string. [ ][Boolean.parseBoolean] will be used to parse a value from the config, which means
-   * `false` will be parsed if the value is anything other than "true".
+   * **Note:** a BooleanEntry will actually be stored as a string. [Boolean.parseBoolean] will be used to parse a value
+   * from the config, which means `false` will be parsed if the value is anything other than "true".
    */
   abstract inner class ReadOnlyBooleanEntry internal constructor(
       base: Class<*>,
@@ -278,10 +310,17 @@ class Config(private val adapter: ConfigStorageAdapter, val hostServices: HostSe
       this.listeners = HashSet()
     }
 
+    /**
+     * Registers a ConfigListener for this entry which will be called for every value change.
+     * @param listener a listener
+     */
     fun addListener(listener: ConfigListener<Boolean>) {
       listeners.add(listener)
     }
 
+    /**
+     * Removes a ConfigListener registered with [addListener].
+     */
     fun removeListener(listener: ConfigListener<Boolean>) {
       listeners.remove(listener)
     }

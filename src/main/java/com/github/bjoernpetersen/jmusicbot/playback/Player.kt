@@ -28,9 +28,15 @@ class Player(private val songPlayedNotifier: Consumer<SongEntry>, private val su
           .build()
   )
 
+  /**
+   * This player's queue.
+   */
   val queue: Queue = Queue()
 
   private val stateLock: Lock = ReentrantLock()
+  /**
+   * The current state of this player. This might be play, pause, stop or error.
+   */
   var state: PlayerState = StopState()
     private set(value) {
       field = value
@@ -76,15 +82,28 @@ class Player(private val songPlayedNotifier: Consumer<SongEntry>, private val su
     return logger
   }
 
+  /**
+   * Adds a [PlayerStateListener] which will be called everytime the [state] changes.
+   */
   fun addListener(listener: PlayerStateListener) {
     stateListeners.add(listener)
-
   }
 
+  /**
+   * Removes a [PlayerStateListener] previously registered with [addListener].
+   */
   fun removeListener(listener: PlayerStateListener) {
     stateListeners.remove(listener)
   }
 
+  /**
+   * Pauses the player.
+   *
+   * If the player is not currently playing anything, nothing will be done.
+   *
+   * This method blocks until the playback is paused.
+   */
+  @Throws(InterruptedException::class)
   fun pause() {
     stateLock.withLock {
       logFinest("Pausing...")
@@ -101,6 +120,14 @@ class Player(private val songPlayedNotifier: Consumer<SongEntry>, private val su
     }
   }
 
+  /**
+   * Resumes the playback.
+   *
+   * If the player is not currently pausing, nothing will be done.
+   *
+   * This method blocks until the playback is resumed.
+   */
+  @Throws(InterruptedException::class)
   fun play() {
     stateLock.withLock {
       logFinest("Playing...")
@@ -117,6 +144,15 @@ class Player(private val songPlayedNotifier: Consumer<SongEntry>, private val su
     }
   }
 
+  /**
+   * Plays the next song.
+   *
+   * This method will play the next song from the queue.
+   * If the queue is empty, the next suggested song from the primary [suggester] will be used.
+   * If there is no primary suggester, the player will transition into the [StopState].
+   *
+   * This method blocks until either a new song is playing or the StopState is reached.
+   */
   @Throws(InterruptedException::class)
   fun next() {
     val state = this.state
@@ -227,4 +263,17 @@ class Player(private val songPlayedNotifier: Consumer<SongEntry>, private val su
       throw IOException(e)
     }
   }
+}
+
+private object DummyPlayback : Playback {
+  override fun play() {}
+
+  override fun pause() {}
+
+  @Throws(InterruptedException::class)
+  override fun waitForFinish() {
+    Thread.sleep(2000)
+  }
+
+  override fun close() {}
 }

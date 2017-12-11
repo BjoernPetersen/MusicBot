@@ -11,14 +11,22 @@ import java.util.*
 
 typealias PlaybackFactoryWrapperFactory = (PlaybackFactory) -> PlaybackFactoryWrapper
 
+/**
+ * Manages all PlaybackFactories for a MusicBot session.
+ * @param config a config to use
+ * @param wrapperFactory a factory supplying a [PlaybackFactoryWrapper] for a [PlaybackFactory]
+ */
 class PlaybackFactoryManager(config: Config, private val wrapperFactory: PlaybackFactoryWrapperFactory) :
     Loggable, Closeable {
 
   private val factories: MutableSet<PlaybackFactoryWrapper> = LinkedHashSet()
   private val factoryByType: MutableMap<Class<out PlaybackFactory>, PlaybackFactoryWrapper> = LinkedHashMap()
 
+  /**
+   * Returns an immutable Set of all PlaybackFactories.
+   */
   val playbackFactories: Set<PlaybackFactoryWrapper>
-    get() = factories
+    get() = Collections.unmodifiableSet(factories)
 
   init {
     val pluginFolderName = config.defaults.pluginFolder.value
@@ -55,13 +63,15 @@ class PlaybackFactoryManager(config: Config, private val wrapperFactory: Playbac
    */
   fun hasFactory(factoryType: Class<out PlaybackFactory>): Boolean = factoryByType[factoryType]?.isActive == true
 
+  /**
+   * Completely closes all registered playback factories.
+   */
   @Throws(IOException::class)
   override fun close() {
     for (playbackFactory in playbackFactories) {
       playbackFactory.close()
+      playbackFactory.destructConfigEntries()
     }
-    factories.clear()
-    factoryByType.clear()
   }
 
   private fun loadFactories(pluginFolder: File) {
@@ -114,6 +124,10 @@ class PlaybackFactoryManager(config: Config, private val wrapperFactory: Playbac
     }
   }
 
+  /**
+   * Ensures all playback factories in the [Plugin.State.CONFIG] state are fully configured.
+   * @param configurator a configurator to ask the user to fix missing config entries
+   */
   @Throws(CancelException::class)
   fun ensureConfigured(configurator: Configurator) {
     val unconfigured = LinkedList<PlaybackFactory>()
@@ -141,6 +155,9 @@ class PlaybackFactoryManager(config: Config, private val wrapperFactory: Playbac
     }
   }
 
+  /**
+   * Initializes all playback factories in the [Plugin.State.CONFIG] state.
+   */
   @Throws(InterruptedException::class)
   fun initializeFactories(initStateWriter: InitStateWriter) {
     val defective = LinkedList<PlaybackFactory>()

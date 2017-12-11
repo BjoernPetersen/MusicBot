@@ -66,7 +66,9 @@ public interface Plugin extends Closeable {
   /**
    * Indicates whether the specified Platform is supported.
    *
-   * @param platform the current Plaform
+   * <p>If the Platform is Platform.UNKNOWN, this method should return Support.MAYBE.</p>
+   *
+   * @param platform the current Platform
    * @return the support for the specified platform
    */
   @Nonnull
@@ -97,7 +99,22 @@ public interface Plugin extends Closeable {
     }
   }
 
+  /**
+   * The state of a plugin.
+   */
   enum State {
-    INACTIVE, CONFIG, ACTIVE
+
+    /**
+     * The plugin is inactive. Duh.
+     */
+    INACTIVE,
+    /**
+     * {@link Plugin#initializeConfigEntries(Config)} has been called, but the initialize method hasn't been.
+     */
+    CONFIG,
+    /**
+     * The plugin is fully configured and initialized.
+     */
+    ACTIVE
   }
 }

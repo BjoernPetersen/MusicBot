@@ -1,7 +1,18 @@
 package com.github.bjoernpetersen.jmusicbot.playback
 
+/**
+ * Represents the state of the player. All possible implementations can be found in this module.
+ */
 sealed class PlayerState {
+
+  /**
+   * The currently active [SongEntry].
+   */
   abstract val entry: SongEntry?
+
+  /**
+   * Convenience method to determine whether the current state has a song (entry != null).
+   */
   fun hasSong() = entry != null
 
   override fun equals(other: Any?): Boolean {
@@ -20,20 +31,42 @@ sealed class PlayerState {
   }
 }
 
+/**
+ * The player is currently active and is playing the song from [entry].
+ */
 data class PlayState(override val entry: SongEntry) : PlayerState() {
+
+  /**
+   * Creates a [PauseState] with the same entry.
+   */
   fun pause() = PauseState(entry)
 }
 
+/**
+ * The player is currently inactive, but has an active [entry].
+ */
 data class PauseState(override val entry: SongEntry) : PlayerState() {
+
+  /**
+   * Creates a [PlayState] with the same entry.
+   */
   fun play() = PlayState(entry)
 }
 
+/**
+ * The player is currently inactive and does not have a song to resume.
+ */
 class StopState : PlayerState() {
+
   override val entry: SongEntry? = null
   override fun toString(): String = "StopState"
 }
 
+/**
+ * The player is currently inactive because of an error.
+ */
 class ErrorState : PlayerState() {
+
   override val entry: SongEntry? = null
   override fun toString(): String = "ErrorState"
 }

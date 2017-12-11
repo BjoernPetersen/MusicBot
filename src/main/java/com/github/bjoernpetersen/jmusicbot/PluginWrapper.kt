@@ -19,10 +19,16 @@ typealias StateListener = (Plugin.State, Plugin.State) -> Unit
  * Wrapper for a plugin which provides access to the plugin's state and delegates all calls to the
  * wrapped instance.
  *
- * @param <T> the type of the wrapped plugin
-</T> */
-interface PluginWrapper<T : Plugin> : Plugin {
+ * This interface should not be directly implemented.
+ * Implement an interface which extends this interface as well as the specific plugin type instead (e.g. [ProviderWrapper]).
+ *
+ * @param P the type of the wrapped plugin
+ */
+interface PluginWrapper<out P : Plugin> : Plugin {
 
+  /**
+   * The current state of the wrapped plugin.
+   */
   val state: Plugin.State
   /**
    * Convenience method to check whether the current state is [Plugin.State.ACTIVE].
@@ -31,13 +37,32 @@ interface PluginWrapper<T : Plugin> : Plugin {
    */
   val isActive: Boolean
     get() = state == Plugin.State.ACTIVE
-  val wrapped: T
+  /**
+   * The wrapped plugin.
+   */
+  val wrapped: P
+  /**
+   * The config entries the plugin returned for [initializeConfigEntries].
+   * The returned list will be empty if the state is not at least [Plugin.State.CONFIG].
+   */
   val configEntries: List<Config.Entry>
+
+  /**
+   * Add a state listener which will be called every time the plugin state changes.
+   */
   fun addStateListener(listener: StateListener)
+
+  /**
+   * Remove a state listener added in [addStateListener].
+   */
   fun removeStateListener(listener: StateListener)
 }
 
-sealed class DefaultPluginWrapper<T : Plugin> constructor(override val wrapped: T) : PluginWrapper<T> {
+/**
+ * Default implementation of [PluginWrapper]. The only extensions can be found in this module.
+ */
+sealed class DefaultPluginWrapper<out T : Plugin> constructor(override val wrapped: T) : PluginWrapper<T> {
+
   private val listeners: MutableSet<StateListener> = HashSet()
 
   override var configEntries: List<Config.Entry> = emptyList()
@@ -110,7 +135,14 @@ sealed class DefaultPluginWrapper<T : Plugin> constructor(override val wrapped: 
   override fun hashCode(): Int = wrapped.hashCode()
 }
 
+/**
+ * A [PluginWrapper] for [PlaybackFactory] which also implements PlaybackFactory by delegation.
+ */
 interface PlaybackFactoryWrapper : PluginWrapper<PlaybackFactory>, PlaybackFactory
+
+/**
+ * A default implementation of [PlaybackFactoryWrapper].
+ */
 open class DefaultPlaybackFactoryWrapper(plugin: PlaybackFactory) : DefaultPluginWrapper<PlaybackFactory>(plugin),
     PlaybackFactoryWrapper {
 
@@ -129,7 +161,14 @@ open class DefaultPlaybackFactoryWrapper(plugin: PlaybackFactory) : DefaultPlugi
   override fun getBases(): Collection<Class<out PlaybackFactory>> = wrapped.bases
 }
 
+/**
+ * A [PluginWrapper] for [Provider] which also implements Provider by delegation.
+ */
 interface ProviderWrapper : PluginWrapper<Provider>, Provider
+
+/**
+ * A default implementation of [ProviderWrapper].
+ */
 open class DefaultProviderWrapper(plugin: Provider) : DefaultPluginWrapper<Provider>(plugin), ProviderWrapper {
 
   private val _suggesters: MutableList<Suggester> = ArrayList(16)
@@ -162,7 +201,14 @@ open class DefaultProviderWrapper(plugin: Provider) : DefaultPluginWrapper<Provi
   override fun getBaseClass(): Class<out Provider> = wrapped.baseClass
 }
 
+/**
+ * A [PluginWrapper] for [Suggester] which also implements Suggester by delegation.
+ */
 interface SuggesterWrapper : PluginWrapper<Suggester>, Suggester
+
+/**
+ * A default implementation of [SuggesterWrapper].
+ */
 open class DefaultSuggesterWrapper(plugin: Suggester) : DefaultPluginWrapper<Suggester>(plugin), SuggesterWrapper {
 
   override fun suggestNext(): Song = wrapped.suggestNext()
@@ -200,7 +246,14 @@ open class DefaultSuggesterWrapper(plugin: Suggester) : DefaultPluginWrapper<Sug
   override fun getOptionalDependencies(): Set<Class<out Provider>> = wrapped.optionalDependencies
 }
 
+/**
+ * A [PluginWrapper] for [AdminPlugin] which also implements [AdminPlugin] by delegation.
+ */
 interface AdminPluginWrapper : PluginWrapper<AdminPlugin>, AdminPlugin
+
+/**
+ * A default implementation of [AdminPluginWrapper].
+ */
 open class DefaultAdminPluginWrapper(plugin: AdminPlugin) : DefaultPluginWrapper<AdminPlugin>(plugin),
     AdminPluginWrapper {
 
