@@ -6,6 +6,10 @@ package com.github.bjoernpetersen.jmusicbot.playback
 sealed class PlayerState {
 
   /**
+   * A simple string representation of this state. Can be play, pause, stop or error.
+   */
+  abstract val name: String
+  /**
    * The currently active [SongEntry].
    */
   abstract val entry: SongEntry?
@@ -36,6 +40,8 @@ sealed class PlayerState {
  */
 data class PlayState(override val entry: SongEntry) : PlayerState() {
 
+  override val name = "play"
+
   /**
    * Creates a [PauseState] with the same entry.
    */
@@ -46,6 +52,8 @@ data class PlayState(override val entry: SongEntry) : PlayerState() {
  * The player is currently inactive, but has an active [entry].
  */
 data class PauseState(override val entry: SongEntry) : PlayerState() {
+
+  override val name = "pause"
 
   /**
    * Creates a [PlayState] with the same entry.
@@ -58,6 +66,7 @@ data class PauseState(override val entry: SongEntry) : PlayerState() {
  */
 class StopState : PlayerState() {
 
+  override val name = "stop"
   override val entry: SongEntry? = null
   override fun toString(): String = "StopState"
 }
@@ -67,6 +76,7 @@ class StopState : PlayerState() {
  */
 class ErrorState : PlayerState() {
 
+  override val name = "error"
   override val entry: SongEntry? = null
   override fun toString(): String = "ErrorState"
 }
