@@ -16,6 +16,6 @@ public final class DependencyMap<T extends Plugin> {
 
   @Nullable
   public <Base extends T> Base get(Class<Base> baseClass) {
-    return (Base) wrapped.get(baseClass);
+    return baseClass.cast(wrapped.get(baseClass));
   }
 }
