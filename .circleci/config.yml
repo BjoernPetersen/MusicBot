@@ -14,7 +14,7 @@ jobs:
         paths:
         - ~/.m2
 
-    - run: 
+    - run:
         command: mvn test
         name: Running unit tests
         when: always
@@ -33,6 +33,10 @@ jobs:
         name: Building reports
     - store_artifacts:
         path: target/site/
+    - store_artifacts:
+        path: target/dokka/
+    - store_artifacts:
+        path: target/dokkaJavadoc/
 
     - save_cache:
         key: v1-{{ checksum "pom.xml" }}
