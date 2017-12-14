@@ -14,6 +14,11 @@ import javax.annotation.Nonnull;
 
 public interface Provider extends IdPlugin {
 
+  /**
+   * A set of PlaybackFactory interfaces this Provider requires.
+   *
+   * @return a set of PlaybackFactory classes
+   */
   Set<Class<? extends PlaybackFactory>> getPlaybackDependencies();
 
   /**

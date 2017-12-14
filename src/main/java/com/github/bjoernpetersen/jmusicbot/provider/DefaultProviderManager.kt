@@ -97,29 +97,42 @@ internal class DefaultProviderManager(private val providerWrapperFactory: Provid
     unconfigured.forEach(this::removeProvider)
   }
 
-  @Throws(InterruptedException::class)
-  override fun initializeProviders(initStateWriter: InitStateWriter) = providerById.values
-      .filter { it.state == Plugin.State.CONFIG }
-      .forEach {
-        try {
-          if (Thread.currentThread().isInterrupted) {
-            throw InterruptedException()
-          }
-          initStateWriter.begin(it)
-          initStateWriter.state("Initializing provider ${it.readableName}...")
-          it.initialize(initStateWriter, playbackFactoryManager)
-        } catch (e: InitializationException) {
-          logInfo(e, "Could not initialize Provider ${it.readableName}")
-          removeProvider(it)
-        } catch (e: RuntimeException) {
-          logInfo(e, "Unexpected error initializing Provider ${it.readableName}")
-          removeProvider(it)
-        } catch (e: InterruptedException) {
-          initStateWriter.state("Interrupted during initialization. Closing...")
-          close()
-          throw e
+  @Throws(InitializationException::class)
+  private fun checkDependencies(provider: Provider) {
+    provider.playbackDependencies
+        .filterNot { playbackFactoryManager.hasFactory(it) }
+        .forEach {
+          throw InitializationException(
+              "Missing dependency for provider ${provider.qualifiedReadableName()}: ${it.name}"
+          )
         }
-      }
+  }
+
+  @Throws(InterruptedException::class)
+  override fun initializeProviders(initStateWriter: InitStateWriter) =
+      providerById.values
+          .filter { it.state == Plugin.State.CONFIG }
+          .forEach {
+            try {
+              if (Thread.currentThread().isInterrupted) {
+                throw InterruptedException()
+              }
+              initStateWriter.begin(it)
+              initStateWriter.state("Initializing provider ${it.readableName}...")
+              checkDependencies(it)
+              it.initialize(initStateWriter, playbackFactoryManager)
+            } catch (e: InitializationException) {
+              logInfo(e, "Could not initialize Provider ${it.readableName}")
+              removeProvider(it)
+            } catch (e: RuntimeException) {
+              logInfo(e, "Unexpected error initializing Provider ${it.readableName}")
+              removeProvider(it)
+            } catch (e: InterruptedException) {
+              initStateWriter.state("Interrupted during initialization. Closing...")
+              close()
+              throw e
+            }
+          }
 
   private fun removeSuggester(suggester: Suggester) {
     suggesterById.remove(suggester.id)
