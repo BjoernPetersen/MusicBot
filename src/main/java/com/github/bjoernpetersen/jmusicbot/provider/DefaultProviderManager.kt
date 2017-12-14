@@ -97,6 +97,7 @@ internal class DefaultProviderManager(private val providerWrapperFactory: Provid
     unconfigured.forEach(this::removeProvider)
   }
 
+  @Throws(InterruptedException::class)
   override fun initializeProviders(initStateWriter: InitStateWriter) = providerById.values
       .filter { it.state == Plugin.State.CONFIG }
       .forEach {
@@ -110,6 +111,10 @@ internal class DefaultProviderManager(private val providerWrapperFactory: Provid
         } catch (e: RuntimeException) {
           logInfo(e, "Unexpected error initializing Provider ${it.readableName}")
           removeProvider(it)
+        } catch (e: InterruptedException) {
+          initStateWriter.state("Interrupted during initialization. Closing...")
+          close()
+          throw e
         }
       }
 
@@ -127,6 +132,7 @@ internal class DefaultProviderManager(private val providerWrapperFactory: Provid
     unconfigured.forEach(this::removeSuggester)
   }
 
+  @Throws(InterruptedException::class)
   override fun initializeSuggesters(initStateWriter: InitStateWriter) {
     suggesterById.values
         .filter { it.state == Plugin.State.CONFIG }
@@ -145,10 +151,15 @@ internal class DefaultProviderManager(private val providerWrapperFactory: Provid
           } catch (e: RuntimeException) {
             logInfo(e, "Unexpected error initializing Suggester ${s.readableName}")
             removeSuggester(s)
+          } catch (e: InterruptedException) {
+            initStateWriter.state("Interrupted during initialization. Closing...")
+            close()
+            throw e
           }
         }
   }
 
+  @Throws(InitializationException::class)
   private fun buildDependencies(suggester: Suggester): Map<Class<out Provider>, Provider> {
     val dependencies = suggester.dependencies
     val loadedDependencies = LinkedHashMap<Class<out Provider>, Provider>(dependencies.size * 2)

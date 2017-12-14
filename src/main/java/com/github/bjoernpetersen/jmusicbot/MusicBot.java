@@ -47,102 +47,108 @@ public final class MusicBot implements Loggable, Closeable {
 
   private MusicBot(@Nonnull Config config, @Nonnull InitStateWriter initStateWriter,
       @Nonnull PlaybackFactoryManager playbackFactoryManager,
-      @Nonnull ProviderManager providerManager, @Nullable Suggester defaultSuggester,
-      @Nonnull UserManager userManager, @Nonnull ApiInitializer apiInitializer,
+      @Nonnull ProviderManager providerManager,
+      @Nullable Suggester defaultSuggester,
+      @Nonnull UserManager userManager,
+      @Nonnull ApiInitializer apiInitializer,
       @Nonnull BroadcasterInitializer broadcasterInitializer,
       @Nonnull Set<AdminPlugin> adminPlugins)
-      throws InitializationException {
+      throws InitializationException, InterruptedException {
     this.config = config;
     this.playbackFactoryManager = playbackFactoryManager;
     this.providerManager = providerManager;
     this.userManager = userManager;
 
+    // keep track of already initialized stuff in case we get interrupted
     List<Closeable> initialized = new ArrayList<>();
-    initialized.add(playbackFactoryManager);
-    initialized.add(providerManager);
-    initialized.add(userManager);
-
-    if (defaultSuggester != null
-        && providerManager.getWrapper(defaultSuggester).getState() != State.ACTIVE) {
-      initStateWriter.warning("Default suggester is not active.");
-      defaultSuggester = null;
-    }
-
     try {
-      checkSanity(providerManager);
-    } catch (InitializationException e) {
+      initialized.add(playbackFactoryManager);
+      initialized.add(providerManager);
+      initialized.add(userManager);
+
+      if (defaultSuggester != null
+          && providerManager.getWrapper(defaultSuggester).getState() != State.ACTIVE) {
+        initStateWriter.warning("Default suggester is not active.");
+        defaultSuggester = null;
+      }
+
+      try {
+        checkSanity(providerManager);
+      } catch (InitializationException e) {
+        closeAll(e, initialized);
+        throw e;
+      }
+
+      try {
+        Consumer<SongEntry> songPlayedNotifier = songEntry -> {
+          Song song = songEntry.getSong();
+          Provider provider = song.getProvider();
+          for (Suggester suggester : providerManager.getSuggesters(provider)) {
+            suggester.notifyPlayed(songEntry);
+          }
+        };
+        this.player = new Player(songPlayedNotifier, defaultSuggester);
+        initialized.add(this.player);
+      } catch (RuntimeException e) {
+        closeAll(e, initialized);
+        throw new InitializationException("Exception during player init", e);
+      }
+      this.player.getQueue().addListener(new QueueChangeListener() {
+        @Override
+        public void onAdd(@Nonnull QueueEntry entry) {
+          Song song = entry.getSong();
+          Provider provider = song.getProvider();
+          for (Suggester suggester : providerManager.getSuggesters(provider)) {
+            suggester.removeSuggestion(song);
+          }
+        }
+
+        @Override
+        public void onRemove(@Nonnull QueueEntry entry) {
+        }
+
+        @Override
+        public void onMove(@Nonnull QueueEntry entry, int fromIndex, int toIndex) {
+        }
+      });
+
+      try {
+        this.restApi = apiInitializer.initialize(this, PORT);
+        initialized.add(this.restApi);
+      } catch (InitializationException e) {
+        closeAll(e, initialized);
+        throw new InitializationException("Exception during REST init", e);
+      }
+
+      try {
+        this.broadcaster = broadcasterInitializer.initialize(
+            PORT,
+            GROUP_ADDRESS,
+            BROADCAST_ID + ';' + PORT + ';' + getVersion().toString()
+        );
+        initialized.add(this.broadcaster);
+      } catch (InitializationException e) {
+        closeAll(e, initialized);
+        throw new InitializationException("Exception during broadcaster init", e);
+      }
+
+      this.adminPlugins = adminPlugins;
+      try {
+        for (AdminPlugin plugin : adminPlugins) {
+          plugin.initialize(initStateWriter, this);
+          initialized.add(plugin);
+        }
+      } catch (InitializationException e) {
+        closeAll(e, initialized);
+        throw new InitializationException("Exception during admin plugin init", e);
+      }
+    } catch (InterruptedException e) {
       closeAll(e, initialized);
       throw e;
     }
-
-    Consumer<SongEntry> songPlayedNotifier = songEntry -> {
-      Song song = songEntry.getSong();
-      Provider provider = song.getProvider();
-      for (Suggester suggester : providerManager.getSuggesters(provider)) {
-        suggester.notifyPlayed(songEntry);
-      }
-    };
-
-    try {
-      this.player = new Player(songPlayedNotifier, defaultSuggester);
-      initialized.add(this.player);
-    } catch (RuntimeException e) {
-      closeAll(e, initialized);
-      throw new InitializationException("Exception during player init", e);
-    }
-    this.player.getQueue().addListener(new QueueChangeListener() {
-      @Override
-      public void onAdd(@Nonnull QueueEntry entry) {
-        Song song = entry.getSong();
-        Provider provider = song.getProvider();
-        for (Suggester suggester : providerManager.getSuggesters(provider)) {
-          suggester.removeSuggestion(song);
-        }
-      }
-
-      @Override
-      public void onRemove(@Nonnull QueueEntry entry) {
-      }
-
-      @Override
-      public void onMove(@Nonnull QueueEntry entry, int fromIndex, int toIndex) {
-      }
-    });
-
-    try {
-      this.restApi = apiInitializer.initialize(this, PORT);
-      initialized.add(this.restApi);
-    } catch (InitializationException e) {
-      closeAll(e, initialized);
-      throw new InitializationException("Exception during REST init", e);
-    }
-
-    try {
-      this.broadcaster = broadcasterInitializer.initialize(
-          PORT,
-          GROUP_ADDRESS,
-          BROADCAST_ID + ';' + PORT + ';' + getVersion().toString()
-      );
-      initialized.add(this.broadcaster);
-    } catch (InitializationException e) {
-      closeAll(e, initialized);
-      throw new InitializationException("Exception during broadcaster init", e);
-    }
-
-    this.adminPlugins = adminPlugins;
-    try {
-      for (AdminPlugin plugin : adminPlugins) {
-        plugin.initialize(initStateWriter, this);
-        initialized.add(plugin);
-      }
-    } catch (InitializationException e) {
-      closeAll(e, initialized);
-      throw new InitializationException("Exception during admin plugin init", e);
-    }
   }
 
-  private void checkSanity(@Nonnull ProviderManager providerManager)
-      throws InitializationException {
+  private void checkSanity(@Nonnull ProviderManager providerManager) throws InitializationException {
     if (providerManager.getProviders().count() == 0) {
       throw new InitializationException("There are no active providers. This setup is useless.");
     }
@@ -179,7 +185,7 @@ public final class MusicBot implements Loggable, Closeable {
   }
 
   @Nullable
-  private IOException tryClose(ExceptionThrower closer, @Nullable IOException e) {
+  private IOException tryClose(Closer closer, @Nullable IOException e) {
     try {
       closer.close();
     } catch (Throwable throwable) {
@@ -193,7 +199,7 @@ public final class MusicBot implements Loggable, Closeable {
   }
 
   @FunctionalInterface
-  private interface ExceptionThrower<E extends Throwable> {
+  private interface Closer<E extends Throwable> {
 
     void close() throws E;
   }
@@ -355,7 +361,7 @@ public final class MusicBot implements Loggable, Closeable {
     }
 
     @Nonnull
-    public MusicBot build() throws CancelException, InitializationException, InterruptedException {
+    public MusicBot build() throws CancelException, InitializationException {
       if (configurator == null
           || providerManager == null
           || playbackFactoryManager == null
@@ -369,6 +375,7 @@ public final class MusicBot implements Loggable, Closeable {
         printUnsupported("PlaybackFactories", playbackFactoryManager.getPlaybackFactories());
         printUnsupported("Providers", providerManager.getAllProviders().values());
         printUnsupported("Suggesters", providerManager.getAllProviders().values());
+        printUnsupported("AdminPlugins", adminPlugins);
 
         playbackFactoryManager.ensureConfigured(configurator);
         providerManager.ensureProvidersConfigured(configurator);
@@ -390,6 +397,8 @@ public final class MusicBot implements Loggable, Closeable {
             broadcasterInitializer,
             adminPlugins
         );
+      } catch (InterruptedException e) {
+        throw new CancelException(e);
       } finally {
         initStateWriter.close();
       }

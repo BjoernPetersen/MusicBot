@@ -168,6 +168,10 @@ class PlaybackFactoryManager(config: Config, private val wrapperFactory: Playbac
       } catch (e: InitializationException) {
         logWarning(e, "Could not initialize PlaybackFactory '%s'", factory.readableName)
         defective.add(factory)
+      } catch (e: InterruptedException) {
+        initStateWriter.state("Interrupted during PlaybackFactory initialization, closing...")
+        close()
+        throw e
       }
     }
 

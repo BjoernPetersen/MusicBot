@@ -16,9 +16,10 @@ public interface BroadcasterInitializer {
    * @param groupAddress a UDP multicast group IPv4 address
    * @param message a message to broadcast
    * @return a broadcaster
+   * @throws InterruptedException if the thread is interrupted during initialization
    * @throws InitializationException if the broadcaster can not be started
    */
   @Nonnull
   Closeable initialize(int port, String groupAddress, String message)
-      throws InitializationException;
+      throws InterruptedException, InitializationException;
 }

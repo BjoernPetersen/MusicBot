@@ -6,5 +6,5 @@ import javax.annotation.Nonnull;
 @FunctionalInterface
 public interface ApiInitializer {
 
-  Closeable initialize(@Nonnull MusicBot bot, int port) throws InitializationException;
+  Closeable initialize(@Nonnull MusicBot bot, int port) throws InterruptedException, InitializationException;
 }

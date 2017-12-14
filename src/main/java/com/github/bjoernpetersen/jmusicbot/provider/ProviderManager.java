@@ -55,6 +55,11 @@ public interface ProviderManager extends Closeable {
   @Nonnull
   Collection<? extends Suggester> getSuggesters(@Nonnull Provider provider);
 
+  /**
+   * Ensures all providers in the {@link State#CONFIG} state are fully configured.
+   *
+   * @param configurator a configurator to ask the user to fix missing config entries
+   */
   void ensureProvidersConfigured(@Nonnull Configurator configurator);
 
   /**
@@ -62,8 +67,13 @@ public interface ProviderManager extends Closeable {
    *
    * @param initStateWriter an InitStateWriter
    */
-  void initializeProviders(@Nonnull InitStateWriter initStateWriter);
+  void initializeProviders(@Nonnull InitStateWriter initStateWriter) throws InterruptedException;
 
+  /**
+   * Ensures all suggesters in the {@link State#CONFIG} state are fully configured.
+   *
+   * @param configurator a configurator to ask the user to fix missing config entries
+   */
   void ensureSuggestersConfigured(@Nonnull Configurator configurator);
 
   /**
@@ -71,7 +81,7 @@ public interface ProviderManager extends Closeable {
    *
    * @param initStateWriter an InitStateWriter
    */
-  void initializeSuggesters(@Nonnull InitStateWriter initStateWriter);
+  void initializeSuggesters(@Nonnull InitStateWriter initStateWriter) throws InterruptedException;
 
   /**
    * Gets all active providers.
