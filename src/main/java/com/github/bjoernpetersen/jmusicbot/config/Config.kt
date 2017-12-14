@@ -25,6 +25,7 @@ interface Defaults {
   val entries: List<Config.Entry>
     get() = listOf(pluginFolder)
 }
+typealias ConfigListener<T> = (T, T) -> Unit
 
 /**
  * A persistent config holding Boolean and String entries.
@@ -190,7 +191,7 @@ class Config(private val adapter: ConfigStorageAdapter, val hostServices: HostSe
       val oldValue = valueWithoutDefault
       if (oldValue != value) {
         super.set(value)
-        listeners.forEach { c -> c.onChange(oldValue, value) }
+        listeners.forEach { it(oldValue, value) }
       }
     }
 
@@ -330,7 +331,7 @@ class Config(private val adapter: ConfigStorageAdapter, val hostServices: HostSe
       super.set(value)
       val newValue = this.value
       if (oldValue != newValue) {
-        listeners.forEach { c -> c.onChange(oldValue, newValue) }
+        listeners.forEach { it(oldValue, newValue) }
       }
     }
 
@@ -397,10 +398,4 @@ class Config(private val adapter: ConfigStorageAdapter, val hostServices: HostSe
         "plugins"
     )
   }
-}
-
-@FunctionalInterface
-interface ConfigListener<T> {
-
-  fun onChange(oldValue: T, newValue: T)
 }
