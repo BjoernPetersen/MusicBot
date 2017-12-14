@@ -79,6 +79,10 @@ public final class MusicBot implements Loggable, Closeable {
         throw e;
       }
 
+      if (Thread.currentThread().isInterrupted()) {
+        throw new InterruptedException();
+      }
+
       try {
         Consumer<SongEntry> songPlayedNotifier = songEntry -> {
           Song song = songEntry.getSong();
@@ -112,12 +116,20 @@ public final class MusicBot implements Loggable, Closeable {
         }
       });
 
+      if (Thread.currentThread().isInterrupted()) {
+        throw new InterruptedException();
+      }
+
       try {
         this.restApi = apiInitializer.initialize(this, PORT);
         initialized.add(this.restApi);
       } catch (InitializationException e) {
         closeAll(e, initialized);
         throw new InitializationException("Exception during REST init", e);
+      }
+
+      if (Thread.currentThread().isInterrupted()) {
+        throw new InterruptedException();
       }
 
       try {
@@ -135,6 +147,9 @@ public final class MusicBot implements Loggable, Closeable {
       this.adminPlugins = adminPlugins;
       try {
         for (AdminPlugin plugin : adminPlugins) {
+          if (Thread.currentThread().isInterrupted()) {
+            throw new InterruptedException();
+          }
           plugin.initialize(initStateWriter, this);
           initialized.add(plugin);
         }
@@ -382,10 +397,22 @@ public final class MusicBot implements Loggable, Closeable {
         providerManager.ensureSuggestersConfigured(configurator);
         ensureConfigured(configurator, adminPlugins);
 
+        if (Thread.currentThread().isInterrupted()) {
+          throw new InterruptedException();
+        }
         playbackFactoryManager.initializeFactories(initStateWriter);
+        if (Thread.currentThread().isInterrupted()) {
+          throw new InterruptedException();
+        }
         providerManager.initializeProviders(initStateWriter);
+        if (Thread.currentThread().isInterrupted()) {
+          throw new InterruptedException();
+        }
         providerManager.initializeSuggesters(initStateWriter);
 
+        if (Thread.currentThread().isInterrupted()) {
+          throw new InterruptedException();
+        }
         return new MusicBot(
             config,
             initStateWriter,

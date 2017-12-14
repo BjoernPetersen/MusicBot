@@ -163,6 +163,9 @@ class PlaybackFactoryManager(config: Config, private val wrapperFactory: Playbac
     val defective = LinkedList<PlaybackFactory>()
     for (factory in playbackFactories.filter { it.state == Plugin.State.CONFIG }) {
       try {
+        if (Thread.currentThread().isInterrupted) {
+          throw InterruptedException()
+        }
         initStateWriter.begin(factory)
         factory.initialize(initStateWriter)
       } catch (e: InitializationException) {

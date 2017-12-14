@@ -102,6 +102,9 @@ internal class DefaultProviderManager(private val providerWrapperFactory: Provid
       .filter { it.state == Plugin.State.CONFIG }
       .forEach {
         try {
+          if (Thread.currentThread().isInterrupted) {
+            throw InterruptedException()
+          }
           initStateWriter.begin(it)
           initStateWriter.state("Initializing provider ${it.readableName}...")
           it.initialize(initStateWriter, playbackFactoryManager)
@@ -138,6 +141,9 @@ internal class DefaultProviderManager(private val providerWrapperFactory: Provid
         .filter { it.state == Plugin.State.CONFIG }
         .forEach { s ->
           try {
+            if (Thread.currentThread().isInterrupted) {
+              throw InterruptedException()
+            }
             initStateWriter.begin(s)
             initStateWriter.state("Initializing ${s.readableName}...")
             val dependencies = buildDependencies(s)
