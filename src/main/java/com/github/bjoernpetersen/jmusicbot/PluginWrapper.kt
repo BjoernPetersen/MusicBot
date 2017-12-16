@@ -5,10 +5,7 @@ import com.github.bjoernpetersen.jmusicbot.platform.Platform
 import com.github.bjoernpetersen.jmusicbot.platform.Support
 import com.github.bjoernpetersen.jmusicbot.playback.PlaybackFactory
 import com.github.bjoernpetersen.jmusicbot.playback.SongEntry
-import com.github.bjoernpetersen.jmusicbot.provider.DependencyMap
-import com.github.bjoernpetersen.jmusicbot.provider.NoSuchSongException
-import com.github.bjoernpetersen.jmusicbot.provider.Provider
-import com.github.bjoernpetersen.jmusicbot.provider.Suggester
+import com.github.bjoernpetersen.jmusicbot.provider.*
 import com.github.zafarkhaja.semver.Version
 import java.io.IOException
 import java.util.HashSet
@@ -177,19 +174,20 @@ open class DefaultProviderWrapper(plugin: Provider) : DefaultPluginWrapper<Provi
 
   fun addSuggester(suggester: Suggester) = _suggesters.add(suggester)
 
-  override fun getPlaybackDependencies(): Set<Class<out PlaybackFactory>> = wrapped.playbackDependencies
+  override fun registerDependencies(dependencyReport: DependencyReport<PlaybackFactory>) =
+      wrapped.registerDependencies(dependencyReport)
 
   override fun getId(): String = wrapped.id
 
   @Throws(InitializationException::class, InterruptedException::class)
-  override fun initialize(initStateWriter: InitStateWriter, manager: PlaybackFactoryManager) {
+  override fun initialize(initStateWriter: InitStateWriter, dependencies: DependencyMap<PlaybackFactory>) {
     if (state < Plugin.State.CONFIG) {
       throw IllegalStateException()
     } else if (state == Plugin.State.ACTIVE) {
       return
     }
 
-    wrapped.initialize(initStateWriter, manager)
+    wrapped.initialize(initStateWriter, dependencies)
     state = Plugin.State.ACTIVE
   }
 
@@ -241,9 +239,8 @@ open class DefaultSuggesterWrapper(plugin: Suggester) : DefaultPluginWrapper<Sug
     wrapped.removeSuggestion(song)
   }
 
-  override fun getDependencies(): Set<Class<out Provider>> = wrapped.dependencies
-
-  override fun getOptionalDependencies(): Set<Class<out Provider>> = wrapped.optionalDependencies
+  override fun registerDependencies(dependencyReport: DependencyReport<Provider>) =
+      wrapped.registerDependencies(dependencyReport)
 }
 
 /**

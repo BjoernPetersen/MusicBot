@@ -3,23 +3,14 @@ package com.github.bjoernpetersen.jmusicbot.provider;
 import com.github.bjoernpetersen.jmusicbot.IdPlugin;
 import com.github.bjoernpetersen.jmusicbot.InitStateWriter;
 import com.github.bjoernpetersen.jmusicbot.InitializationException;
-import com.github.bjoernpetersen.jmusicbot.PlaybackFactoryManager;
 import com.github.bjoernpetersen.jmusicbot.Song;
 import com.github.bjoernpetersen.jmusicbot.playback.PlaybackFactory;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 import javax.annotation.Nonnull;
 
-public interface Provider extends IdPlugin {
-
-  /**
-   * A set of PlaybackFactory interfaces this Provider requires.
-   *
-   * @return a set of PlaybackFactory classes
-   */
-  Set<Class<? extends PlaybackFactory>> getPlaybackDependencies();
+public interface Provider extends IdPlugin, Dependent<PlaybackFactory> {
 
   /**
    * Gets the base class for this provider. The base class should define relevant methods for {@link
@@ -35,13 +26,16 @@ public interface Provider extends IdPlugin {
   /**
    * Signals to the provider that it can start doing work.
    *
-   * @param manager a PlaybackFactoryManager to obtain PlaybackFactory instances from
+   * <p>The dependency Map is guaranteed to contain all required dependencies requested by {@link
+   * #registerDependencies(DependencyReport)}. It will also contain all optional dependencies.</p>
+   *
+   * @param dependencies the Playback instances requested by {@link #registerDependencies(DependencyReport)}
    * @param initStateWriter a writer for initialization state messages
    * @throws InitializationException If any errors occur (for example due to invalid log-in
    * credentials)
    * @throws InterruptedException if the thread is interrupted while initializing
    */
-  void initialize(@Nonnull InitStateWriter initStateWriter, @Nonnull PlaybackFactoryManager manager)
+  void initialize(@Nonnull InitStateWriter initStateWriter, @Nonnull DependencyMap<PlaybackFactory> dependencies)
       throws InitializationException, InterruptedException;
 
   /**

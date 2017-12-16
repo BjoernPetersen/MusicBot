@@ -5,12 +5,13 @@ import com.github.bjoernpetersen.jmusicbot.config.Config.Entry;
 import com.github.bjoernpetersen.jmusicbot.platform.Platform;
 import com.github.bjoernpetersen.jmusicbot.platform.Support;
 import com.github.bjoernpetersen.jmusicbot.playback.PlaybackFactory;
+import com.github.bjoernpetersen.jmusicbot.provider.DependencyMap;
+import com.github.bjoernpetersen.jmusicbot.provider.DependencyReport;
 import com.github.bjoernpetersen.jmusicbot.provider.NoSuchSongException;
 import com.github.bjoernpetersen.jmusicbot.provider.Provider;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 import javax.annotation.Nonnull;
 
 public class TestProvider implements Provider {
@@ -40,13 +41,12 @@ public class TestProvider implements Provider {
   }
 
   @Override
-  public Set<Class<? extends PlaybackFactory>> getPlaybackDependencies() {
-    return Collections.emptySet();
+  public void registerDependencies(@Nonnull DependencyReport<PlaybackFactory> dependencyReport) {
   }
 
   @Override
   public void initialize(@Nonnull InitStateWriter initStateWriter,
-      @Nonnull PlaybackFactoryManager manager) throws InitializationException {
+      @Nonnull DependencyMap<PlaybackFactory> dependencies) {
   }
 
   @Nonnull

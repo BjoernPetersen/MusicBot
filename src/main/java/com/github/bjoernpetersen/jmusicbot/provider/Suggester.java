@@ -5,12 +5,10 @@ import com.github.bjoernpetersen.jmusicbot.InitStateWriter;
 import com.github.bjoernpetersen.jmusicbot.InitializationException;
 import com.github.bjoernpetersen.jmusicbot.Song;
 import com.github.bjoernpetersen.jmusicbot.playback.SongEntry;
-import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 import javax.annotation.Nonnull;
 
-public interface Suggester extends IdPlugin {
+public interface Suggester extends IdPlugin, Dependent<Provider> {
 
   /**
    * <p>Suggest the next song to play.</p>
@@ -76,40 +74,15 @@ public interface Suggester extends IdPlugin {
    *
    * <p>The Suggester should remain operational until {@link #close()} is called.</p>
    *
-   * <p>The dependency Map is guaranteed to contain all dependencies requested by {@link
-   * #getDependencies()}. It will also contain all satisfiable dependencies that were requested by
-   * {@link #getOptionalDependencies()}.</p>
+   * <p>The dependency Map is guaranteed to contain all required dependencies requested by {@link
+   * #registerDependencies(DependencyReport)}. It will also contain all optional dependencies.</p>
    *
-   * @param dependencies the Provider instances requested by {@link #getDependencies()} and {@link
-   * #getOptionalDependencies()}
+   * @param dependencies the Provider instances requested by {@link #registerDependencies(DependencyReport)}
    * @param initStateWriter a writer for initialization state messages
    * @throws InitializationException If any errors occur (for example due to invalid log-in
    * credentials)
    * @throws InterruptedException if the thread is interrupted while initializing
    */
-  void initialize(@Nonnull InitStateWriter initStateWriter,
-      @Nonnull DependencyMap<Provider> dependencies)
+  void initialize(@Nonnull InitStateWriter initStateWriter, @Nonnull DependencyMap<Provider> dependencies)
       throws InitializationException, InterruptedException;
-
-  /**
-   * <p>Gets a set of providers this Suggester depends on.</p>
-   *
-   * The default implementation returns an empty set.
-   *
-   * @return a set of provider base classes
-   */
-  default Set<Class<? extends Provider>> getDependencies() {
-    return Collections.emptySet();
-  }
-
-  /**
-   * <p>Gets a set of providers this Suggester may use, but doesn't need.</p>
-   *
-   * The default implementation returns an empty set.
-   *
-   * @return a set of provider base classes
-   */
-  default Set<Class<? extends Provider>> getOptionalDependencies() {
-    return Collections.emptySet();
-  }
 }

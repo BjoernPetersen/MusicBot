@@ -3,6 +3,7 @@ package com.github.bjoernpetersen.jmusicbot.provider
 import com.github.bjoernpetersen.jmusicbot.*
 import com.github.bjoernpetersen.jmusicbot.config.Config
 import com.github.bjoernpetersen.jmusicbot.platform.Platform
+import com.github.bjoernpetersen.jmusicbot.playback.PlaybackFactory
 import java.io.File
 import java.io.IOException
 import java.util.*
@@ -98,14 +99,23 @@ internal class DefaultProviderManager(private val providerWrapperFactory: Provid
   }
 
   @Throws(InitializationException::class)
-  private fun checkDependencies(provider: Provider) {
-    provider.playbackDependencies
+  private fun checkDependencies(provider: Provider): DependencyMap<PlaybackFactory> {
+    val dependencies = DependencyReportImpl<PlaybackFactory>().let {
+      provider.registerDependencies(it)
+      it.getResult()
+    }
+    dependencies.required.asSequence()
         .filterNot { playbackFactoryManager.hasFactory(it) }
         .forEach {
           throw InitializationException(
-              "Missing dependency for provider ${provider.qualifiedReadableName()}: ${it.name}"
+              "Missing required dependency for provider ${provider.qualifiedReadableName()}: ${it.name}"
           )
         }
+
+    return DependencyMapLookup {
+      if (playbackFactoryManager.hasFactory(it)) playbackFactoryManager.getFactory(it)
+      else null
+    }
   }
 
   @Throws(InterruptedException::class)
@@ -119,8 +129,8 @@ internal class DefaultProviderManager(private val providerWrapperFactory: Provid
               }
               initStateWriter.begin(it)
               initStateWriter.state("Initializing provider ${it.readableName}...")
-              checkDependencies(it)
-              it.initialize(initStateWriter, playbackFactoryManager)
+              val dependencies = checkDependencies(it)
+              it.initialize(initStateWriter, dependencies)
             } catch (e: InitializationException) {
               logInfo(e, "Could not initialize Provider ${it.readableName}")
               removeProvider(it)
@@ -160,7 +170,7 @@ internal class DefaultProviderManager(private val providerWrapperFactory: Provid
             initStateWriter.begin(s)
             initStateWriter.state("Initializing ${s.readableName}...")
             val dependencies = buildDependencies(s)
-            s.initialize(initStateWriter, DependencyMap(dependencies))
+            s.initialize(initStateWriter, DependencyMapWrapper(dependencies))
             dependencies.values.forEach {
               suggestersByProvider.computeIfAbsent(it, { LinkedList() }).add(s)
             }
@@ -180,9 +190,12 @@ internal class DefaultProviderManager(private val providerWrapperFactory: Provid
 
   @Throws(InitializationException::class)
   private fun buildDependencies(suggester: Suggester): Map<Class<out Provider>, Provider> {
-    val dependencies = suggester.dependencies
+    val dependencies = DependencyReportImpl<Provider>().let {
+      suggester.registerDependencies(it)
+      it.getResult()
+    }
     val loadedDependencies = LinkedHashMap<Class<out Provider>, Provider>(dependencies.size * 2)
-    for (dependencyClass in dependencies) {
+    for (dependencyClass in dependencies.required) {
       val dependency = getProvider(dependencyClass) ?: throw InitializationException(
           "Missing dependency for suggester ${suggester.readableName}: ${dependencyClass.name}."
       )
@@ -190,7 +203,7 @@ internal class DefaultProviderManager(private val providerWrapperFactory: Provid
       loadedDependencies.put(dependencyClass, dependency)
     }
 
-    for (dependencyClass in suggester.optionalDependencies) {
+    for (dependencyClass in dependencies.optional) {
       val dependency = getProvider(dependencyClass)
       if (dependency != null) {
         loadedDependencies.put(dependencyClass, dependency)
@@ -237,5 +250,3 @@ internal class DefaultProviderManager(private val providerWrapperFactory: Provid
     }
   }
 }
-
-
