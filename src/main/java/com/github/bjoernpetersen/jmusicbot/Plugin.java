@@ -58,6 +58,8 @@ public interface Plugin extends Closeable {
   /**
    * An arbitrary, human readable name for this plugin.
    *
+   * <p>This name may change dynamically according to the current configuration.</p>
+   *
    * @return a name
    */
   @Nonnull
