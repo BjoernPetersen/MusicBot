@@ -2,13 +2,15 @@ package com.github.bjoernpetersen.jmusicbot;
 
 import com.github.bjoernpetersen.jmusicbot.playback.Playback;
 import com.github.bjoernpetersen.jmusicbot.provider.Provider;
+
+import java.io.Closeable;
 import java.io.IOException;
 import java.util.Objects;
 import java.util.Optional;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public final class Song {
+public final class Song implements Closeable{
 
   @Nonnull
   private final PlaybackSupplier playbackSupplier;
@@ -26,11 +28,15 @@ public final class Song {
   private final int duration;
   @Nullable
   private final String albumArtUrl;
+  @Nullable
+  private final CheckedConsumer<Song, IOException> onClose;
+  private boolean closed;
 
 
   private Song(@Nonnull PlaybackSupplier playbackSupplier, @Nonnull SongLoader loader,
       @Nonnull Provider provider, @Nonnull String id, @Nonnull String title,
-      @Nonnull String description, int duration, @Nullable String albumArtUrl) {
+      @Nonnull String description, int duration, @Nullable String albumArtUrl,
+      @Nullable CheckedConsumer<Song, IOException> onClose) {
     this.playbackSupplier = playbackSupplier;
     this.loader = loader;
     this.provider = provider;
@@ -40,6 +46,7 @@ public final class Song {
     this.description = description;
     this.duration = duration;
     this.albumArtUrl = albumArtUrl;
+    this.onClose = onClose;
   }
 
   /**
@@ -144,6 +151,21 @@ public final class Song {
         + '}';
   }
 
+  public boolean isClosed() {
+    return closed;
+  }
+
+  @Override
+  public void close() throws IOException {
+    if(!closed){
+      if(onClose != null) {
+        onClose.accept(this);
+      }
+      closed = true;
+    }
+  }
+
+
   /**
    * A Builder for Song objects.<br>
    *
@@ -163,6 +185,7 @@ public final class Song {
     private int duration = 0;
 
     private String albumArtUrl;
+    private CheckedConsumer<Song, IOException> onClose;
 
     /**
      * Sets the PlaybackSupplier which will delegate to a PlaybackFactory to actually play the
@@ -269,6 +292,18 @@ public final class Song {
       return this;
     }
 
+    /**
+     * Sets a consumer to process the the song on close
+     *
+     * @param onClose a Consumer or null
+     * @return this builder
+     */
+    @Nonnull
+    public Builder onClose(@Nullable CheckedConsumer<Song, IOException> onClose) {
+      this.onClose = onClose;
+      return this;
+    }
+
     @Nonnull
     public Song build() {
       if (playbackSupplier == null
@@ -287,7 +322,8 @@ public final class Song {
           title,
           description,
           duration,
-          albumArtUrl
+          albumArtUrl,
+          onClose
       );
     }
 

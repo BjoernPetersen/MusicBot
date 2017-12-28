@@ -169,7 +169,7 @@ class Player(private val songPlayedNotifier: Consumer<SongEntry>, private val su
       } catch (e: Exception) {
         logWarning(e, "Error closing playback")
       }
-
+      state.entry?.song?.close()
       val nextOptional = queue.pop()
       if (!nextOptional.isPresent && suggester == null) {
         logFinest("Queue is empty. Stopping.")
