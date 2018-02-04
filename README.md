@@ -1,4 +1,4 @@
-# JMusicBot
+# JMusicBot [![GitHub (pre-)release](https://img.shields.io/github/release/BjoernPetersen/JMusicBot/all.svg)](https://github.com/BjoernPetersen/JMusicBot/releases) [![CircleCI branch](https://img.shields.io/circleci/project/github/BjoernPetersen/JMusicBot/master.svg)](https://circleci.com/gh/BjoernPetersen/JMusicBot/tree/master) [![GitHub license](https://img.shields.io/github/license/BjoernPetersen/JMusicBot.svg)](https://github.com/BjoernPetersen/JMusicBot/blob/master/LICENSE)
 
 This is the core library of the JMusicBot project.    
 APIs should not be considered stable until version 1.0.0.
