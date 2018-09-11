@@ -15,7 +15,7 @@ jobs:
     inputs:
       sourceFolder: target/
       contents: 'musicbot*.jar'
-      targetFolder: $(Build.ArtifactStagingDirectory)
+      targetFolder: $(Build.ArtifactStagingDirectory)/jars
       cleanTargetFolder: true
       overWrite: true
   - task: CopyFiles@2
@@ -27,8 +27,13 @@ jobs:
       overWrite: true
   - task: PublishBuildArtifacts@1
     inputs:
-      pathtoPublish: '$(Build.ArtifactStagingDirectory)'
-      artifactName: 'test'
+      pathtoPublish: '$(Build.ArtifactStagingDirectory)/jars'
+      artifactName: 'jars'
+      publishLocation: 'Container'
+  - task: PublishBuildArtifacts@1
+    inputs:
+      pathtoPublish: '$(Build.ArtifactStagingDirectory)/site'
+      artifactName: 'reports'
       publishLocation: 'Container'
 
 - job: Windows
