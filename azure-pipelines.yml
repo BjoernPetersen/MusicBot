@@ -1,30 +1,38 @@
-pool:
-  vmImage: 'Ubuntu 16.04'
+jobs:
+- job: Linux
+  pool:
+    vmImage: 'ubuntu-16.04'
+  steps:
+  - template: azure-test.yml
+  - task: Maven@3
+    inputs:
+      mavenPomFile: 'pom.xml'
+      jdkVersionOption: '1.8'
+      publishJUnitResults: true
+      testResultsFiles: '**/TEST-*.xml'
+      goals: 'package site -P report'
+  - task: CopyFiles@2
+    inputs:
+      sourceFolder: target/
+      contents: 'musicbot*.jar'
+      targetFolder: $(Build.ArtifactStagingDirectory)
+      cleanTargetFolder: true
+      overWrite: true
+  - task: CopyFiles@2
+    inputs:
+      sourceFolder: target/site/
+      contents: '**'
+      targetFolder: $(Build.ArtifactStagingDirectory)/site
+      cleanTargetFolder: true
+      overWrite: true
+  - task: PublishBuildArtifacts@1
+    inputs:
+      pathtoPublish: '$(Build.ArtifactStagingDirectory)'
+      artifactName: 'test'
+      publishLocation: 'Container'
 
-steps:
-- task: Maven@3
-  inputs:
-    mavenPomFile: 'pom.xml'
-    jdkVersionOption: '1.8'
-    publishJUnitResults: true
-    testResultsFiles: '**/TEST-*.xml'
-    goals: 'test package site -P report'
-- task: CopyFiles@2
-  inputs:
-    sourceFolder: target/
-    contents: 'musicbot*.jar'
-    targetFolder: $(Build.ArtifactStagingDirectory)
-    cleanTargetFolder: true
-    overWrite: true
-- task: CopyFiles@2
-  inputs:
-    sourceFolder: target/site/
-    contents: '**'
-    targetFolder: $(Build.ArtifactStagingDirectory)/site
-    cleanTargetFolder: true
-    overWrite: true
-- task: PublishBuildArtifacts@1
-  inputs:
-    pathtoPublish: '$(Build.ArtifactStagingDirectory)'
-    artifactName: 'test'
-    publishLocation: 'Container'
+- job: Windows
+  pool:
+    vmImage: 'VS2017-Win2016'
+  steps:
+  - template: azure-test.yml
