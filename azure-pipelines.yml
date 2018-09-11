@@ -1,6 +1,9 @@
 pool:
   vmImage: 'Ubuntu 16.04'
 
+trigger:
+- *
+
 steps:
 - task: Maven@3
   inputs:
@@ -8,4 +11,23 @@ steps:
     jdkVersionOption: '1.8'
     publishJUnitResults: true
     testResultsFiles: '**/TEST-*.xml'
-    goals: 'test package'
+    goals: 'test package site -P report'
+- task: CopyFiles@2
+  inputs:
+    sourceFolder: target/
+    contents: '*-jar-with-dependencies.jar'
+    targetFolder: $(Build.ArtifactStagingDirectory)
+    cleanTargetFolder: true
+    overWrite: true
+- task: CopyFiles@2
+  inputs:
+    sourceFolder: target/site/
+    contents: '**'
+    targetFolder: $(Build.ArtifactStagingDirectory)/site
+    cleanTargetFolder: true
+    overWrite: true
+- task: PublishBuildArtifacts@1
+  inputs:
+    pathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    artifactName: 'test'
+    publishLocation: 'Container'
