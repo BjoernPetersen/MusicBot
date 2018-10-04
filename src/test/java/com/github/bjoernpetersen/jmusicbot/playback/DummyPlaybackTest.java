@@ -33,7 +33,7 @@ class DummyPlaybackTest {
   }
 
   @Test
-  void close() throws Exception {
+  void close() {
     instance.close();
   }
 
