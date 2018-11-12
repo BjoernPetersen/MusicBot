@@ -10,17 +10,18 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.logging.Logger;
 import javax.annotation.Nonnull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-class SongLoaderExecutor implements Loggable {
+final class SongLoaderExecutor {
 
   private static volatile SongLoaderExecutor instance;
 
   @Nonnull
   private final ExecutorService service;
   @Nonnull
-  private final Logger logger;
+  private final Logger logger = LoggerFactory.getLogger(SongLoaderExecutor.class);
   @Nonnull
   private final Lock futureLock;
   @Nonnull
@@ -32,7 +33,6 @@ class SongLoaderExecutor implements Loggable {
         .setNameFormat("SongLoaderPool-%d")
         .build()
     );
-    this.logger = createLogger();
     this.futureLock = new ReentrantLock();
     futures = CacheBuilder.newBuilder()
         .initialCapacity(8)
@@ -41,17 +41,11 @@ class SongLoaderExecutor implements Loggable {
         .removalListener((RemovalListener<Song, Future<Boolean>>) removalNotification -> {
           Future<Boolean> future = removalNotification.getValue();
           if (!future.isDone()) {
-            logWarning("Cancelling future because of cache removal");
+            logger.warn("Cancelling future because of cache removal");
             future.cancel(true);
           }
         })
         .build();
-  }
-
-  @Override
-  @Nonnull
-  public Logger getLogger() {
-    return logger;
   }
 
   /**
@@ -89,7 +83,7 @@ class SongLoaderExecutor implements Loggable {
       futureLock.lock();
       try {
         if (futures.getIfPresent(song) == null) {
-          logFiner("Enqueuing song load: " + song);
+          logger.debug("Enqueuing song load: " + song);
           futures.put(song, service.submit(() -> song.getLoader().load(song)));
         }
       } finally {

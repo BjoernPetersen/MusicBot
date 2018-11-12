@@ -12,11 +12,15 @@ import java.util.List;
 import java.util.ServiceConfigurationError;
 import java.util.ServiceLoader;
 import javax.annotation.Nonnull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public final class PluginLoader<T> implements Loggable {
+public final class PluginLoader<T> {
 
   private static ClassLoader loader;
 
+  @Nonnull
+  private final Logger logger = LoggerFactory.getLogger(PluginLoader.class);
   @Nonnull
   private final File pluginFolder;
   @Nonnull
@@ -32,7 +36,7 @@ public final class PluginLoader<T> implements Loggable {
     if (!pluginFolder.isDirectory()) {
       if (!pluginFolder.exists()) {
         if (!pluginFolder.mkdirs()) {
-          logWarning("Could not create plugin folder '%s'", pluginFolder.getPath());
+          logger.error("Could not create plugin folder '%s'", pluginFolder.getPath());
         }
       }
       return Collections.emptyList();
@@ -57,14 +61,14 @@ public final class PluginLoader<T> implements Loggable {
     try {
       Collection<T> plugins = loadPlugins(loader);
       result.addAll(plugins);
-      logInfo(
+      logger.info(
           "Loaded %d plugins of type '%s' from plugin folder: %s",
           plugins.size(),
           type.getSimpleName(),
           pluginFolder.getName()
       );
     } catch (Exception | Error e) {
-      logSevere(e, "Error loading plugins");
+      logger.error("Error loading plugins", e);
     }
 
     return result;
@@ -82,7 +86,7 @@ public final class PluginLoader<T> implements Loggable {
 
   @Nonnull
   private Collection<T> loadPlugins(@Nonnull ClassLoader classLoader)
-      throws MalformedURLException, ServiceConfigurationError, NoClassDefFoundError {
+      throws ServiceConfigurationError, NoClassDefFoundError {
     ServiceLoader<T> loader = ServiceLoader.load(type, classLoader);
 
     List<T> result = new LinkedList<>();
@@ -90,7 +94,7 @@ public final class PluginLoader<T> implements Loggable {
       if (type.isInstance(plugin)) {
         result.add(plugin);
       } else {
-        logSevere(
+        logger.error(
             "Loaded plugin '%s' is not instance of desired type %s",
             plugin,
             type.getSimpleName()

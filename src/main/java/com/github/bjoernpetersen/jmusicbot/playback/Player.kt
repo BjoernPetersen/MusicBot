@@ -1,11 +1,11 @@
 package com.github.bjoernpetersen.jmusicbot.playback
 
-import com.github.bjoernpetersen.jmusicbot.Loggable
 import com.github.bjoernpetersen.jmusicbot.Song
 import com.github.bjoernpetersen.jmusicbot.playback.PlaybackStateListener.PlaybackState
 import com.github.bjoernpetersen.jmusicbot.provider.BrokenSuggesterException
 import com.github.bjoernpetersen.jmusicbot.provider.Suggester
 import com.google.common.util.concurrent.ThreadFactoryBuilder
+import mu.KotlinLogging
 import java.io.Closeable
 import java.io.IOException
 import java.util.*
@@ -14,13 +14,12 @@ import java.util.concurrent.Executors
 import java.util.concurrent.locks.Lock
 import java.util.concurrent.locks.ReentrantLock
 import java.util.function.Consumer
-import java.util.logging.Logger
 import kotlin.concurrent.withLock
 
-class Player(private val songPlayedNotifier: Consumer<SongEntry>, private val suggester: Suggester?) : Loggable,
+class Player(private val songPlayedNotifier: Consumer<SongEntry>, private val suggester: Suggester?) :
     Closeable {
 
-  private val logger: Logger = createLogger()
+  private val logger = KotlinLogging.logger {}
   private val autoPlayer: ExecutorService = Executors.newSingleThreadExecutor(
       ThreadFactoryBuilder()
           .setDaemon(true)
@@ -78,10 +77,6 @@ class Player(private val songPlayedNotifier: Consumer<SongEntry>, private val su
     }
   }
 
-  override fun getLogger(): Logger {
-    return logger
-  }
-
   /**
    * Adds a [PlayerStateListener] which will be called everytime the [state] changes.
    */
@@ -106,13 +101,13 @@ class Player(private val songPlayedNotifier: Consumer<SongEntry>, private val su
   @Throws(InterruptedException::class)
   fun pause() {
     stateLock.withLock {
-      logFinest("Pausing...")
+      logger.debug("Pausing...")
       val state = state
       if (state is PauseState) {
-        logFinest("Already paused.")
+        logger.trace("Already paused.")
         return
       } else if (state !is PlayState) {
-        logFiner("Tried to pause player in state %s", state)
+        logger.info { "Tried to pause player in state $state" }
         return
       }
       playback.pause()
@@ -130,13 +125,13 @@ class Player(private val songPlayedNotifier: Consumer<SongEntry>, private val su
   @Throws(InterruptedException::class)
   fun play() {
     stateLock.withLock {
-      logFinest("Playing...")
+      logger.debug("Playing...")
       val state = state
       if (state is PlayState) {
-        logFinest("Already playing.")
+        logger.trace("Already playing.")
         return
       } else if (state !is PauseState) {
-        logFiner("Tried to play in state %s", state)
+        logger.info { "Tried to play in state $state" }
         return
       }
       playback.play()
@@ -157,22 +152,22 @@ class Player(private val songPlayedNotifier: Consumer<SongEntry>, private val su
   fun next() {
     val state = this.state
     stateLock.withLock {
-      logFiner("Next...")
+      logger.debug("Next...")
       val newState = this.state
       if (isSignificantlyDifferent(state, newState)) {
-        logFinest("Skipping next call due to state change while waiting for lock.")
+        logger.debug("Skipping next call due to state change while waiting for lock.")
         return
       }
 
       try {
         playback.close()
       } catch (e: Exception) {
-        logWarning(e, "Error closing playback")
+        logger.warn(e) { "Error closing playback" }
       }
 
       val nextOptional = queue.pop()
       if (!nextOptional.isPresent && suggester == null) {
-        logFinest("Queue is empty. Stopping.")
+        logger.info("Queue is empty. Stopping.")
         playback = DummyPlayback
         this.state = StopState()
         return
@@ -183,7 +178,7 @@ class Player(private val songPlayedNotifier: Consumer<SongEntry>, private val su
       } else try {
         SuggestedSongEntry(suggester!!.suggestNext())
       } catch (e: BrokenSuggesterException) {
-        logFine("Default suggester could not suggest anything. Stopping.")
+        logger.warn("Default suggester could not suggest anything. Stopping.")
         playback = DummyPlayback
         this.state = StopState()
         return
@@ -191,11 +186,11 @@ class Player(private val songPlayedNotifier: Consumer<SongEntry>, private val su
 
       val nextSong = nextEntry.song
       songPlayedNotifier.accept(nextEntry)
-      logFine("Next song is: " + nextSong)
+      logger.debug("Next song is: $nextSong")
       try {
         playback = nextSong.playback
       } catch (e: IOException) {
-        logWarning(e, "Error creating playback")
+        logger.warn(e) { "Error creating playback" }
 
         this.state = ErrorState()
         playback = DummyPlayback
@@ -210,7 +205,7 @@ class Player(private val songPlayedNotifier: Consumer<SongEntry>, private val su
   }
 
   private fun onPlaybackFeedback(feedback: PlaybackState) {
-    logFinest("Playback state update: %s", feedback)
+    logger.debug { "Playback state update: $feedback" }
     stateLock.withLock {
       val state = state
       when (feedback) {
@@ -234,23 +229,23 @@ class Player(private val songPlayedNotifier: Consumer<SongEntry>, private val su
   private fun autoPlay() {
     try {
       val state = this.state
-      logFinest("Waiting for song to finish")
+      logger.debug("Waiting for song to finish")
       playback.waitForFinish()
-      logFinest("Waiting done")
+      logger.trace("Waiting done")
 
       stateLock.withLock {
         // Prevent auto next calls if next was manually called
         if (isSignificantlyDifferent(this.state, state)) {
-          logFinest("Skipping auto call to next()")
+          logger.debug("Skipping auto call to next()")
         } else {
-          logFinest("Auto call to next()")
+          logger.debug("Auto call to next()")
           next()
         }
       }
 
       autoPlayer.submit { this.autoPlay() }
     } catch (e: InterruptedException) {
-      logFine("autoPlay interrupted", e)
+      logger.info("autoPlay interrupted", e)
     }
   }
 

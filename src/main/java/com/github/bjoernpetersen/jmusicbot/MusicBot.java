@@ -28,9 +28,11 @@ import java.util.StringJoiner;
 import java.util.function.Consumer;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Nonnull
-public final class MusicBot implements Loggable, Closeable {
+public final class MusicBot implements Closeable {
 
   private static final String BROADCAST_ID = "MusicBot";
   private static final int PORT = 42945;
@@ -259,7 +261,7 @@ public final class MusicBot implements Loggable, Closeable {
     }
   }
 
-  public static class Builder implements Loggable {
+  public static class Builder {
 
     // TODO IP, port
     @Nonnull
@@ -435,7 +437,8 @@ public final class MusicBot implements Loggable, Closeable {
         @Nonnull Collection<? extends Plugin> plugins) {
       String message = getUnsupportedMessage(kind, plugins);
       if (message != null) {
-        logWarning(message);
+        Logger logger = LoggerFactory.getLogger(MusicBot.Builder.class);
+        logger.warn(message);
       }
     }
 

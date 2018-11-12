@@ -1,14 +1,13 @@
 package com.github.bjoernpetersen.jmusicbot.config
 
-import com.github.bjoernpetersen.jmusicbot.Loggable
 import com.github.bjoernpetersen.jmusicbot.MusicBot
 import com.github.bjoernpetersen.jmusicbot.config.ui.CheckBox
 import com.github.bjoernpetersen.jmusicbot.config.ui.PasswordBox
 import com.github.bjoernpetersen.jmusicbot.config.ui.TextBox
 import com.github.bjoernpetersen.jmusicbot.config.ui.UiNode
 import com.github.bjoernpetersen.jmusicbot.platform.HostServices
+import mu.KotlinLogging
 import java.util.*
-import java.util.logging.Logger
 
 /**
  * Some global settings of the MusicBot.
@@ -32,9 +31,9 @@ typealias ConfigListener<T> = (T, T) -> Unit
  * @param adapter a ConfigStorageAdapter to load and save the config with
  * @param hostServices the HostServices implementation to use in a session with this config.
  */
-class Config(private val adapter: ConfigStorageAdapter, val hostServices: HostServices) : Loggable {
+class Config(private val adapter: ConfigStorageAdapter, val hostServices: HostServices) {
 
-  private val logger: Logger = createLogger()
+  private val logger = KotlinLogging.logger { }
   private val config: MutableMap<String, String>
   private val secrets: MutableMap<String, String>
 
@@ -47,10 +46,6 @@ class Config(private val adapter: ConfigStorageAdapter, val hostServices: HostSe
     this.entries = HashMap()
   }
 
-  override fun getLogger(): Logger {
-    return logger
-  }
-
   private fun qualify(base: Class<*>, key: String): String = base.name + "." + key
 
   private fun getValue(base: Class<*>, key: String): String? {
@@ -61,7 +56,7 @@ class Config(private val adapter: ConfigStorageAdapter, val hostServices: HostSe
     val old = getValue(base, key)
     if (old != value) {
       val qualified = qualify(base, key)
-      logFiner("Config entry '%s' changed from '%s' to '%s'", qualified, getValue(base, key), value)
+      logger.debug { "Config entry '$qualified' changed from '${getValue(base, key)}' to '$value'" }
       if (value == null) {
         config.remove(qualified)
       } else {
@@ -79,7 +74,7 @@ class Config(private val adapter: ConfigStorageAdapter, val hostServices: HostSe
     val old = getSecret(base, key)
     if (old != value) {
       val qualified = qualify(base, key)
-      logFiner("Secret '%s' changed.", qualified)
+      logger.debug { "Secret '$qualified' changed." }
       if (value == null) {
         secrets.remove(qualified)
       } else {
@@ -135,7 +130,7 @@ class Config(private val adapter: ConfigStorageAdapter, val hostServices: HostSe
 
     protected open fun set(value: String?) {
       val actual = if (value != null && value.trim().isEmpty()) {
-        logFinest("Replacing empty new value with null")
+        logger.trace("Replacing empty new value with null")
         null
       } else value
       if (isSecret) {
@@ -219,7 +214,7 @@ class Config(private val adapter: ConfigStorageAdapter, val hostServices: HostSe
         var value: String? = if (isSecret) config.getSecret(base, key) else config.getValue(base,
             key)
         if (value != null && value.isEmpty()) {
-          logFinest("Replacing empty value with null")
+          logger.trace("Replacing empty value with null")
           value = null
         }
         return value
@@ -345,10 +340,10 @@ class Config(private val adapter: ConfigStorageAdapter, val hostServices: HostSe
         val config = this@Config
         val value = if (isSecret) config.getSecret(base, key) else config.getValue(base, key)
         return if (value == null || value.trim { it <= ' ' } == "") {
-          logFinest("Returning default for missing or empty value: $key")
+          logger.trace { "Returning default for missing or empty value: $key" }
           defaultValue
         } else {
-          logFinest("Getting bool from string: '$value'")
+          logger.trace { "Getting bool from string: '$value'" }
           value.toBoolean()
         }
       }

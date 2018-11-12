@@ -4,6 +4,7 @@ import com.github.bjoernpetersen.jmusicbot.config.Config
 import com.github.bjoernpetersen.jmusicbot.platform.Platform
 import com.github.bjoernpetersen.jmusicbot.playback.PlaybackFactory
 import com.github.bjoernpetersen.jmusicbot.playback.PlaybackFactoryLoader
+import mu.KotlinLogging
 import java.io.Closeable
 import java.io.File
 import java.io.IOException
@@ -17,10 +18,11 @@ typealias PlaybackFactoryWrapperFactory = (PlaybackFactory) -> PlaybackFactoryWr
  * @param wrapperFactory a factory supplying a [PlaybackFactoryWrapper] for a [PlaybackFactory]
  */
 class PlaybackFactoryManager(config: Config, private val wrapperFactory: PlaybackFactoryWrapperFactory) :
-    Loggable, Closeable {
+    Closeable {
 
   private val factories: MutableSet<PlaybackFactoryWrapper> = LinkedHashSet()
   private val factoryByType: MutableMap<Class<out PlaybackFactory>, PlaybackFactoryWrapper> = LinkedHashMap()
+  private val logger = KotlinLogging.logger {}
 
   /**
    * Returns an immutable Set of all PlaybackFactories.
@@ -61,7 +63,8 @@ class PlaybackFactoryManager(config: Config, private val wrapperFactory: Playbac
    * @param factoryType a PlaybackFactory marker interface
    * @return whether an implementing factory is active
    */
-  fun hasFactory(factoryType: Class<out PlaybackFactory>): Boolean = factoryByType[factoryType]?.isActive == true
+  fun hasFactory(factoryType: Class<out PlaybackFactory>): Boolean =
+      factoryByType[factoryType]?.isActive == true
 
   /**
    * Completely closes all registered playback factories.
@@ -79,9 +82,9 @@ class PlaybackFactoryManager(config: Config, private val wrapperFactory: Playbac
       try {
         storeFactoryForValidBases(factory)
       } catch (e: InvalidFactoryException) {
-        logInfo(e, "Could not load factory " + factory.readableName)
+        logger.warn(e) { "Could not load factory " + factory.readableName }
       } catch (e: InitializationException) {
-        logInfo(e, "Could not load factory " + factory.readableName)
+        logger.warn(e) { "Could not load factory " + factory.readableName }
       }
     }
 
@@ -89,14 +92,14 @@ class PlaybackFactoryManager(config: Config, private val wrapperFactory: Playbac
     for (loader in PluginLoader(pluginFolder, PlaybackFactoryLoader::class.java).load()) {
       val factory = loader.load(platform)
       if (factory == null) {
-        logInfo("Platform not supported by PlaybackFactory %s", loader.readableName)
+        logger.warn { "Platform not supported by PlaybackFactory ${loader.readableName}" }
       } else {
         try {
           storeFactoryForValidBases(factory)
         } catch (e: InvalidFactoryException) {
-          logInfo(e, "Could not load factory %s", factory.readableName)
+          logger.warn(e) { "Could not load factory " + factory.readableName }
         } catch (e: InitializationException) {
-          logInfo(e, "Could not load factory %s", factory.readableName)
+          logger.warn(e) { "Could not load factory " + factory.readableName }
         }
       }
     }
@@ -107,7 +110,7 @@ class PlaybackFactoryManager(config: Config, private val wrapperFactory: Playbac
     val validBases = LinkedList<Class<out PlaybackFactory>>()
     for (base in factory.bases) {
       if (!base.isAssignableFrom(factory.javaClass)) {
-        logWarning("Bad base '%s' for PlaybackFactory: %s", base, factory)
+        logger.warn { "Bad base '$base' for PlaybackFactory: $factory" }
         continue
       }
       validBases.add(base)
@@ -138,7 +141,7 @@ class PlaybackFactoryManager(config: Config, private val wrapperFactory: Playbac
         when (result) {
           Configurator.Result.CANCEL -> throw CancelException("User cancelled configuration")
           Configurator.Result.DISABLE -> {
-            logInfo("Deactivating unconfigured plugin " + factory.readableName)
+            logger.warn { "Deactivating unconfigured plugin " + factory.readableName }
             unconfigured.add(factory)
             break@wh // I feel dirty
           }
@@ -169,7 +172,7 @@ class PlaybackFactoryManager(config: Config, private val wrapperFactory: Playbac
         initStateWriter.begin(factory)
         factory.initialize(initStateWriter)
       } catch (e: InitializationException) {
-        logWarning(e, "Could not initialize PlaybackFactory '%s'", factory.readableName)
+        logger.warn(e) { "Could not initialize PlaybackFactory '${factory.readableName}'" }
         defective.add(factory)
       } catch (e: InterruptedException) {
         initStateWriter.state("Interrupted during PlaybackFactory initialization, closing...")

@@ -14,7 +14,7 @@ import com.github.bjoernpetersen.jmusicbot.provider.Provider;
  * this case, the {@link #DUMMY} implementation may be used.</p>
  */
 @FunctionalInterface
-public interface SongLoader extends Loggable {
+public interface SongLoader {
 
   /**
    * A SongLoader implementation that does nothing

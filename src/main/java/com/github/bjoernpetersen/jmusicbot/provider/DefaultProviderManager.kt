@@ -1,17 +1,29 @@
 package com.github.bjoernpetersen.jmusicbot.provider
 
-import com.github.bjoernpetersen.jmusicbot.*
+import com.github.bjoernpetersen.jmusicbot.CancelException
+import com.github.bjoernpetersen.jmusicbot.Configurator
+import com.github.bjoernpetersen.jmusicbot.InitStateWriter
+import com.github.bjoernpetersen.jmusicbot.InitializationException
+import com.github.bjoernpetersen.jmusicbot.PlaybackFactoryManager
+import com.github.bjoernpetersen.jmusicbot.Plugin
+import com.github.bjoernpetersen.jmusicbot.PluginLoader
+import com.github.bjoernpetersen.jmusicbot.PluginWrapper
+import com.github.bjoernpetersen.jmusicbot.ProviderWrapper
+import com.github.bjoernpetersen.jmusicbot.SuggesterWrapper
 import com.github.bjoernpetersen.jmusicbot.config.Config
 import com.github.bjoernpetersen.jmusicbot.platform.Platform
 import com.github.bjoernpetersen.jmusicbot.playback.PlaybackFactory
+import com.github.bjoernpetersen.jmusicbot.qualifiedReadableName
+import mu.KotlinLogging
 import java.io.File
 import java.io.IOException
 import java.util.*
 import kotlin.collections.HashMap
 
 internal class DefaultProviderManager(private val providerWrapperFactory: ProviderManager.ProviderWrapperFactory,
-    private val suggesterWrapperFactory: ProviderManager.SuggesterWrapperFactory) : ProviderManager, Loggable {
+    private val suggesterWrapperFactory: ProviderManager.SuggesterWrapperFactory) : ProviderManager {
 
+  private val logger = KotlinLogging.logger {}
   private val providerById: MutableMap<String, ProviderWrapper> = HashMap(64)
   private val providerByBase: MutableMap<Class<out Provider>, Provider> = HashMap(64)
   private val suggesterById: MutableMap<String, SuggesterWrapper> = HashMap(64)
@@ -31,7 +43,7 @@ internal class DefaultProviderManager(private val providerWrapperFactory: Provid
   private fun addProvider(provider: Provider) {
     val baseClass = provider.baseClass
     if (!baseClass.isInstance(provider)) {
-      logInfo("Provider ${provider.readableName} does not implement its base class")
+      logger.info { "Provider ${provider.readableName} does not implement its base class" }
       return
     }
     providerByBase[baseClass] = provider
@@ -49,7 +61,7 @@ internal class DefaultProviderManager(private val providerWrapperFactory: Provid
       if (provider != null) {
         addProvider(provider)
       } else {
-        logInfo("ProviderLoader ${providerLoader.readableName} does not support platform.")
+        logger.info { "ProviderLoader ${providerLoader.readableName} does not support platform." }
       }
     }
   }
@@ -132,10 +144,10 @@ internal class DefaultProviderManager(private val providerWrapperFactory: Provid
               val dependencies = checkDependencies(it)
               it.initialize(initStateWriter, dependencies)
             } catch (e: InitializationException) {
-              logInfo(e, "Could not initialize Provider ${it.readableName}")
+              logger.error(e) { "Could not initialize Provider ${it.readableName}" }
               removeProvider(it)
             } catch (e: RuntimeException) {
-              logInfo(e, "Unexpected error initializing Provider ${it.readableName}")
+              logger.error(e) { "Unexpected error initializing Provider ${it.readableName}" }
               removeProvider(it)
             } catch (e: InterruptedException) {
               initStateWriter.state("Interrupted during initialization. Closing...")
@@ -175,10 +187,10 @@ internal class DefaultProviderManager(private val providerWrapperFactory: Provid
               suggestersByProvider.computeIfAbsent(it, { LinkedList() }).add(s)
             }
           } catch (e: InitializationException) {
-            logInfo(e, "Could not initialize Suggester ${s.readableName}")
+            logger.error(e) { "Could not initialize Suggester ${s.readableName}" }
             removeSuggester(s)
           } catch (e: RuntimeException) {
-            logInfo(e, "Unexpected error initializing Suggester ${s.readableName}")
+            logger.error(e) { "Unexpected error initializing Suggester ${s.readableName}" }
             removeSuggester(s)
           } catch (e: InterruptedException) {
             initStateWriter.state("Interrupted during initialization. Closing...")
@@ -235,7 +247,7 @@ internal class DefaultProviderManager(private val providerWrapperFactory: Provid
         plugin.destructConfigEntries()
       }
     } catch (e: IOException) {
-      logSevere(e, "Error closing plugin %s", plugin.readableName)
+      logger.error(e) { "Error closing plugin ${plugin.readableName}" }
     }
   }
 
