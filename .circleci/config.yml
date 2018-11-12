@@ -2,43 +2,26 @@ version: 2
 jobs:
   build:
     docker:
-    - image: maven:3.5.0-jdk-8
+    - image: circleci/openjdk:8-jdk
     working_directory: ~/app
     steps:
     - checkout
+    - run: chmod +x gradlew
 
+      # Download and cache dependencies
     - restore_cache:
         keys:
-        - v1-{{ checksum "pom.xml" }}
-        - v1-
-        paths:
-        - ~/.m2
+        - v2-dependencies-{{ checksum "build.gradle.kts" }}
+        # fallback to using the latest cache if no exact match is found
+        - v2-dependencies-
 
-    - run:
-        command: mvn test
-        name: Running unit tests
-        when: always
-    - deploy:
-        command: |
-          mkdir -p target/junit/
-          find . -type f -regex ".*/target/surefire-reports/.*xml" -exec cp {} target/junit/ \;
-        name: Copy test artifacts
-    - store_test_results:
-        path: target/junit/
-    - store_artifacts:
-        path: target/junit/
-
-    - deploy:
-        command: mvn site -P report
-        name: Building reports
-    - store_artifacts:
-        path: target/site/
-    - store_artifacts:
-        path: target/dokka/
-    - store_artifacts:
-        path: target/dokkaJavadoc/
+    - run: ./gradlew dependencies
 
     - save_cache:
-        key: v1-{{ checksum "pom.xml" }}
         paths:
-        - ~/.m2
+        - ~/.gradle
+        key: v2-dependencies-{{ checksum "build.gradle.kts" }}
+
+    - run: ./gradlew test
+    - store_test_results:
+        path: build/test-results

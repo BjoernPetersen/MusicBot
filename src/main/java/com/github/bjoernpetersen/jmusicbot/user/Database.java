@@ -1,7 +1,6 @@
 package com.github.bjoernpetersen.jmusicbot.user;
 
 import com.google.common.base.Splitter;
-import com.google.common.collect.Streams;
 import java.io.Closeable;
 import java.io.IOException;
 import java.sql.Connection;
@@ -16,6 +15,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 import javax.annotation.Nonnull;
 
 final class Database implements Closeable {
@@ -103,9 +103,10 @@ final class Database implements Closeable {
 
   @Nonnull
   private Stream<Permission> getPermissions(String permissionString) {
-    return Streams.stream(Splitter.on(',')
+    return StreamSupport.stream(Splitter.on(',')
         .omitEmptyStrings()
-        .split(permissionString))
+        .split(permissionString)
+        .spliterator(), false)
         .map(Permission::matchByLabel);
   }
 

@@ -11,22 +11,15 @@ import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestInstance
 import java.io.IOException
 
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 internal class PluginVersionTest {
 
-  private lateinit var botVersion: Version
-  private lateinit var builder: Builder
-
-  @BeforeEach
-  fun initBuilder() {
-    builder = Builder(Config(DummyConfigStorageAdapter(), TestHostServices()))
-  }
-
-  @BeforeEach
-  fun initBotVersion() {
-    botVersion = MusicBot.getVersion()
-  }
+  private val botVersion: Version = MusicBot.getVersion()
+  private val builder: Builder =
+    Builder(Config(DummyConfigStorageAdapter(), TestHostServices()))
 
   @Disabled("Does not work for MusicBot 0.x.x")
   @Test
