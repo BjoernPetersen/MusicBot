@@ -4,7 +4,6 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     kotlin("jvm") version Version.KOTLIN
-    java
     id("org.jetbrains.dokka") version Version.DOKKA
     idea
 
@@ -81,10 +80,6 @@ tasks {
     }
 }
 
-val test by tasks.getting(Test::class) {
-    useJUnitPlatform()
-}
-
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
     implementation(kotlin("reflect"))
@@ -98,7 +93,7 @@ dependencies {
     implementation(group = "org.xerial", name = "sqlite-jdbc", version = Version.SQLITE)
 
     implementation(group = "org.mindrot", name = "jbcrypt", version = Version.JBCRYPT)
-    api(
+    implementation(
         group = "io.jsonwebtoken",
         name = "jjwt",
         version = Version.JJWT)
