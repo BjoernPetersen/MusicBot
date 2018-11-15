@@ -43,7 +43,7 @@ class Config internal constructor(
         abstract fun checkError(): String?
     }
 
-    inner class StringEntry(
+    inner class StringEntry @JvmOverloads constructor(
         key: String,
         description: String,
         private val configChecker: ConfigChecker<String>,
@@ -65,7 +65,7 @@ class Config internal constructor(
         override fun checkError(): String? = configChecker(getWithoutDefault())
     }
 
-    open inner class SerializedEntry<T>(
+    open inner class SerializedEntry<T> @JvmOverloads constructor(
         key: String,
         description: String,
         private val serializer: ConfigSerializer<T>,
