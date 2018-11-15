@@ -1,5 +1,5 @@
 object Version {
-    const val KOTLIN = "1.3.0"
+    const val KOTLIN = "1.3.10"
     const val DOKKA = "0.9.17"
     const val KOTLIN_LOGGING = "1.6.10"
     const val SPOTBUGS = "1.6.3"
