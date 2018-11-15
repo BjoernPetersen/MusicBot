@@ -3,7 +3,6 @@ object Version {
     const val DOKKA = "0.9.17"
     const val KOTLIN_LOGGING = "1.6.10"
     const val SPOTBUGS = "1.6.3"
-    const val BINTRAY = "1.8.4"
 
     const val GUAVA = "23.0"
     const val GUICE = "4.2.1"
