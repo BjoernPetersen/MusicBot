@@ -17,14 +17,20 @@ To use this library, simply add the following to your pom.xml:
 </dependency>
 ```
 
+Or in Gradle:
+```groovy
+dependencies {
+    // ...
+    implementation('com.github.bjoernpetersen:musicbot:$musicbotVersion')
+}
+```
+
 ### Implementations
 For the JMusicBot to run properly,
 this library must be wrapped by an implementation for a specific OS.
 
 Implementations provide a way to configure the bot before launching it and
 implement various OS dependent interfaces.
-If you want to implement your own wrapper, the <code>MusicBot.Builder</code> class
-is a good starting point.
 
 ### Plugins
 TODO

@@ -87,6 +87,7 @@ val test by tasks.getting(Test::class) {
 
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
+    implementation(kotlin("reflect"))
     implementation(
         group = "io.github.microutils",
         name = "kotlin-logging",
@@ -120,7 +121,6 @@ dependencies {
         group = "name.falgout.jeffrey.testing.junit5",
         name = "guice-extension",
         version = Version.JUNIT_GUICE)
-    testImplementation(group = "org.mockito", name = "mockito-core", version = Version.MOCKITO)
     testImplementation(group = "io.mockk", name = "mockk", version = Version.MOCK_K)
     testImplementation(group = "org.assertj", name = "assertj-core", version = Version.ASSERT_J)
 }
