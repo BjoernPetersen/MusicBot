@@ -30,7 +30,7 @@ class PluginModule(private val pluginFinder: PluginFinder) : AbstractModule() {
 
     override fun configure() {
         configureDefaults()
-        configureAll(Plugin::class, pluginFinder.plugins)
+        configureAll(Plugin::class, pluginFinder.genericPlugins)
         configureAll(PlaybackFactory::class, pluginFinder.playbackFactories)
         configureAll(Provider::class, pluginFinder.providers)
         configureAll(Suggester::class, pluginFinder.suggesters)

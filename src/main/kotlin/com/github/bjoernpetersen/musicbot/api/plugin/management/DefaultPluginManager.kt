@@ -7,6 +7,7 @@ import com.github.bjoernpetersen.musicbot.api.config.ConfigSerializer
 import com.github.bjoernpetersen.musicbot.api.config.SerializationException
 import com.github.bjoernpetersen.musicbot.api.config.UiNode
 import com.github.bjoernpetersen.musicbot.spi.plugin.Bases
+import com.github.bjoernpetersen.musicbot.spi.plugin.GenericPlugin
 import com.github.bjoernpetersen.musicbot.spi.plugin.PlaybackFactory
 import com.github.bjoernpetersen.musicbot.spi.plugin.Plugin
 import com.github.bjoernpetersen.musicbot.spi.plugin.Provider
@@ -20,12 +21,12 @@ import kotlin.reflect.full.findAnnotation
 
 class DefaultPluginManager(
     state: Config,
-    override val plugins: List<Plugin>,
+    override val genericPlugins: List<GenericPlugin>,
     override val playbackFactories: List<PlaybackFactory>,
     override val providers: List<Provider>,
     override val suggesters: List<Suggester>) : PluginManager {
 
-    private val allPlugins = plugins + playbackFactories + providers + suggesters
+    private val allPlugins = genericPlugins + playbackFactories + providers + suggesters
     private val basesByPlugin: Map<Plugin, Set<KClass<out Plugin>>> = allPlugins.asSequence()
         .associateWith(::findBases)
     private val allBases: Set<KClass<out Plugin>> = basesByPlugin.values.flatMapTo(HashSet()) { it }
@@ -73,7 +74,7 @@ class DefaultPluginManager(
 
     @Throws(ConfigurationException::class)
     override fun finish(): PluginFinder {
-        val plugins: List<Plugin> = plugins.filter(::isEnabled)
+        val genericPlugins: List<GenericPlugin> = genericPlugins.filter(::isEnabled)
         val playbackFactories: List<PlaybackFactory> = playbackFactories.filter(::isEnabled)
         val providers: List<Provider> = providers.filter(::isEnabled)
         val suggesters: List<Suggester> = suggesters.filter(::isEnabled)
@@ -89,7 +90,7 @@ class DefaultPluginManager(
                 throw ConfigurationException("Not enabled, but default: ${plugin.name}")
             key to plugin
         }.toMap()
-        return PluginFinder(defaultByBase, plugins, playbackFactories, providers, suggesters)
+        return PluginFinder(defaultByBase, genericPlugins, playbackFactories, providers, suggesters)
     }
 
     private fun Config.disabledEntry(plugin: Plugin): Config.BooleanEntry {
@@ -126,7 +127,7 @@ class DefaultPluginManager(
         fun loadPlugins(pluginFolder: File): Plugins {
             val loader = PluginLoader(pluginFolder)
             return Plugins(
-                generic = loader.load(Plugin::class).toList(),
+                generic = loader.load(GenericPlugin::class).toList(),
                 playbackFactories = loader.load(PlaybackFactory::class).toList(),
                 providers = loader.load(Provider::class).toList(),
                 suggesters = loader.load(Suggester::class).toList())
@@ -140,7 +141,7 @@ private fun findBases(plugin: Plugin): Set<KClass<out Plugin>> {
 }
 
 data class Plugins(
-    val generic: List<Plugin>,
+    val generic: List<GenericPlugin>,
     val playbackFactories: List<PlaybackFactory>,
     val providers: List<Provider>,
     val suggesters: List<Suggester>)

@@ -1,5 +1,6 @@
 package com.github.bjoernpetersen.musicbot.spi.plugin.management
 
+import com.github.bjoernpetersen.musicbot.spi.plugin.GenericPlugin
 import com.github.bjoernpetersen.musicbot.spi.plugin.PlaybackFactory
 import com.github.bjoernpetersen.musicbot.spi.plugin.Plugin
 import com.github.bjoernpetersen.musicbot.spi.plugin.Provider
@@ -11,7 +12,7 @@ import kotlin.reflect.KClass
  */
 class PluginFinder(
     private val defaultByBase: Map<KClass<out Plugin>, Plugin>,
-    val plugins: List<Plugin>,
+    val genericPlugins: List<GenericPlugin>,
     val playbackFactories: List<PlaybackFactory>,
     val providers: List<Provider>,
     val suggesters: List<Suggester>) {
