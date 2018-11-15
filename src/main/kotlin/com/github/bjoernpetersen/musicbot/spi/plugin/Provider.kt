@@ -90,4 +90,36 @@ class NoSuchSongException : Exception {
      */
     constructor(id: String, providerBase: KClass<out Provider>) :
         super("Provider ${providerBase.qualifiedName} could not find song with ID $id")
+
+    /**
+     * Specify the ID of the missing song and the most specific base of the failed provider.
+     * @param id a song ID
+     * @param providerBase the most specific base of the throwing provider
+     */
+    constructor(id: String, providerBase: Class<out Provider>) : this(id, providerBase.kotlin)
+
+    /**
+     * Specify the ID of the missing song.
+     * @param id a song ID
+     * @param cause the cause for this exception
+     */
+    constructor(id: String, cause: Throwable) : super("Could not find song with ID $id", cause)
+
+    /**
+     * Specify the ID of the missing song and the most specific base of the failed provider.
+     * @param id a song ID
+     * @param providerBase the most specific base of the throwing provider
+     * @param cause the cause for this exception
+     */
+    constructor(id: String, providerBase: KClass<out Provider>, cause: Throwable) :
+        super("Provider ${providerBase.qualifiedName} could not find song with ID $id", cause)
+
+    /**
+     * Specify the ID of the missing song and the most specific base of the failed provider.
+     * @param id a song ID
+     * @param providerBase the most specific base of the throwing provider
+     * @param cause the cause for this exception
+     */
+    constructor(id: String, providerBase: Class<out Provider>, cause: Throwable) :
+        this(id, providerBase.kotlin, cause)
 }
