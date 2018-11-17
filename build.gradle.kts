@@ -104,6 +104,7 @@ dependencies {
 
     compileOnly(group = "com.google.android", name = "android", version = Version.ANDROID)
 
+    testImplementation(group = "org.slf4j", name = "slf4j-simple", version = Version.SLF4J)
     testImplementation(
         group = "org.junit.jupiter",
         name = "junit-jupiter-api",

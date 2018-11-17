@@ -17,10 +17,10 @@ object Version {
 
     const val ANDROID = "4.1.1.4"
 
+    const val SLF4J = "1.7.25"
     const val JUNIT = "5.3.1"
     const val JUNIT_PLATFORM = "1.3.1"
     const val JUNIT_GUICE = "1.1.0"
     const val MOCK_K = "1.8.10.kotlin13"
     const val ASSERT_J = "3.11.1"
-
 }
