@@ -1,15 +1,15 @@
 package com.github.bjoernpetersen.musicbot.spi.plugin
 
 import com.github.bjoernpetersen.musicbot.api.config.Config
-import com.github.bjoernpetersen.musicbot.spi.config.Named
 import com.github.bjoernpetersen.musicbot.spi.plugin.management.InitStateWriter
 import java.io.IOException
 
-interface Plugin : Named {
+interface Plugin {
+
     /**
      * An arbitrary plugin name. Keep it short, but descriptive.
      */
-    override val name: String
+    val name: String
 
     fun createConfigEntries(config: Config): List<Config.Entry<*>>
     fun createSecretEntries(secrets: Config): List<Config.Entry<*>>
