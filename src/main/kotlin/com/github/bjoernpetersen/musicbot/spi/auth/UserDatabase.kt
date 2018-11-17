@@ -4,7 +4,7 @@ import com.github.bjoernpetersen.musicbot.api.auth.FullUser
 import com.github.bjoernpetersen.musicbot.api.auth.Permission
 
 interface UserDatabase {
-    fun findUser(id: String): FullUser?
+    fun findUser(name: String): FullUser?
 
     fun getUsers(): Set<FullUser>
 
@@ -13,9 +13,9 @@ interface UserDatabase {
 
     fun updatePassword(user: FullUser)
 
-    fun updatePermissions(id: String, permissions: Set<Permission>)
+    fun updatePermissions(name: String, permissions: Set<Permission>)
 
-    fun deleteUser(id: String)
+    fun deleteUser(name: String)
 
     fun close()
 }

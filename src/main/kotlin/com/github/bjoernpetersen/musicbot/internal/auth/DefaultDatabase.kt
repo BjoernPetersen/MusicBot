@@ -8,6 +8,7 @@ import com.github.bjoernpetersen.musicbot.spi.auth.UserNotFoundException
 import com.google.common.base.Splitter
 import java.sql.DriverManager
 import java.sql.SQLException
+import java.util.*
 
 internal class DefaultDatabase(databaseUrl: String) : UserDatabase {
     private val connection = DriverManager.getConnection(databaseUrl)
@@ -39,23 +40,24 @@ internal class DefaultDatabase(databaseUrl: String) : UserDatabase {
         .split(permissionString)
         .mapTo(HashSet()) { Permission.matchByLabel(it) }
 
-    override fun findUser(id: String): FullUser? {
+    override fun findUser(name: String): FullUser? {
+        val id = name.toLowerCase(Locale.US)
         synchronized(getUser) {
             try {
                 getUser.clearParameters()
                 getUser.setString(1, id)
-                var name: String
+                var dbName: String
                 var hash: String
                 var permissionString: String
                 getUser.executeQuery().use { resultSet ->
                     if (!resultSet.next()) {
                         throw UserNotFoundException("No such user: $id")
                     }
-                    name = resultSet.getString("name")
+                    dbName = resultSet.getString("name")
                     hash = resultSet.getString("password")
                     permissionString = resultSet.getString("permissions")
                     val permissions = getPermissions(permissionString)
-                    return FullUser(name, id, permissions, hash)
+                    return FullUser(dbName, permissions, hash)
                 }
             } catch (e: SQLException) {
                 throw UserNotFoundException(e)
@@ -68,12 +70,11 @@ internal class DefaultDatabase(databaseUrl: String) : UserDatabase {
             getUsers.executeQuery().use { resultSet ->
                 val users = HashSet<FullUser>()
                 while (resultSet.next()) {
-                    val id = resultSet.getString("id")
                     val name = resultSet.getString("name")
                     val hash = resultSet.getString("password")
                     val permissionString = resultSet.getString("permissions")
                     val permissions = getPermissions(permissionString)
-                    users.add(FullUser(name, id, permissions, hash))
+                    users.add(FullUser(name, permissions, hash))
                 }
 
                 return users
@@ -82,10 +83,11 @@ internal class DefaultDatabase(databaseUrl: String) : UserDatabase {
     }
 
     override fun insertUser(user: FullUser) {
+        val id = user.name.toLowerCase(Locale.US)
         synchronized(createUser) {
             try {
                 createUser.clearParameters()
-                createUser.setString(1, user.id)
+                createUser.setString(1, id)
                 createUser.setString(2, user.name)
                 createUser.setString(3, user.hash)
                 createUser.setString(4, "")
@@ -97,15 +99,17 @@ internal class DefaultDatabase(databaseUrl: String) : UserDatabase {
     }
 
     override fun updatePassword(user: FullUser) {
+        val id = user.name.toLowerCase(Locale.US)
         synchronized(updatePassword) {
             updatePassword.clearParameters()
             updatePassword.setString(1, user.hash)
-            updatePassword.setString(2, user.id)
+            updatePassword.setString(2, id)
             updatePassword.execute()
         }
     }
 
-    override fun updatePermissions(id: String, permissions: Set<Permission>) {
+    override fun updatePermissions(name: String, permissions: Set<Permission>) {
+        val id = name.toLowerCase(Locale.US)
         synchronized(updatePermissions) {
             updatePermissions.clearParameters()
             val permissionString = permissions.joinToString(",") { it.label }
@@ -115,7 +119,8 @@ internal class DefaultDatabase(databaseUrl: String) : UserDatabase {
         }
     }
 
-    override fun deleteUser(id: String) {
+    override fun deleteUser(name: String) {
+        val id = name.toLowerCase(Locale.US)
         synchronized(deleteUser) {
             deleteUser.clearParameters()
             deleteUser.setString(1, id)

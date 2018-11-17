@@ -34,7 +34,7 @@ class UserManager @Inject constructor(
     fun createTemporaryUser(name: String, id: String): User {
         if (BotUser.name.equals(name, ignoreCase = true))
             throw DuplicateUserException("Invalid username")
-        if (BotUser.id == id) throw DuplicateUserException("Invalid ID")
+        if (BotUser.name == name) throw DuplicateUserException("Invalid ID")
 
         try {
             // TODO create "hasUser" method in Database
@@ -42,20 +42,20 @@ class UserManager @Inject constructor(
             throw DuplicateUserException("User already exists: $name")
         } catch (expected: UserNotFoundException) {
             val user = GuestUser(name, id)
-            temporaryUsers[user.id] = user
+            temporaryUsers[user.name.toLowerCase(Locale.US)] = user
             return user
         }
 
     }
 
     @Throws(UserNotFoundException::class)
-    fun getUser(id: String): User {
-        if (BotUser.id == id) {
+    fun getUser(name: String): User {
+        if (BotUser.name == name) {
             return BotUser
         }
-        return temporaryUsers[id]
-            ?: userDatabase.findUser(id)
-            ?: throw UserNotFoundException("Could not find user: $id")
+        return temporaryUsers[name.toLowerCase(Locale.US)]
+            ?: userDatabase.findUser(name)
+            ?: throw UserNotFoundException("Could not find user: $name")
     }
 
     /**
@@ -77,10 +77,10 @@ class UserManager @Inject constructor(
         }
 
         val hash = hash(password)
-        return FullUser(user.name, user.id, user.permissions, hash).also {
+        return FullUser(user.name, user.permissions, hash).also {
             if (user is GuestUser) {
                 userDatabase.insertUser(it)
-                temporaryUsers.remove(user.id)
+                temporaryUsers.remove(user.name.toLowerCase(Locale.US))
             } else {
                 userDatabase.updatePassword(it)
             }
@@ -92,13 +92,13 @@ class UserManager @Inject constructor(
         if (user is GuestUser) {
             throw IllegalArgumentException()
         }
-        userDatabase.updatePermissions(user.id, permissions)
-        return userDatabase.findUser(user.id) ?: throw SQLException()
+        userDatabase.updatePermissions(user.name, permissions)
+        return userDatabase.findUser(user.name) ?: throw SQLException()
     }
 
     @Throws(SQLException::class)
     fun deleteUser(user: FullUser) {
-        userDatabase.deleteUser(user.id)
+        userDatabase.deleteUser(user.name)
     }
 
     /**
@@ -119,7 +119,7 @@ class UserManager @Inject constructor(
             getSignatureKey()
         }
         val builder = Jwts.builder()
-            .setSubject(user.id)
+            .setSubject(user.name)
             .setIssuedAt(Date())
             .signWith(SignatureAlgorithm.HS512, signatureKey)
             .setExpiration(Date.from(Instant.now().plus(Period.ofDays(7))))
@@ -170,5 +170,4 @@ class UserManager @Inject constructor(
         val encoded = Base64.getEncoder().encode(MacSigner.generateKey().encoded)
         return String(encoded, StandardCharsets.UTF_8)
     }
-
 }
