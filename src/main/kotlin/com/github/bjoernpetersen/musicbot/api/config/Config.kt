@@ -12,7 +12,10 @@ class Config internal constructor(
     private val entries: MutableMap<String, String> = adapter.load(scope).toMutableMap()
 
     private fun getValue(key: String): String? {
-        return entries[key]
+        return entries[key]?.let {
+            if (it.isBlank()) null
+            else it
+        }
     }
 
     // TODO listeners
@@ -62,7 +65,7 @@ class Config internal constructor(
             setValue(key, value)
         }
 
-        override fun checkError(): String? = configChecker(getWithoutDefault())
+        override fun checkError(): String? = configChecker(get())
     }
 
     open inner class SerializedEntry<T> @JvmOverloads constructor(

@@ -2,7 +2,9 @@ package com.github.bjoernpetersen.musicbot.spi.config
 
 /**
  * Checks whether the given value is valid.
- * The default value will never be passed to the checker, even if no other value has been set.
+ *
+ * Note that, if you set a default value for the config entry, the input value for the checker will
+ * never be null (or blank, if it's a String).
  *
  * @return a warning message, or null
  */
