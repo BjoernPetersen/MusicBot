@@ -102,6 +102,7 @@ dependencies {
     api(group = "io.reactivex.rxjava2", name = "rxjava", version = Version.RX_JAVA)
     api(group = "io.reactivex.rxjava2", name = "rxkotlin", version = Version.RX_KOTLIN)
 
+    // TODO remove
     compileOnly(group = "com.google.android", name = "android", version = Version.ANDROID)
 
     testImplementation(group = "org.slf4j", name = "slf4j-simple", version = Version.SLF4J)
