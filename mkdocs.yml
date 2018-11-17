@@ -1,0 +1,5 @@
+site_name: JMusicBot
+markdown_extensions:
+  - toc:
+      permalink: True
+strict: True

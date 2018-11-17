@@ -39,3 +39,6 @@ buildNumber.properties
 build/
 out/
 gradle.properties
+
+# MkDocs #
+site/
