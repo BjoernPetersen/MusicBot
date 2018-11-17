@@ -1,5 +1,7 @@
 package com.github.bjoernpetersen.musicbot.spi.player
 
+import com.github.bjoernpetersen.musicbot.api.player.QueueEntry
+
 interface SongQueue {
     val isEmpty: Boolean
     fun pop(): QueueEntry?

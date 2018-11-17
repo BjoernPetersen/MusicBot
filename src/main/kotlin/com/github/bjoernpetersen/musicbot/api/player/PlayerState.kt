@@ -1,4 +1,4 @@
-package com.github.bjoernpetersen.musicbot.spi.player
+package com.github.bjoernpetersen.musicbot.api.player
 
 /**
  * Represents the state of the player. All possible implementations can be found in this module.

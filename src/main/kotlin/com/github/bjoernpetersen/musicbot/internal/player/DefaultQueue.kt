@@ -2,7 +2,7 @@ package com.github.bjoernpetersen.musicbot.internal.player
 
 import com.github.bjoernpetersen.musicbot.api.Song
 import com.github.bjoernpetersen.musicbot.spi.player.QueueChangeListener
-import com.github.bjoernpetersen.musicbot.spi.player.QueueEntry
+import com.github.bjoernpetersen.musicbot.api.player.QueueEntry
 import com.github.bjoernpetersen.musicbot.spi.player.SongQueue
 import java.util.*
 

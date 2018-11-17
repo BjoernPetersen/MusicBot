@@ -1,4 +1,4 @@
-package com.github.bjoernpetersen.musicbot.spi.player
+package com.github.bjoernpetersen.musicbot.api.player
 
 import com.github.bjoernpetersen.musicbot.api.Song
 import com.github.bjoernpetersen.musicbot.api.auth.User
