@@ -100,13 +100,15 @@ class DefaultPluginManager(
 
     private fun Config.defaultEntry(base: KClass<out Plugin>): Config.SerializedEntry<Plugin> {
         fun defaultPluginEntry(): UiNode<Plugin> {
-            return ChoiceBox({
-                basesByPlugin.asSequence()
-                    .filter { it.value.contains(base) }
-                    .map { it.key }
-                    .filter { isEnabled(it) }
-                    .toList()
-            })
+            return ChoiceBox(
+                { it.name },
+                {
+                    basesByPlugin.asSequence()
+                        .filter { it.value.contains(base) }
+                        .map { it.key }
+                        .filter { isEnabled(it) }
+                        .toList()
+                })
         }
 
         val key = "${base.qualifiedName!!}.default"
