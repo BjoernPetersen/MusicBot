@@ -11,6 +11,7 @@ object DependencyFinder {
             .map { it.key }
             .map { it.typeLiteral.rawType }
             .map { it as Class<out Any> }
+            .filter { Plugin::class.java.isAssignableFrom(it) }
             .map { it.kotlin }
             .toSet()
     }
