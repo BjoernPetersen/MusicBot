@@ -11,8 +11,8 @@ interface Plugin {
     val name: String
 
     fun createConfigEntries(config: Config): List<Config.Entry<*>>
-    fun createSecretEntries(config: Config): List<Config.Entry<*>>
-    fun createStateEntries(config: Config)
+    fun createSecretEntries(secrets: Config): List<Config.Entry<*>>
+    fun createStateEntries(state: Config)
 
     @Throws(InitializationException::class)
     fun initialize(initStateWriter: InitStateWriter)
