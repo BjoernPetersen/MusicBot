@@ -38,7 +38,7 @@ class Config internal constructor(
     abstract inner class Entry<T> internal constructor(
         val key: String,
         val description: String,
-        val uiNode: UiNode<T>?) {
+        val uiNode: UiNode<in T>?) {
 
         abstract fun getWithoutDefault(): T?
         abstract fun get(): T?
@@ -50,7 +50,7 @@ class Config internal constructor(
         key: String,
         description: String,
         private val configChecker: ConfigChecker<String>,
-        uiNode: UiNode<String>? = null,
+        uiNode: UiNode<in String>? = null,
         private val default: String? = null) : Entry<String>(key, description, uiNode) {
 
         override fun getWithoutDefault(): String? {
@@ -73,7 +73,7 @@ class Config internal constructor(
         description: String,
         private val serializer: ConfigSerializer<T>,
         private val configChecker: ConfigChecker<T>,
-        uiNode: UiNode<T>? = null,
+        uiNode: UiNode<in T>? = null,
         private val default: T? = null) : Entry<T>(key, description, uiNode) {
 
         override fun getWithoutDefault(): T? = try {
