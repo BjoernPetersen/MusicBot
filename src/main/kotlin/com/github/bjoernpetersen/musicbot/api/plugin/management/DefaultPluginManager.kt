@@ -4,6 +4,7 @@ import com.github.bjoernpetersen.musicbot.api.PluginLoader
 import com.github.bjoernpetersen.musicbot.api.config.ChoiceBox
 import com.github.bjoernpetersen.musicbot.api.config.Config
 import com.github.bjoernpetersen.musicbot.api.config.ConfigSerializer
+import com.github.bjoernpetersen.musicbot.api.config.NonnullConfigChecker
 import com.github.bjoernpetersen.musicbot.api.config.SerializationException
 import com.github.bjoernpetersen.musicbot.api.config.UiNode
 import com.github.bjoernpetersen.musicbot.spi.plugin.Bases
@@ -15,6 +16,7 @@ import com.github.bjoernpetersen.musicbot.spi.plugin.Suggester
 import com.github.bjoernpetersen.musicbot.spi.plugin.management.ConfigurationException
 import com.github.bjoernpetersen.musicbot.spi.plugin.management.PluginFinder
 import com.github.bjoernpetersen.musicbot.spi.plugin.management.PluginManager
+import mu.KotlinLogging
 import java.io.File
 import kotlin.reflect.KClass
 import kotlin.reflect.full.findAnnotation
@@ -26,10 +28,19 @@ class DefaultPluginManager(
     override val providers: List<Provider>,
     override val suggesters: List<Suggester>) : PluginManager {
 
+    private val logger = KotlinLogging.logger { }
+
     private val allPlugins = genericPlugins + playbackFactories + providers + suggesters
     private val basesByPlugin: Map<Plugin, Set<KClass<out Plugin>>> = allPlugins.asSequence()
         .associateWith(::findBases)
     private val allBases: Set<KClass<out Plugin>> = basesByPlugin.values.flatMapTo(HashSet()) { it }
+
+    private val pluginSerializer = object : ConfigSerializer<Plugin> {
+        override fun serialize(obj: Plugin): String = obj::class.qualifiedName!!
+
+        override fun deserialize(string: String): Plugin = allPlugins
+            .firstOrNull { it::class.qualifiedName == string } ?: throw SerializationException()
+    }
 
     private val pluginByBase: Map<KClass<out Plugin>, Config.SerializedEntry<Plugin>> =
         allBases.associateWith { state.defaultEntry(it) }
@@ -112,17 +123,13 @@ class DefaultPluginManager(
         }
 
         val key = "${base.qualifiedName!!}.default"
-        return SerializedEntry(key, "", pluginSerializer, {
-            if (it == null) "Must be set"
-            else null
-        }, defaultPluginEntry())
-    }
 
-    private val pluginSerializer = object : ConfigSerializer<Plugin> {
-        override fun serialize(obj: Plugin): String = obj::class.qualifiedName!!
-
-        override fun deserialize(string: String): Plugin = allPlugins
-            .firstOrNull { it::class.qualifiedName == string } ?: throw SerializationException()
+        return SerializedEntry(
+            key,
+            "",
+            pluginSerializer,
+            NonnullConfigChecker,
+            defaultPluginEntry())
     }
 
     private companion object {
