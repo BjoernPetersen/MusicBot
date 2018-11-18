@@ -95,17 +95,24 @@ class DefaultPluginManager(
         val providers: List<Provider> = providers.filter(::isEnabled)
         val suggesters: List<Suggester> = suggesters.filter(::isEnabled)
 
-        val defaultByBase = pluginByBase.map { (key, value) ->
-            val plugin = try {
-                value.get()
-            } catch (e: SerializationException) {
-                null
-            } ?: throw ConfigurationException("No default: ${key.qualifiedName}")
+        val defaultByBase = sequenceOf(genericPlugins, playbackFactories, providers, suggesters)
+            .flatMap { it.asSequence() }
+            .flatMap {
+                DependencyFinder.findDependencies(it).asSequence()
+            }
+            .distinct()
+            .associateWith {
+                val plugin = try {
+                    getEnabled(it)
+                } catch (e: SerializationException) {
+                    null
+                } ?: throw ConfigurationException("No default: ${it.qualifiedName}")
 
-            if (!isEnabled(plugin))
-                throw ConfigurationException("Not enabled, but default: ${plugin.name}")
-            key to plugin
-        }.toMap()
+                if (!isEnabled(plugin))
+                    throw ConfigurationException("Plugin not enabled, but default: ${plugin.name}")
+                plugin
+            }
+
         return PluginFinder(defaultByBase, genericPlugins, playbackFactories, providers, suggesters)
     }
 
