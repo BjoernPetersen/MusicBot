@@ -63,7 +63,6 @@ internal class DefaultPlayer @Inject constructor(
     private val stateListeners: MutableSet<PlayerStateListener> = HashSet()
 
     init {
-        autoPlayer.submit { this.autoPlay() }
         queue.addListener(object : QueueChangeListener {
             override fun onAdd(entry: QueueEntry) {
                 startLoading(entry.song)
@@ -77,6 +76,10 @@ internal class DefaultPlayer @Inject constructor(
         if (suggester != null) {
             addListener { preloadSuggestion(suggester) }
         }
+    }
+
+    override fun start() {
+        autoPlayer.submit { this.autoPlay() }
     }
 
     private fun Song.findProvider(): Provider? {
