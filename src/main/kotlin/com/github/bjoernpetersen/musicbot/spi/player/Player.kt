@@ -10,6 +10,11 @@ interface Player {
     val state: PlayerState
 
     /**
+     * Start auto-playing.
+     */
+    fun start()
+
+    /**
      * Adds a [PlayerStateListener] which will be called every time the [state] changes.
      */
     fun addListener(listener: PlayerStateListener)
