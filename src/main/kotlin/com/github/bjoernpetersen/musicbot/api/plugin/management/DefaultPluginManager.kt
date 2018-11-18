@@ -109,7 +109,8 @@ class DefaultPluginManager(
                 } ?: throw ConfigurationException("No default: ${it.qualifiedName}")
 
                 if (!isEnabled(plugin))
-                    throw ConfigurationException("Plugin not enabled, but default: ${plugin.name}")
+                    throw ConfigurationException(
+                        "Default plugin for base ${it.qualifiedName} not enabled: ${plugin.name}")
                 plugin
             }
 
