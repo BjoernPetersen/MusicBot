@@ -1,6 +1,5 @@
 package com.github.bjoernpetersen.musicbot.api.config
 
-import com.github.bjoernpetersen.musicbot.spi.plugin.Plugin
 import kotlin.reflect.KClass
 
 sealed class ConfigScope(private val scopeString: String) {
@@ -20,6 +19,6 @@ sealed class ConfigScope(private val scopeString: String) {
     }
 }
 
-class PluginConfigScope<T : Plugin>(type: KClass<T>) : ConfigScope(type.qualifiedName!!)
+class PluginConfigScope(type: KClass<out Any>) : ConfigScope(type.qualifiedName!!)
 class GenericConfigScope(type: KClass<out Any>) : ConfigScope(type.qualifiedName!!)
 object MainConfigScope : ConfigScope("Main")
