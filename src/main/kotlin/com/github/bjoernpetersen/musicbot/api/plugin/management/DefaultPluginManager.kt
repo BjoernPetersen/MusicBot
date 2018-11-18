@@ -61,20 +61,20 @@ class DefaultPluginManager(
             ?.associateWith { pluginByBase[it] == plugin } ?: throw IllegalStateException()
     }
 
-    override fun <B : Plugin> getEnabled(base: KClass<B>): B? {
+    override fun <B : Plugin> getEnabled(base: KClass<out B>): B? {
         @Suppress("UNCHECKED_CAST")
         return pluginByBase[base]!!.get() as B?
     }
 
-    override fun <B : Plugin, P : B> isEnabled(plugin: P, base: KClass<B>): Boolean {
+    override fun <B : Plugin, P : B> isEnabled(plugin: P, base: KClass<out B>): Boolean {
         return pluginByBase[base]!!.get() == plugin
     }
 
-    override fun <B : Plugin, P : B> setEnabled(plugin: P, base: KClass<B>) {
+    override fun <B : Plugin, P : B> setEnabled(plugin: P, base: KClass<out B>) {
         pluginByBase[base]!!.set(plugin)
     }
 
-    override fun <B : Plugin, P : B> setDisabled(plugin: P, base: KClass<B>) {
+    override fun <B : Plugin, P : B> setDisabled(plugin: P, base: KClass<out B>) {
         pluginByBase[base]!!.set(null)
     }
 
