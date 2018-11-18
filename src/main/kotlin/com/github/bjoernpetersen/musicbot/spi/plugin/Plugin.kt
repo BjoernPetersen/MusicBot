@@ -50,8 +50,19 @@ interface Plugin {
 
     /**
      * An arbitrary plugin name. Keep it short, but descriptive.
+     *
+     * The name will never be shown without the user knowing the specialized plugin interface
+     * this plugin implements (Provider, Suggester, ...), so please don't include that part in the
+     * name.
+     *
+     * This value should be static, i.e. not dependent on config or state.
      */
     val name: String
+
+    /**
+     * A one or two sentence description of the plugin.
+     */
+    val description: String
 
     fun createConfigEntries(config: Config): List<Config.Entry<*>>
     fun createSecretEntries(secrets: Config): List<Config.Entry<*>>
