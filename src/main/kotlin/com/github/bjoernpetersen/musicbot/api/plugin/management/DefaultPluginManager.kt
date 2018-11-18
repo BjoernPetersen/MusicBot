@@ -33,7 +33,7 @@ class DefaultPluginManager(
     private val allPlugins = genericPlugins + playbackFactories + providers + suggesters
     private val basesByPlugin: Map<Plugin, Set<KClass<out Plugin>>> = allPlugins.asSequence()
         .associateWith(::findBases)
-    private val allBases: Set<KClass<out Plugin>> = basesByPlugin.values.flatMapTo(HashSet()) { it }
+    private val allBases: Set<KClass<out Plugin>> = basesByPlugin.values.flatten().toSet()
 
     private val pluginSerializer = object : ConfigSerializer<Plugin> {
         override fun serialize(obj: Plugin): String = obj::class.qualifiedName!!
@@ -63,11 +63,11 @@ class DefaultPluginManager(
 
     override fun <B : Plugin> getEnabled(base: KClass<B>): B? {
         @Suppress("UNCHECKED_CAST")
-        return pluginByBase[base] as? B
+        return pluginByBase[base]!!.get() as B?
     }
 
     override fun <B : Plugin, P : B> isEnabled(plugin: P, base: KClass<B>): Boolean {
-        return pluginByBase[base]?.get() == plugin
+        return pluginByBase[base]!!.get() == plugin
     }
 
     override fun <B : Plugin, P : B> setEnabled(plugin: P, base: KClass<B>) {
@@ -75,7 +75,7 @@ class DefaultPluginManager(
     }
 
     override fun <B : Plugin, P : B> setDisabled(plugin: P, base: KClass<B>) {
-        pluginByBase[base]?.set(null)
+        pluginByBase[base]!!.set(null)
     }
 
     override fun isEnabled(plugin: Plugin): Boolean = !disabledByPlugin[plugin]!!.get()
@@ -115,7 +115,7 @@ class DefaultPluginManager(
     }
 
     private fun Config.defaultEntry(base: KClass<out Plugin>): Config.SerializedEntry<Plugin> {
-        fun defaultPluginEntry(): UiNode<Plugin> {
+        fun defaultEntryUi(): UiNode<Plugin> {
             return ChoiceBox(
                 { it.name },
                 {
@@ -134,7 +134,7 @@ class DefaultPluginManager(
             "",
             pluginSerializer,
             NonnullConfigChecker,
-            defaultPluginEntry())
+            defaultEntryUi())
     }
 
     private companion object {
