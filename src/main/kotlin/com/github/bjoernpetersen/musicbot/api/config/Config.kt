@@ -51,7 +51,7 @@ class Config internal constructor(
         description: String,
         private val configChecker: ConfigChecker<String>,
         uiNode: UiNode<in String>? = null,
-        private val default: String? = null) : Entry<String>(key, description, uiNode) {
+        val default: String? = null) : Entry<String>(key, description, uiNode) {
 
         override fun getWithoutDefault(): String? {
             return getValue(key)
