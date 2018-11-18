@@ -15,6 +15,7 @@ interface PluginManager {
 
     fun getBases(plugin: Plugin): Map<KClass<out Plugin>, Boolean>
 
+    fun <B : Plugin> getEnabled(base: KClass<B>): B?
     fun <B : Plugin, P : B> isEnabled(plugin: P, base: KClass<B>): Boolean
     fun <B : Plugin, P : B> setEnabled(plugin: P, base: KClass<B>)
     fun <B : Plugin, P : B> setDisabled(plugin: P, base: KClass<B>)
