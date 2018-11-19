@@ -307,11 +307,14 @@ internal class DefaultPlayer @Inject constructor(
 
     @Throws(IOException::class)
     override fun close() {
-        try {
-            autoPlayer.shutdownNow()
-            playback.close()
-        } catch (e: Exception) {
-            throw IOException(e)
+        stateLock.withLock {
+            try {
+                autoPlayer.shutdownNow()
+                playback.close()
+                state = StopState
+            } catch (e: Exception) {
+                throw IOException(e)
+            }
         }
     }
 }
