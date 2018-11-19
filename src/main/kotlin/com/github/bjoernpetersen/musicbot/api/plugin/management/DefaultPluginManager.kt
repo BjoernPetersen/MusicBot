@@ -63,29 +63,38 @@ class DefaultPluginManager(
 
     override fun <B : Plugin> getEnabled(base: KClass<out B>): B? {
         @Suppress("UNCHECKED_CAST")
-        return pluginByBase[base]!!.get() as B?
+        return pluginByBase[base]?.get() as B?
     }
 
     override fun <B : Plugin, P : B> isEnabled(plugin: P, base: KClass<out B>): Boolean {
-        return pluginByBase[base]!!.get() == plugin
+        return pluginByBase[base]?.get() == plugin
     }
 
     override fun <B : Plugin, P : B> setEnabled(plugin: P, base: KClass<out B>) {
-        pluginByBase[base]!!.set(plugin)
+        pluginByBase[base]?.set(plugin) ?: logger.warn { "Tried to set default on unknown base" }
     }
 
     override fun <B : Plugin, P : B> setDisabled(plugin: P, base: KClass<out B>) {
-        pluginByBase[base]!!.set(null)
+        pluginByBase[base]?.set(null) ?: logger.warn { "Tried to set default on unknown base" }
     }
 
-    override fun isEnabled(plugin: Plugin): Boolean = !disabledByPlugin[plugin]!!.get()
+    override fun isEnabled(plugin: Plugin): Boolean {
+        val disabled = disabledByPlugin[plugin]?.get()
+        if (disabled == null) {
+            logger.warn {
+                "Tried to get disabled state of unknown plugin"
+            }
+            return false
+        }
+        return !disabled
+    }
 
     override fun setEnabled(plugin: Plugin) {
-        disabledByPlugin[plugin]!!.set(false)
+        disabledByPlugin[plugin]?.set(false) ?: logger.warn { "Tried to enable unknown plugin" }
     }
 
     override fun setDisabled(plugin: Plugin) {
-        disabledByPlugin[plugin]!!.set(true)
+        disabledByPlugin[plugin]?.set(true) ?: logger.warn { "Tried to disable unknown plugin" }
     }
 
     @Throws(ConfigurationException::class)
