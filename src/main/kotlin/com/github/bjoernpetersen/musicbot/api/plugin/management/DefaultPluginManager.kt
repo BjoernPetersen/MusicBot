@@ -33,7 +33,8 @@ class DefaultPluginManager(
     private val allPlugins = genericPlugins + playbackFactories + providers + suggesters
     private val basesByPlugin: Map<Plugin, Set<KClass<out Plugin>>> = allPlugins.asSequence()
         .associateWith(::findBases)
-    private val allBases: Set<KClass<out Plugin>> = basesByPlugin.values.flatten().toSet()
+    private val allBases: Set<KClass<out Plugin>> = basesByPlugin.values.flatten().toMutableSet()
+        .apply { add(Suggester::class) }
 
     private val pluginSerializer = object : ConfigSerializer<Plugin> {
         override fun serialize(obj: Plugin): String = obj::class.qualifiedName!!
