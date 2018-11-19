@@ -80,6 +80,7 @@ class Config internal constructor(
             getValue(key)?.let { serializer.deserialize(it) }
         } catch (e: SerializationException) {
             logger.error(e) { "Deserialization failure" }
+            setValue(key, null)
             null
         }
 
