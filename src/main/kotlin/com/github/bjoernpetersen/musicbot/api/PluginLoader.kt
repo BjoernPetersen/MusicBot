@@ -12,7 +12,7 @@ import kotlin.reflect.KClass
 class PluginLoader(private val pluginFolder: File) {
 
     private val logger = KotlinLogging.logger {}
-    private val loader: ClassLoader by lazy { createLoader() }
+    val loader: ClassLoader by lazy { createLoader() }
 
     @Throws(MalformedURLException::class)
     private fun createLoader(): ClassLoader {
