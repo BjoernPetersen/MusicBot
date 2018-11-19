@@ -254,15 +254,22 @@ internal class DefaultPlayer @Inject constructor(
     }
 
     private fun onPlaybackFeedback(feedback: PlaybackState) {
-        logger.debug { "Playback state update: $feedback" }
+        logger.trace { "Playback state update: $feedback" }
         stateLock.withLock {
             val state = state
             when (feedback) {
                 PlaybackState.PLAY -> if (state is PauseState) {
+                    logger.debug { "Changed to PLAY by Playback request" }
                     this.state = state.play()
                 }
                 PlaybackState.PAUSE -> if (state is PlayState) {
+                    logger.debug { "Changed to PAUSE by Playback request" }
                     this.state = state.pause()
+                }
+                PlaybackState.BROKEN -> if (state !is ErrorState) {
+                    logger.error { "Playback broke: ${playback::class.qualifiedName}" }
+                    this.state = ErrorState
+                    next()
                 }
             }
         }

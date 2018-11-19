@@ -6,10 +6,44 @@ import java.util.concurrent.locks.Lock
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 
+/**
+ * A feedback channel back to the player to send signals about playback state changes
+ * outside of the bot's control.
+ *
+ * For example, if the user paused the official Spotify client directly, the Spotify Playback may
+ * detect this and signal the new [PlaybackState.PAUSE] state.
+ *
+ * The listener may be called with the current state even if it is unchanged. The player won't react
+ * if the state hasn't actually changed.
+ *
+ * This listener does **not** have to be called when one of the [Playback.play], [Playback.pause]
+ * or [Playback.close] methods were called.
+ *
+ * ### Note
+ * If the playback has finished, don't call this listener, but rather release all waiting threads
+ * from the [Playback.waitForFinish] method instead.
+ */
 typealias PlaybackStateListener = (PlaybackState) -> Unit
 
+/**
+ * A kind of Playback state.
+ */
 enum class PlaybackState {
-    PLAY, PAUSE // TODO add broken?
+
+    /**
+     * The Playback is playing.
+     */
+    PLAY,
+    /**
+     * The playback is paused, but not stopped, finished, or broken.
+     */
+    PAUSE,
+    /**
+     * The playback is broken and won't be able to continue playing.
+     *
+     * The player will react to this by closing the playback and moving on to the next song.
+     */
+    BROKEN
 }
 
 interface PlaybackFactory : Plugin
@@ -26,7 +60,9 @@ interface Playback : AutoCloseable {
     fun setPlaybackStateListener(listener: PlaybackStateListener) = Unit
 
     /**
-     * Resumes the playback. This might be called if the playback is already active.
+     * Resumes the playback. This might be called if the playback is already playing.
+     *
+     * This is also called to initially start playing.
      */
     fun play()
 
