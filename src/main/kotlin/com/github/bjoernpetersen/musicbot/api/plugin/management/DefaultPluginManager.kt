@@ -74,7 +74,7 @@ class DefaultPluginManager(
         pluginByBase[base]?.set(plugin) ?: logger.warn { "Tried to set default on unknown base" }
     }
 
-    override fun <B : Plugin, P : B> setDisabled(plugin: P, base: KClass<out B>) {
+    override fun setDisabled(base: KClass<out Plugin>) {
         pluginByBase[base]?.set(null) ?: logger.warn { "Tried to set default on unknown base" }
     }
 
