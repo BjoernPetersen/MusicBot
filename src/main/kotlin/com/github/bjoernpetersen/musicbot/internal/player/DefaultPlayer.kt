@@ -55,6 +55,7 @@ internal class DefaultPlayer @Inject constructor(
     override var state: PlayerState = StopState
         private set(value) {
             field = value
+            logger.debug { "Now playing ${value.entry}" }
             for (listener in stateListeners) {
                 listener(value)
             }
@@ -140,7 +141,8 @@ internal class DefaultPlayer @Inject constructor(
      */
     @Throws(InterruptedException::class)
     override fun pause() {
-        stateLock.withLock {
+        if (!stateLock.tryLock()) return
+        try {
             logger.debug("Pausing...")
             val state = state
             if (state is PauseState) {
@@ -152,6 +154,8 @@ internal class DefaultPlayer @Inject constructor(
             }
             playback.pause()
             this.state = state.pause()
+        } finally {
+            stateLock.unlock()
         }
     }
 
@@ -164,7 +168,8 @@ internal class DefaultPlayer @Inject constructor(
      */
     @Throws(InterruptedException::class)
     override fun play() {
-        stateLock.withLock {
+        if (!stateLock.tryLock()) return
+        try {
             logger.debug("Playing...")
             val state = state
             if (state is PlayState) {
@@ -176,6 +181,8 @@ internal class DefaultPlayer @Inject constructor(
             }
             playback.play()
             this.state = state.play()
+        } finally {
+            stateLock.unlock()
         }
     }
 
