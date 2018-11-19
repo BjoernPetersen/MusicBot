@@ -29,6 +29,7 @@ class PluginModule(private val pluginFinder: PluginFinder) : AbstractModule() {
     }
 
     override fun configure() {
+        bind(PluginFinder::class.java).toInstance(pluginFinder)
         configureDefaults()
         configureAll(Plugin::class, pluginFinder.genericPlugins)
         configureAll(PlaybackFactory::class, pluginFinder.playbackFactories)
