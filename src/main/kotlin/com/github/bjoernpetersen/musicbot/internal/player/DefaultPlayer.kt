@@ -84,7 +84,7 @@ internal class DefaultPlayer @Inject constructor(
 
     private fun Song.findProvider(): Provider? {
         val base = try {
-            Class.forName(id).kotlin
+            Class.forName(provider.id).kotlin
         } catch (e: ClassNotFoundException) {
             logger.error(e) { "Could not find provider class for song" }
             return null
