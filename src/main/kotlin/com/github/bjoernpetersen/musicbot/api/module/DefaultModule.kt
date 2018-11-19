@@ -24,8 +24,9 @@ class DefaultPlayerModule(
     fun providePlayer(
         queue: SongQueue,
         songLoader: SongLoader,
-        songPlayedNotifier: SongPlayedNotifier): Player =
-        DefaultPlayer(queue, songLoader, pluginFinder, songPlayedNotifier, suggester)
+        songPlayedNotifier: SongPlayedNotifier,
+        classLoader: ClassLoader): Player =
+        DefaultPlayer(queue, songLoader, pluginFinder, songPlayedNotifier, classLoader, suggester)
 }
 
 class DefaultQueueModule : AbstractModule() {
