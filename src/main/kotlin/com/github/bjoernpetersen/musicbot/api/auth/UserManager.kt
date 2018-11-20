@@ -19,7 +19,9 @@ import java.time.Instant
 import java.time.Period
 import java.util.*
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class UserManager @Inject constructor(
     private val userDatabase: UserDatabase,
     configManager: ConfigManager) {

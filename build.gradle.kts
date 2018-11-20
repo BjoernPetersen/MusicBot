@@ -89,6 +89,10 @@ dependencies {
         version = Version.KOTLIN_LOGGING)
     api(group = "com.google.guava", name = "guava", version = Version.GUAVA)
     api(group = "com.google.inject", name = "guice", version = Version.GUICE)
+    implementation(
+        group = "com.authzee.kotlinguice4",
+        name = "kotlin-guice",
+        version = Version.KOTLIN_GUICE)
 
     implementation(group = "org.xerial", name = "sqlite-jdbc", version = Version.SQLITE)
 
@@ -97,13 +101,11 @@ dependencies {
         group = "io.jsonwebtoken",
         name = "jjwt",
         version = Version.JJWT)
-    api(group = "com.github.zafarkhaja", name = "java-semver",
+    api(group = "com.github.zafarkhaja",
+        name = "java-semver",
         version = Version.JAVA_SEMVER)
     api(group = "io.reactivex.rxjava2", name = "rxjava", version = Version.RX_JAVA)
     api(group = "io.reactivex.rxjava2", name = "rxkotlin", version = Version.RX_KOTLIN)
-
-    // TODO remove
-    compileOnly(group = "com.google.android", name = "android", version = Version.ANDROID)
 
     testImplementation(group = "org.slf4j", name = "slf4j-simple", version = Version.SLF4J)
     testImplementation(

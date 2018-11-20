@@ -1,6 +1,7 @@
 package com.github.bjoernpetersen.musicbot.internal.player
 
 import com.github.bjoernpetersen.musicbot.api.Song
+import com.github.bjoernpetersen.musicbot.api.player.DefaultSuggester
 import com.github.bjoernpetersen.musicbot.api.player.ErrorState
 import com.github.bjoernpetersen.musicbot.api.player.PauseState
 import com.github.bjoernpetersen.musicbot.api.player.PlayState
@@ -33,14 +34,14 @@ import javax.inject.Named
 import kotlin.concurrent.withLock
 import kotlin.reflect.KClass
 
-internal class DefaultPlayer @Inject constructor(
+internal class DefaultPlayer @Inject private constructor(
     private val queue: SongQueue,
     private val songLoader: SongLoader,
     private val pluginFinder: PluginFinder,
     private val songPlayedNotifier: SongPlayedNotifier,
     @Named("PluginClassLoader")
     private val classLoader: ClassLoader,
-    private val suggester: Suggester?) : Player {
+    private val defaultSuggester: DefaultSuggester) : Player {
 
     private val logger = KotlinLogging.logger {}
     private val autoPlayer: ExecutorService = Executors.newSingleThreadExecutor(

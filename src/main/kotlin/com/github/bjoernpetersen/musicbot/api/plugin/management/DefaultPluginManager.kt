@@ -33,8 +33,7 @@ class DefaultPluginManager(
     private val allPlugins = genericPlugins + playbackFactories + providers + suggesters
     private val basesByPlugin: Map<Plugin, Set<KClass<out Plugin>>> = allPlugins.asSequence()
         .associateWith(::findBases)
-    private val allBases: Set<KClass<out Plugin>> = basesByPlugin.values.flatten().toMutableSet()
-        .apply { add(Suggester::class) }
+    private val allBases: Set<KClass<out Plugin>> = basesByPlugin.values.flatten().toSet()
 
     private val pluginSerializer = object : ConfigSerializer<Plugin> {
         override fun serialize(obj: Plugin): String = obj::class.qualifiedName!!
@@ -75,10 +74,6 @@ class DefaultPluginManager(
         pluginByBase[base]?.set(plugin) ?: logger.warn { "Tried to set default on unknown base" }
     }
 
-    override fun setDisabled(base: KClass<out Plugin>) {
-        pluginByBase[base]?.set(null) ?: logger.warn { "Tried to set default on unknown base" }
-    }
-
     override fun isEnabled(plugin: Plugin): Boolean {
         val disabled = disabledByPlugin[plugin]?.get()
         if (disabled == null) {
@@ -105,34 +100,24 @@ class DefaultPluginManager(
         val providers: List<Provider> = providers.filter(::isEnabled)
         val suggesters: List<Suggester> = suggesters.filter(::isEnabled)
 
-        val dependencies = sequenceOf(genericPlugins, playbackFactories, providers, suggesters)
+        val defaultByBase = sequenceOf(genericPlugins, playbackFactories, providers, suggesters)
             .flatMap { it.asSequence() }
             .flatMap {
                 DependencyFinder.findDependencies(it).asSequence()
             }
-        val defaultByBase = sequenceOf(dependencies, sequenceOf(Suggester::class))
-            .flatMap { it }
             .distinct()
-            .map {
-                it to try {
-                    getEnabled(it)
+            .associateWith { base ->
+                val plugin = try {
+                    getEnabled(base)
                 } catch (e: SerializationException) {
                     null
-                }
-            }
-            .filter {
-                if (it.second == null) it.first != Suggester::class
-                else true
-            }
-            .associate { (base, plugin) ->
-                if (plugin == null)
-                    throw ConfigurationException("No default: ${base.qualifiedName}")
+                } ?: throw ConfigurationException("No default: ${base.qualifiedName}")
 
                 if (!isEnabled(plugin))
                     throw ConfigurationException(
                         "Default plugin for base ${base.qualifiedName} not enabled: ${plugin.name}")
 
-                base to plugin
+                plugin
             }
 
         return PluginFinder(defaultByBase, genericPlugins, playbackFactories, providers, suggesters)

@@ -6,6 +6,7 @@ object Version {
 
     const val GUAVA = "23.0"
     const val GUICE = "4.2.1"
+    const val KOTLIN_GUICE = "1.2.0"
     const val SQLITE = "3.21.0.1"
 
     const val JBCRYPT = "0.4"
