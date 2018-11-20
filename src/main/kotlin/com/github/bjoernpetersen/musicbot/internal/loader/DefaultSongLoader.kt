@@ -8,8 +8,9 @@ import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.Future
 import java.util.concurrent.TimeUnit
+import javax.inject.Inject
 
-class DefaultSongLoader private constructor() : SongLoader {
+class DefaultSongLoader @Inject private constructor() : SongLoader {
     private val executor: ExecutorService = Executors.newFixedThreadPool(2)
     override fun startLoading(provider: Provider, song: Song): Future<Boolean> {
         return executor.submit(Callable<Boolean> { provider.loadSong(song) })

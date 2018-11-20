@@ -5,8 +5,9 @@ import com.github.bjoernpetersen.musicbot.api.player.QueueEntry
 import com.github.bjoernpetersen.musicbot.spi.player.QueueChangeListener
 import com.github.bjoernpetersen.musicbot.spi.player.SongQueue
 import java.util.*
+import javax.inject.Inject
 
-internal class DefaultQueue private constructor() : SongQueue {
+internal class DefaultQueue @Inject private constructor() : SongQueue {
 
     private val queue: LinkedList<QueueEntry> = LinkedList()
     private val listeners: MutableSet<QueueChangeListener> = HashSet()
