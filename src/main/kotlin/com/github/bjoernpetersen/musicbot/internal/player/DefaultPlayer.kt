@@ -29,6 +29,7 @@ import java.util.concurrent.Executors
 import java.util.concurrent.locks.Lock
 import java.util.concurrent.locks.ReentrantLock
 import javax.inject.Inject
+import javax.inject.Named
 import kotlin.concurrent.withLock
 import kotlin.reflect.KClass
 
@@ -37,6 +38,7 @@ internal class DefaultPlayer @Inject constructor(
     private val songLoader: SongLoader,
     private val pluginFinder: PluginFinder,
     private val songPlayedNotifier: SongPlayedNotifier,
+    @Named("PluginClassLoader")
     private val classLoader: ClassLoader,
     private val suggester: Suggester?) : Player {
 
