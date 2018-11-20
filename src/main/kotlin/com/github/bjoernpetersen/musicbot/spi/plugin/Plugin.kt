@@ -92,8 +92,17 @@ interface UserFacing {
 /**
  * An exception during plugin initialization.
  */
-class InitializationException : Exception {
+open class InitializationException : Exception {
+    constructor() : super()
+    constructor(message: String) : super(message)
+    constructor(message: String, cause: Throwable) : super(message, cause)
+    constructor(cause: Throwable) : super(cause)
+}
 
+/**
+ * An exception thrown by Plugins if they are misconfigured.
+ */
+class ConfigurationException : InitializationException {
     constructor() : super()
     constructor(message: String) : super(message)
     constructor(message: String, cause: Throwable) : super(message, cause)
