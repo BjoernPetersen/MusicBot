@@ -22,7 +22,11 @@ enum class Permission(val label: String) {
     /**
      * The permission to move songs around in the queue.
      */
-    MOVE("move");
+    MOVE("move"),
+    /**
+     * Pause/resume current song.
+     */
+    PAUSE("pause");
 
     companion object {
         /**
