@@ -41,7 +41,7 @@ internal class DefaultPlayer @Inject private constructor(
     private val songPlayedNotifier: SongPlayedNotifier,
     @Named("PluginClassLoader")
     private val classLoader: ClassLoader,
-    private val defaultSuggester: DefaultSuggester) : Player {
+    defaultSuggester: DefaultSuggester) : Player {
 
     private val logger = KotlinLogging.logger {}
     private val autoPlayer: ExecutorService = Executors.newSingleThreadExecutor(
@@ -51,7 +51,9 @@ internal class DefaultPlayer @Inject private constructor(
             .build()
     )
 
+    private val suggester: Suggester? = defaultSuggester.suggester
     private val stateLock: Lock = ReentrantLock()
+
     /**
      * The current state of this player. This might be play, pause, stop or error.
      */
