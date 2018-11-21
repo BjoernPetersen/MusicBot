@@ -94,12 +94,9 @@ dependencies {
         group = "io.github.microutils",
         name = "kotlin-logging",
         version = Version.KOTLIN_LOGGING)
+    api(group = "org.slf4j", name = "slf4j-api", version = Version.SLF4J)
     api(group = "com.google.guava", name = "guava", version = Version.GUAVA)
     api(group = "com.google.inject", name = "guice", version = Version.GUICE)
-    implementation(
-        group = "com.authzee.kotlinguice4",
-        name = "kotlin-guice",
-        version = Version.KOTLIN_GUICE)
 
     implementation(group = "org.xerial", name = "sqlite-jdbc", version = Version.SQLITE)
 
@@ -113,13 +110,13 @@ dependencies {
         version = Version.JAVA_SEMVER)
 
     testImplementation(group = "org.slf4j", name = "slf4j-simple", version = Version.SLF4J)
-    testImplementation(
-        group = "org.junit.jupiter",
-        name = "junit-jupiter-api",
-        version = Version.JUNIT)
     testRuntime(
         group = "org.junit.jupiter",
         name = "junit-jupiter-engine",
+        version = Version.JUNIT)
+    testImplementation(
+        group = "org.junit.jupiter",
+        name = "junit-jupiter-api",
         version = Version.JUNIT)
     testImplementation(
         group = "name.falgout.jeffrey.testing.junit5",

@@ -1,6 +1,5 @@
 package com.github.bjoernpetersen.musicbot.api.module
 
-import com.authzee.kotlinguice4.KotlinModule
 import com.github.bjoernpetersen.musicbot.internal.auth.DefaultDatabase
 import com.github.bjoernpetersen.musicbot.internal.loader.DefaultSongLoader
 import com.github.bjoernpetersen.musicbot.internal.player.DefaultPlayer
@@ -22,15 +21,15 @@ class DefaultPlayerModule(suggester: Suggester?) : PlayerModule(suggester) {
     }
 }
 
-class DefaultQueueModule : KotlinModule() {
+class DefaultQueueModule : AbstractModule() {
     override fun configure() {
-        bind<SongQueue>().to<DefaultQueue>().`in`(Scopes.SINGLETON)
+        bind(SongQueue::class.java).to(DefaultQueue::class.java).`in`(Scopes.SINGLETON)
     }
 }
 
-class DefaultSongLoaderModule : KotlinModule() {
+class DefaultSongLoaderModule : AbstractModule() {
     override fun configure() {
-        bind<SongLoader>().to<DefaultSongLoader>().`in`(Scopes.SINGLETON)
+        bind(SongLoader::class.java).to(DefaultSongLoader::class.java).`in`(Scopes.SINGLETON)
     }
 }
 
