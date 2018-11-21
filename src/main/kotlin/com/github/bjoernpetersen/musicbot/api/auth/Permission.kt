@@ -26,7 +26,11 @@ enum class Permission(val label: String) {
     /**
      * Pause/resume current song.
      */
-    PAUSE("pause");
+    PAUSE("pause"),
+    /**
+     * Put new songs into the queue.
+     */
+    ENQUEUE("enqueue");
 
     companion object {
         /**
