@@ -111,8 +111,6 @@ dependencies {
     api(group = "com.github.zafarkhaja",
         name = "java-semver",
         version = Version.JAVA_SEMVER)
-    api(group = "io.reactivex.rxjava2", name = "rxjava", version = Version.RX_JAVA)
-    api(group = "io.reactivex.rxjava2", name = "rxkotlin", version = Version.RX_KOTLIN)
 
     testImplementation(group = "org.slf4j", name = "slf4j-simple", version = Version.SLF4J)
     testImplementation(
