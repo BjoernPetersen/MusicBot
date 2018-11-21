@@ -1,12 +1,13 @@
 package com.github.bjoernpetersen.musicbot.spi.player
 
+import com.github.bjoernpetersen.musicbot.api.Song
 import com.github.bjoernpetersen.musicbot.api.player.QueueEntry
 
 interface SongQueue {
     val isEmpty: Boolean
     fun pop(): QueueEntry?
     fun insert(entry: QueueEntry)
-    fun remove(entry: QueueEntry)
+    fun remove(song: Song)
     fun clear()
     fun toList(): List<QueueEntry>
 

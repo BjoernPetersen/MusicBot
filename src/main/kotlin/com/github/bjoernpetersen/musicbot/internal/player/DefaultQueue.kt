@@ -22,10 +22,11 @@ internal class DefaultQueue @Inject private constructor() : SongQueue {
         }
     }
 
-    override fun remove(entry: QueueEntry) {
-        val removed = queue.remove(entry)
-        if (removed) {
-            notifyListeners { listener -> listener.onRemove(entry) }
+    override fun remove(song: Song) {
+        val matching = queue.filter { it.song == song }
+        matching.forEach {
+            queue.remove(it)
+            notifyListeners { listener -> listener.onRemove(it) }
         }
     }
 
