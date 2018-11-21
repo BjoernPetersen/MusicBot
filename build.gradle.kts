@@ -78,6 +78,13 @@ tasks {
     "test"(Test::class) {
         useJUnitPlatform()
     }
+
+    withType(SpotBugsTask::class) {
+        reports {
+            xml.isEnabled = false
+            html.isEnabled = true
+        }
+    }
 }
 
 dependencies {
