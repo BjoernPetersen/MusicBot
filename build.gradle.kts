@@ -112,7 +112,7 @@ dependencies {
         group = "org.junit.jupiter",
         name = "junit-jupiter-api",
         version = Version.JUNIT)
-    testImplementation(
+    testRuntime(
         group = "org.junit.jupiter",
         name = "junit-jupiter-engine",
         version = Version.JUNIT)
