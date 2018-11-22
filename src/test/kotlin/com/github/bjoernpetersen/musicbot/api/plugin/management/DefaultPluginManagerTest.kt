@@ -23,8 +23,7 @@ class DefaultPluginManagerTest {
             emptyList(),
             emptyList())
 
-        assertTrue(manager.isEnabled(TestPlugin))
-        assertFalse(manager.isEnabled(TestPlugin, TestPluginInterface::class))
+        assertFalse(manager.isDefault(TestPlugin, TestPluginInterface::class))
     }
 
     @Test
@@ -36,8 +35,8 @@ class DefaultPluginManagerTest {
             emptyList(),
             emptyList())
 
-        manager.setEnabled(TestPlugin, TestPluginInterface::class)
-        assertTrue(manager.isEnabled(TestPlugin, TestPluginInterface::class))
+        manager.setDefault(TestPlugin, TestPluginInterface::class)
+        assertTrue(manager.isDefault(TestPlugin, TestPluginInterface::class))
     }
 }
 
