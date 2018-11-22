@@ -206,7 +206,7 @@ internal class DefaultPlayer @Inject private constructor(
         stateLock.withLock {
             logger.debug("Next...")
             val newState = this.state
-            if (isSignificantlyDifferent(state, newState)) {
+            if (state.entry !== newState.entry) {
                 logger.debug("Skipping next call due to state change while waiting for lock.")
                 return
             }
@@ -280,13 +280,6 @@ internal class DefaultPlayer @Inject private constructor(
         }
     }
 
-    private fun isSignificantlyDifferent(state: PlayerState, other: PlayerState): Boolean {
-        val stateSong = state.entry
-        val otherSong = other.entry
-        // TODO check for correctness
-        return ((otherSong == null) != (stateSong == null)) || ((otherSong != null) && (stateSong != otherSong))
-    }
-
     private fun autoPlay() {
         try {
             val state = this.state
@@ -296,7 +289,7 @@ internal class DefaultPlayer @Inject private constructor(
 
             stateLock.withLock {
                 // Prevent auto next calls if next was manually called
-                if (isSignificantlyDifferent(this.state, state)) {
+                if (this.state.entry !== state.entry) {
                     logger.debug("Skipping auto call to next()")
                 } else {
                     logger.debug("Auto call to next()")

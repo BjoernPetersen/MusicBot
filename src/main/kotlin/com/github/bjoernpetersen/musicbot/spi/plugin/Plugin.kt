@@ -9,6 +9,8 @@ import javax.inject.Inject
  * Base interface for plugins. This interface isn't meant to be directly implemented, but to be
  * extended by a specialized interface first.
  *
+ * Every plugin MUST be annotated with [Bases] and [IdBase].
+ *
  * ## Dependencies
  *
  * A plugin can request dependencies (typically other plugins) by marking fields with the

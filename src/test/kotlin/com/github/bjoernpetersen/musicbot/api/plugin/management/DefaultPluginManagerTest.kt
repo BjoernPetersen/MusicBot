@@ -4,6 +4,7 @@ import com.github.bjoernpetersen.musicbot.api.config.Config
 import com.github.bjoernpetersen.musicbot.api.config.ConfigExtension
 import com.github.bjoernpetersen.musicbot.spi.plugin.Bases
 import com.github.bjoernpetersen.musicbot.spi.plugin.GenericPlugin
+import com.github.bjoernpetersen.musicbot.spi.plugin.IdBase
 import com.github.bjoernpetersen.musicbot.spi.plugin.management.InitStateWriter
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -42,6 +43,7 @@ class DefaultPluginManagerTest {
 
 private interface TestPluginInterface : GenericPlugin
 
+@IdBase(TestPluginInterface::class)
 @Bases(GenericPlugin::class, TestPluginInterface::class)
 private object TestPlugin : TestPluginInterface {
 

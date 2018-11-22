@@ -7,19 +7,20 @@ import com.github.bjoernpetersen.musicbot.api.config.ConfigSerializer
 import com.github.bjoernpetersen.musicbot.api.config.NonnullConfigChecker
 import com.github.bjoernpetersen.musicbot.api.config.SerializationException
 import com.github.bjoernpetersen.musicbot.api.config.UiNode
-import com.github.bjoernpetersen.musicbot.spi.plugin.Bases
 import com.github.bjoernpetersen.musicbot.spi.plugin.GenericPlugin
 import com.github.bjoernpetersen.musicbot.spi.plugin.PlaybackFactory
 import com.github.bjoernpetersen.musicbot.spi.plugin.Plugin
 import com.github.bjoernpetersen.musicbot.spi.plugin.Provider
 import com.github.bjoernpetersen.musicbot.spi.plugin.Suggester
+import com.github.bjoernpetersen.musicbot.spi.plugin.bases
+import com.github.bjoernpetersen.musicbot.spi.plugin.id
 import com.github.bjoernpetersen.musicbot.spi.plugin.management.ConfigurationException
 import com.github.bjoernpetersen.musicbot.spi.plugin.management.PluginFinder
 import com.github.bjoernpetersen.musicbot.spi.plugin.management.PluginManager
+import com.google.common.collect.MultimapBuilder
 import mu.KotlinLogging
 import java.io.File
 import kotlin.reflect.KClass
-import kotlin.reflect.full.findAnnotation
 
 class DefaultPluginManager(
     state: Config,
@@ -31,8 +32,8 @@ class DefaultPluginManager(
     private val logger = KotlinLogging.logger { }
 
     private val allPlugins = genericPlugins + playbackFactories + providers + suggesters
-    private val basesByPlugin: Map<Plugin, Set<KClass<out Plugin>>> = allPlugins.asSequence()
-        .associateWith(::findBases)
+    private val basesByPlugin: Map<Plugin, Set<KClass<out Plugin>>> = allPlugins
+        .associateWith { it.bases.toSet() }
     private val allBases: Set<KClass<out Plugin>> = basesByPlugin.values.flatten().toSet()
 
     private val pluginSerializer = object : ConfigSerializer<Plugin> {
@@ -42,10 +43,8 @@ class DefaultPluginManager(
             .firstOrNull { it::class.qualifiedName == string } ?: throw SerializationException()
     }
 
-    private val pluginByBase: Map<KClass<out Plugin>, Config.SerializedEntry<Plugin>> =
+    private val defaultByBase: Map<KClass<out Plugin>, Config.SerializedEntry<Plugin>> =
         allBases.associateWith { state.defaultEntry(it) }
-    private val disabledByPlugin: Map<Plugin, Config.BooleanEntry> = allPlugins
-        .associateWith { state.disabledEntry(it) }
 
     constructor(config: Config, pluginFolder: File) : this(config, loadPlugins(pluginFolder))
 
@@ -56,45 +55,31 @@ class DefaultPluginManager(
         plugins.providers,
         plugins.suggesters)
 
-    override fun getBases(plugin: Plugin): Map<KClass<out Plugin>, Boolean> {
-        return basesByPlugin[plugin]
-            ?.associateWith { pluginByBase[it] == plugin } ?: throw IllegalStateException()
+    override fun getDefaults(plugin: Plugin): Map<KClass<out Plugin>, Boolean> {
+        return basesByPlugin[plugin]?.associateWith { defaultByBase[it] == plugin }
+            ?: throw IllegalStateException()
     }
 
-    override fun <B : Plugin> getEnabled(base: KClass<out B>): B? {
+    override fun <B : Plugin> getDefault(base: KClass<out B>): B? {
         @Suppress("UNCHECKED_CAST")
-        return pluginByBase[base]?.get() as B?
+        return defaultByBase[base]?.get() as B?
     }
 
-    override fun <B : Plugin, P : B> isEnabled(plugin: P, base: KClass<out B>): Boolean {
-        return pluginByBase[base]?.get() == plugin
+    override fun <B : Plugin, P : B> isDefault(plugin: P, base: KClass<out B>): Boolean {
+        return defaultByBase[base]?.get() == plugin
     }
 
-    override fun <B : Plugin, P : B> setEnabled(plugin: P, base: KClass<out B>) {
-        pluginByBase[base]?.set(plugin) ?: logger.warn { "Tried to set default on unknown base" }
+    override fun <B : Plugin, P : B> setDefault(plugin: P, base: KClass<out B>) {
+        defaultByBase[base]?.set(plugin) ?: logger.warn { "Tried to set default on unknown base" }
     }
 
-    override fun isEnabled(plugin: Plugin): Boolean {
-        val disabled = disabledByPlugin[plugin]?.get()
-        if (disabled == null) {
-            logger.warn {
-                "Tried to get disabled state of unknown plugin"
-            }
-            return false
-        }
-        return !disabled
-    }
-
-    override fun setEnabled(plugin: Plugin) {
-        disabledByPlugin[plugin]?.set(false) ?: logger.warn { "Tried to enable unknown plugin" }
-    }
-
-    override fun setDisabled(plugin: Plugin) {
-        disabledByPlugin[plugin]?.set(true) ?: logger.warn { "Tried to disable unknown plugin" }
+    private fun isEnabled(plugin: Plugin): Boolean {
+        return isDefault(plugin, plugin.id)
     }
 
     @Throws(ConfigurationException::class)
     override fun finish(): PluginFinder {
+
         val genericPlugins: List<GenericPlugin> = genericPlugins.filter(::isEnabled)
         val playbackFactories: List<PlaybackFactory> = playbackFactories.filter(::isEnabled)
         val providers: List<Provider> = providers.filter(::isEnabled)
@@ -108,7 +93,7 @@ class DefaultPluginManager(
             .distinct()
             .associateWith { base ->
                 val plugin = try {
-                    getEnabled(base)
+                    getDefault(base)
                 } catch (e: SerializationException) {
                     null
                 } ?: throw ConfigurationException("No default: ${base.qualifiedName}")
@@ -161,11 +146,6 @@ class DefaultPluginManager(
                 suggesters = loader.load(Suggester::class).toList())
         }
     }
-}
-
-private fun findBases(plugin: Plugin): Set<KClass<out Plugin>> {
-    val bases = plugin::class.findAnnotation<Bases>()
-    return bases?.baseClasses?.toSet() ?: emptySet()
 }
 
 data class Plugins(

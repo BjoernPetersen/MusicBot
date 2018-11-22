@@ -2,6 +2,7 @@ package com.github.bjoernpetersen.musicbot.spi.plugin
 
 import java.lang.annotation.Inherited
 import kotlin.reflect.KClass
+import kotlin.reflect.full.findAnnotation
 
 /**
  * Annotation for plugins to declare their base classes or interfaces.
@@ -15,3 +16,13 @@ import kotlin.reflect.KClass
 @Retention(AnnotationRetention.RUNTIME)
 @MustBeDocumented
 annotation class Bases(vararg val baseClasses: KClass<out Plugin>)
+
+class MissingBasesException(type: KClass<*>) : RuntimeException(type.qualifiedName)
+
+val Plugin.bases
+    get() = this::class.bases
+
+val KClass<out Plugin>.bases: List<KClass<out Plugin>>
+    get() {
+        return findAnnotation<Bases>()?.baseClasses?.toList() ?: throw MissingBasesException(this)
+    }

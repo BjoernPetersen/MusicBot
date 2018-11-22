@@ -13,15 +13,11 @@ interface PluginManager {
     val providers: List<Provider>
     val suggesters: List<Suggester>
 
-    fun getBases(plugin: Plugin): Map<KClass<out Plugin>, Boolean>
+    fun getDefaults(plugin: Plugin): Map<KClass<out Plugin>, Boolean>
 
-    fun <B : Plugin> getEnabled(base: KClass<out B>): B?
-    fun <B : Plugin, P : B> isEnabled(plugin: P, base: KClass<out B>): Boolean
-    fun <B : Plugin, P : B> setEnabled(plugin: P, base: KClass<out B>)
-    //fun setDisabled(base: KClass<out Plugin>)
-    fun isEnabled(plugin: Plugin): Boolean
-    fun setEnabled(plugin: Plugin)
-    fun setDisabled(plugin: Plugin)
+    fun <B : Plugin> getDefault(base: KClass<out B>): B?
+    fun <B : Plugin, P : B> isDefault(plugin: P, base: KClass<out B>): Boolean
+    fun <B : Plugin, P : B> setDefault(plugin: P, base: KClass<out B>)
 
     @Throws(ConfigurationException::class)
     fun finish(): PluginFinder
