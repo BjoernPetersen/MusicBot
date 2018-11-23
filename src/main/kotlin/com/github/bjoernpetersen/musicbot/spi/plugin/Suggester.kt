@@ -3,8 +3,7 @@ package com.github.bjoernpetersen.musicbot.spi.plugin
 import com.github.bjoernpetersen.musicbot.api.Song
 import com.github.bjoernpetersen.musicbot.api.player.SongEntry
 
-interface Suggester : Plugin,
-    UserFacing {
+interface Suggester : Plugin, UserFacing, Active {
 
     /**
      * Suggest the next song to play.

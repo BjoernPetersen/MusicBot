@@ -4,7 +4,7 @@ import com.github.bjoernpetersen.musicbot.api.Song
 import java.io.IOException
 import kotlin.reflect.KClass
 
-interface Provider : Plugin, UserFacing {
+interface Provider : Plugin, UserFacing, Active {
 
     /**
      * Searches for songs based on the given search query.

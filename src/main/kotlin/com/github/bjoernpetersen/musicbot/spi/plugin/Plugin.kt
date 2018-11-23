@@ -4,6 +4,9 @@ import com.github.bjoernpetersen.musicbot.api.config.Config
 import com.github.bjoernpetersen.musicbot.spi.plugin.management.InitStateWriter
 import java.io.IOException
 import javax.inject.Inject
+import kotlin.reflect.KClass
+import kotlin.reflect.full.isSubclassOf
+import kotlin.reflect.full.isSuperclassOf
 
 /**
  * Base interface for plugins. This interface isn't meant to be directly implemented, but to be
@@ -92,9 +95,16 @@ interface UserFacing {
 }
 
 /**
+ * Marks plugin types that are implicitly required, even though they aren't requested as a
+ * dependency.
+ */
+interface Active
+
+/**
  * An exception during plugin initialization.
  */
 open class InitializationException : Exception {
+
     constructor() : super()
     constructor(message: String) : super(message)
     constructor(message: String, cause: Throwable) : super(message, cause)
@@ -105,8 +115,51 @@ open class InitializationException : Exception {
  * An exception thrown by Plugins if they are misconfigured.
  */
 class ConfigurationException : InitializationException {
+
     constructor() : super()
     constructor(message: String) : super(message)
     constructor(message: String, cause: Throwable) : super(message, cause)
     constructor(cause: Throwable) : super(cause)
 }
+
+private fun KClass<*>.pluginSpecification(): KClass<out Plugin>? {
+    val specs = mutableListOf<KClass<out Plugin>>()
+    sequenceOf(GenericPlugin::class, PlaybackFactory::class, Provider::class, Suggester::class)
+        .filter { this.isSubclassOf(it) }
+        .forEach { specs.add(it) }
+    return if (specs.size == 1) specs.first()
+    else null
+}
+
+val Plugin.isValid: Boolean
+    get() {
+        val id = try {
+            id
+        } catch (e: MissingIdBaseException) {
+            return false
+        }
+
+        val bases = try {
+            bases
+        } catch (e: MissingBasesException) {
+            return false
+        }
+
+        if (id !in bases) {
+            return false
+        }
+
+        val specs = mutableSetOf<KClass<out Plugin>>()
+
+        val selfSpec = this::class.pluginSpecification() ?: return false
+        specs.add(selfSpec)
+
+        for (base in bases) {
+            val spec = base.pluginSpecification() ?: return false
+            specs.add(spec)
+
+            if (!base.isSuperclassOf(this::class)) return false
+        }
+
+        return specs.size == 1
+    }
