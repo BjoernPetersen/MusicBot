@@ -2,6 +2,8 @@ package net.bjoernpetersen.musicbot.api.auth
 
 import org.mindrot.jbcrypt.BCrypt
 
+private val defaultPermissions: Set<Permission> = Permission.getDefaults()
+
 sealed class User {
     abstract val name: String
     abstract val permissions: Set<Permission>
@@ -14,7 +16,7 @@ data class GuestUser(
     val id: String) : User() {
 
     override fun hasPassword(password: String): Boolean = id == password
-    override val permissions: Set<Permission> = emptySet()
+    override val permissions: Set<Permission> = defaultPermissions
 }
 
 data class FullUser(

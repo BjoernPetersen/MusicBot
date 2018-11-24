@@ -1,17 +1,17 @@
 package net.bjoernpetersen.musicbot.api.auth
 
-import net.bjoernpetersen.musicbot.api.config.Config
-import net.bjoernpetersen.musicbot.api.config.ConfigManager
-import net.bjoernpetersen.musicbot.api.config.GenericConfigScope
-import net.bjoernpetersen.musicbot.spi.auth.DuplicateUserException
-import net.bjoernpetersen.musicbot.spi.auth.UserDatabase
-import net.bjoernpetersen.musicbot.spi.auth.UserNotFoundException
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jws
 import io.jsonwebtoken.JwtException
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
 import io.jsonwebtoken.impl.crypto.MacSigner
+import net.bjoernpetersen.musicbot.api.config.Config
+import net.bjoernpetersen.musicbot.api.config.ConfigManager
+import net.bjoernpetersen.musicbot.api.config.GenericConfigScope
+import net.bjoernpetersen.musicbot.spi.auth.DuplicateUserException
+import net.bjoernpetersen.musicbot.spi.auth.UserDatabase
+import net.bjoernpetersen.musicbot.spi.auth.UserNotFoundException
 import org.mindrot.jbcrypt.BCrypt
 import java.nio.charset.StandardCharsets
 import java.sql.SQLException
@@ -47,7 +47,6 @@ class UserManager @Inject constructor(
             temporaryUsers[user.name.toLowerCase(Locale.US)] = user
             return user
         }
-
     }
 
     @Throws(UserNotFoundException::class)

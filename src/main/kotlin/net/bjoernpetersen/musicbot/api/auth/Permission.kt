@@ -1,6 +1,8 @@
 package net.bjoernpetersen.musicbot.api.auth
 
+import com.google.common.annotations.Beta
 import net.bjoernpetersen.musicbot.spi.plugin.Suggester
+import kotlin.reflect.full.findAnnotation
 
 /**
  * User permissions to perform certain actions.
@@ -13,23 +15,29 @@ enum class Permission(val label: String) {
      * Note that a user is always allowed to remove a song from the queue which he added himself.
      */
     SKIP("skip"),
+
     /**
      * The permission to remove songs from the upcoming suggestions of a suggester.
      *
      * Note that doing this will also trigger [Suggester.dislike], thus affecting future suggestions.
      */
     DISLIKE("dislike"),
+
     /**
      * The permission to move songs around in the queue.
      */
     MOVE("move"),
+
     /**
      * Pause/resume current song.
      */
+    @Default
     PAUSE("pause"),
+
     /**
      * Put new songs into the queue.
      */
+    @Default
     ENQUEUE("enqueue");
 
     companion object {
@@ -44,5 +52,14 @@ enum class Permission(val label: String) {
                 .filter { it.label == label }
                 .firstOrNull() ?: throw IllegalArgumentException()
         }
+
+        @Beta
+        @JvmStatic
+        internal fun getDefaults() = values().filterTo(HashSet()) {
+            it::class.findAnnotation<Default>() != null
+        }
     }
 }
+
+@Beta
+private annotation class Default
