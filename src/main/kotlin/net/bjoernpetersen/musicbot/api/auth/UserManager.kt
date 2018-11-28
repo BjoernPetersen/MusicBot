@@ -98,8 +98,9 @@ class UserManager @Inject constructor(
     }
 
     @Throws(SQLException::class)
-    fun deleteUser(user: FullUser) {
-        userDatabase.deleteUser(user.name)
+    fun deleteUser(user: User) {
+        if (user is FullUser) userDatabase.deleteUser(user.name)
+        else temporaryUsers.remove(user.name)
     }
 
     /**
