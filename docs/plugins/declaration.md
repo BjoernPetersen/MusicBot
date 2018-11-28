@@ -68,7 +68,7 @@ An implementation for Spotify songs may look like this:
 ```kotlin
 @Base
 interface SpotifyPlaybackFactory : PlaybackFactory {
-    fun getPlayback(spotifySongId: String)
+    fun getPlayback(spotifySongId: String): Playback
 }
 class SpotifyProviderImpl : SpotifyPlaybackFactory
 ```
