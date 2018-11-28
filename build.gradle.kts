@@ -4,6 +4,8 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     kotlin("jvm") version Version.KOTLIN
+    `java-library`
+
     id("org.jetbrains.dokka") version Version.DOKKA
     idea
 
@@ -94,6 +96,7 @@ dependencies {
         group = "io.github.microutils",
         name = "kotlin-logging",
         version = Version.KOTLIN_LOGGING)
+
     api(group = "org.slf4j", name = "slf4j-api", version = Version.SLF4J)
     api(group = "com.google.guava", name = "guava", version = Version.GUAVA)
     api(group = "com.google.inject", name = "guice", version = Version.GUICE)
