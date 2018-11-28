@@ -38,7 +38,13 @@ enum class Permission(val label: String) {
      * Put new songs into the queue.
      */
     @Default
-    ENQUEUE("enqueue");
+    ENQUEUE("enqueue"),
+
+    /**
+     * Songs enqueued by users without this permission do not affect suggestions.
+     */
+    @Default
+    ALTER_SUGGESTIONS("alter_suggestions");
 
     companion object {
         /**
