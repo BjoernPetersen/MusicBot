@@ -62,6 +62,7 @@ interface DependencyManager {
             .filter { it.value }
             .map { it.key }
             .forEach { result.add(it) }
+        // TODO remove the following?
         allPlugins
             .filter { it::class.isActive }
             .map { it.id }
