@@ -1,12 +1,15 @@
 package net.bjoernpetersen.musicbot.spi.plugin
 
+import com.google.common.annotations.Beta
 import net.bjoernpetersen.musicbot.api.config.Config
 import net.bjoernpetersen.musicbot.spi.plugin.management.InitStateWriter
 import java.io.IOException
 import javax.inject.Inject
 import kotlin.reflect.KClass
+import kotlin.reflect.full.allSuperclasses
+import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.isSubclassOf
-import kotlin.reflect.full.isSuperclassOf
+import kotlin.reflect.full.superclasses
 
 /**
  * Base interface for plugins. This interface isn't meant to be directly implemented, but to be
@@ -87,18 +90,14 @@ interface UserFacing {
      * This will be shown to end users, together with the type of plugin, this should give users
      * an idea of they will be getting.
      *
+     * Note that the value of this may even change during runtime, especially during configuration.
+     *
      * Some good examples:
      * - For providers: "Spotify" or "YouTube"
      * - For suggesters: "Random MP3s", a playlist name, "Based on last played song"
      */
     val subject: String
 }
-
-/**
- * Marks plugin types that are implicitly required, even though they aren't requested as a
- * dependency.
- */
-interface Active
 
 /**
  * An exception during plugin initialization.
@@ -122,44 +121,89 @@ class ConfigurationException : InitializationException {
     constructor(cause: Throwable) : super(cause)
 }
 
-private fun KClass<*>.pluginSpecification(): KClass<out Plugin>? {
-    val specs = mutableListOf<KClass<out Plugin>>()
-    sequenceOf(GenericPlugin::class, PlaybackFactory::class, Provider::class, Suggester::class)
-        .filter { this.isSubclassOf(it) }
-        .forEach { specs.add(it) }
-    return if (specs.size == 1) specs.first()
-    else null
+/**
+ * Thrown if a plugin's declaration is invalid.
+ */
+class DeclarationException : RuntimeException {
+
+    constructor() : super()
+    constructor(message: String) : super(message)
+    constructor(message: String, cause: Throwable) : super(message, cause)
+    constructor(cause: Throwable) : super(cause)
 }
 
-val Plugin.isValid: Boolean
+private val KClass<*>.isBase: Boolean
+    get() = findAnnotation<Base>() != null
+        || annotations.any { it.annotationClass.isBase }
+
+val KClass<*>.isActiveBase: Boolean
+    get() = findAnnotation<ActiveBase>() != null
+
+val KClass<*>.isIdBase: Boolean
+    get() = findAnnotation<IdBase>() != null
+
+val KClass<*>.isActive: Boolean
+    get() = findAnnotation<ActiveBase>() != null
+        || superclasses.any { it.isActive }
+
+val Plugin.bases: List<KClass<out Plugin>>
     get() {
-        val id = try {
-            id
-        } catch (e: MissingIdBaseException) {
-            return false
-        }
+        val specs = mutableListOf<KClass<out Plugin>>()
+        val type = this::class
+        if (type.isBase) specs.add(type)
+        type.allSuperclasses.asSequence()
+            .filter { it.isBase }
+            .filter {
+                it.isSubclassOf(Plugin::class).also { isSubclass ->
+                    if (!isSubclass) {
+                        DeclarationException("Base ${it.qualifiedName} is not a plugin subtype")
+                    }
+                }
+            }
+            .map { it as KClass<out Plugin> }
+            .forEach { specs.add(it) }
 
-        val bases = try {
-            bases
-        } catch (e: MissingBasesException) {
-            return false
-        }
-
-        if (id !in bases) {
-            return false
-        }
-
-        val specs = mutableSetOf<KClass<out Plugin>>()
-
-        val selfSpec = this::class.pluginSpecification() ?: return false
-        specs.add(selfSpec)
-
-        for (base in bases) {
-            val spec = base.pluginSpecification() ?: return false
-            specs.add(spec)
-
-            if (!base.isSuperclassOf(this::class)) return false
-        }
-
-        return specs.size == 1
+        return specs
     }
+
+val Plugin.id: KClass<out Plugin>
+    @Beta
+    get() {
+        var foundActive = false
+        val ids: MutableList<KClass<out Plugin>> = ArrayList(bases.size)
+        bases.forEach {
+            if (it.isIdBase) {
+                ids.add(it)
+            }
+            if (it.isActiveBase) {
+                foundActive = true
+            }
+        }
+        if (!foundActive) {
+            throw IllegalStateException(
+                "Plugin does not implement an active base: ${this::class.qualifiedName}")
+        }
+        if (ids.isEmpty()) {
+            throw DeclarationException(
+                "No ID base on plugin with active base: ${this::class.qualifiedName}")
+        }
+        if (ids.size > 1) {
+            // TODO should this happen?
+            throw DeclarationException()
+        }
+        return ids.first()
+    }
+
+val Plugin.category: KClass<out Plugin>
+    get() = this::class.pluginCategory
+
+val KClass<*>.pluginCategory: KClass<out Plugin>
+    get() {
+        val specs = mutableListOf<KClass<out Plugin>>()
+        sequenceOf(GenericPlugin::class, PlaybackFactory::class, Provider::class, Suggester::class)
+            .filter { this.isSubclassOf(it) }
+            .forEach { specs.add(it) }
+        return if (specs.size == 1) specs.first()
+        else throw ConfigurationException()
+    }
+

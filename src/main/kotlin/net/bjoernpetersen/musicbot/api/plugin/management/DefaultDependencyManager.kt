@@ -1,5 +1,7 @@
 package net.bjoernpetersen.musicbot.api.plugin.management
 
+import com.google.common.collect.MultimapBuilder
+import mu.KotlinLogging
 import net.bjoernpetersen.musicbot.api.PluginLoader
 import net.bjoernpetersen.musicbot.api.config.ChoiceBox
 import net.bjoernpetersen.musicbot.api.config.Config
@@ -13,28 +15,33 @@ import net.bjoernpetersen.musicbot.spi.plugin.Plugin
 import net.bjoernpetersen.musicbot.spi.plugin.Provider
 import net.bjoernpetersen.musicbot.spi.plugin.Suggester
 import net.bjoernpetersen.musicbot.spi.plugin.bases
-import net.bjoernpetersen.musicbot.spi.plugin.id
-import net.bjoernpetersen.musicbot.spi.plugin.management.ConfigurationException
+import net.bjoernpetersen.musicbot.spi.plugin.management.DependencyConfigurationException
+import net.bjoernpetersen.musicbot.spi.plugin.management.DependencyManager
 import net.bjoernpetersen.musicbot.spi.plugin.management.PluginFinder
-import net.bjoernpetersen.musicbot.spi.plugin.management.PluginManager
-import com.google.common.collect.MultimapBuilder
-import mu.KotlinLogging
-import java.io.File
 import kotlin.reflect.KClass
 
-class DefaultPluginManager(
+class DefaultDependencyManager(
     state: Config,
     override val genericPlugins: List<GenericPlugin>,
     override val playbackFactories: List<PlaybackFactory>,
     override val providers: List<Provider>,
-    override val suggesters: List<Suggester>) : PluginManager {
+    override val suggesters: List<Suggester>) : DependencyManager {
 
     private val logger = KotlinLogging.logger { }
 
-    private val allPlugins = genericPlugins + playbackFactories + providers + suggesters
     private val basesByPlugin: Map<Plugin, Set<KClass<out Plugin>>> = allPlugins
         .associateWith { it.bases.toSet() }
     private val allBases: Set<KClass<out Plugin>> = basesByPlugin.values.flatten().toSet()
+    private val pluginsByBase = MultimapBuilder.SetMultimapBuilder
+        .hashKeys()
+        .hashSetValues()
+        .build<KClass<*>, Plugin>().apply {
+            for (entry in basesByPlugin) {
+                entry.value.forEach {
+                    put(it, entry.key)
+                }
+            }
+        }
 
     private val pluginSerializer = object : ConfigSerializer<Plugin> {
         override fun serialize(obj: Plugin): String = obj::class.qualifiedName!!
@@ -46,7 +53,7 @@ class DefaultPluginManager(
     private val defaultByBase: Map<KClass<out Plugin>, Config.SerializedEntry<Plugin>> =
         allBases.associateWith { state.defaultEntry(it) }
 
-    constructor(config: Config, pluginFolder: File) : this(config, loadPlugins(pluginFolder))
+    constructor(config: Config, loader: PluginLoader) : this(config, loadPlugins(loader))
 
     private constructor(config: Config, plugins: Plugins) : this(
         config,
@@ -56,7 +63,7 @@ class DefaultPluginManager(
         plugins.suggesters)
 
     override fun getDefaults(plugin: Plugin): Map<KClass<out Plugin>, Boolean> {
-        return basesByPlugin[plugin]?.associateWith { defaultByBase[it] == plugin }
+        return basesByPlugin[plugin]?.associateWith { defaultByBase[it]?.get() == plugin }
             ?: throw IllegalStateException()
     }
 
@@ -65,52 +72,41 @@ class DefaultPluginManager(
         return defaultByBase[base]?.get() as B?
     }
 
-    override fun <B : Plugin, P : B> isDefault(plugin: P, base: KClass<out B>): Boolean {
+    override fun isDefault(plugin: Plugin, base: KClass<*>): Boolean {
         return defaultByBase[base]?.get() == plugin
     }
 
-    override fun <B : Plugin, P : B> setDefault(plugin: P, base: KClass<out B>) {
+    override fun setDefault(plugin: Plugin?, base: KClass<*>) {
         defaultByBase[base]?.set(plugin) ?: logger.warn { "Tried to set default on unknown base" }
     }
 
-    private fun isEnabled(plugin: Plugin): Boolean {
-        return isDefault(plugin, plugin.id)
+    override fun findAvailable(base: KClass<*>): List<Plugin> {
+        return pluginsByBase[base].toList()
     }
 
-    @Throws(ConfigurationException::class)
+    @Throws(DependencyConfigurationException::class)
     override fun finish(): PluginFinder {
+        val genericPlugins: List<GenericPlugin> = findActiveGeneric()
+        val playbackFactories: List<PlaybackFactory> = findActivePlaybackFactory()
+        val providers: List<Provider> = findActiveProvider()
+        val suggesters: List<Suggester> = findActiveSuggester()
 
-        val genericPlugins: List<GenericPlugin> = genericPlugins.filter(::isEnabled)
-        val playbackFactories: List<PlaybackFactory> = playbackFactories.filter(::isEnabled)
-        val providers: List<Provider> = providers.filter(::isEnabled)
-        val suggesters: List<Suggester> = suggesters.filter(::isEnabled)
-
-        val defaultByBase = sequenceOf(genericPlugins, playbackFactories, providers, suggesters)
-            .flatMap { it.asSequence() }
-            .flatMap {
-                DependencyFinder.findDependencies(it).asSequence()
-            }
-            .distinct()
+        val defaultByBase = findActiveDependencies()
             .associateWith { base ->
                 val plugin = try {
                     getDefault(base)
                 } catch (e: SerializationException) {
                     null
-                } ?: throw ConfigurationException("No default: ${base.qualifiedName}")
+                } ?: throw DependencyConfigurationException("No default: ${base.qualifiedName}")
 
-                if (!isEnabled(plugin))
-                    throw ConfigurationException(
+                if (!isActive(plugin))
+                    throw DependencyConfigurationException(
                         "Default plugin for base ${base.qualifiedName} not enabled: ${plugin.name}")
 
                 plugin
             }
 
         return PluginFinder(defaultByBase, genericPlugins, playbackFactories, providers, suggesters)
-    }
-
-    private fun Config.disabledEntry(plugin: Plugin): Config.BooleanEntry {
-        val key = "${plugin::class.qualifiedName!!}.disabled"
-        return BooleanEntry(key, "", false)
     }
 
     private fun Config.defaultEntry(base: KClass<out Plugin>): Config.SerializedEntry<Plugin> {
@@ -121,7 +117,7 @@ class DefaultPluginManager(
                     basesByPlugin.asSequence()
                         .filter { it.value.contains(base) }
                         .map { it.key }
-                        .filter { isEnabled(it) }
+                        .filter { isActive(it) }
                         .toList()
                 })
         }
@@ -137,8 +133,7 @@ class DefaultPluginManager(
     }
 
     private companion object {
-        fun loadPlugins(pluginFolder: File): Plugins {
-            val loader = PluginLoader(pluginFolder)
+        fun loadPlugins(loader: PluginLoader): Plugins {
             return Plugins(
                 generic = loader.load(GenericPlugin::class).toList(),
                 playbackFactories = loader.load(PlaybackFactory::class).toList(),

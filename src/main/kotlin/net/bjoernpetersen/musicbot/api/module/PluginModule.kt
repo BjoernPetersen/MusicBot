@@ -11,7 +11,7 @@ import kotlin.reflect.KClass
 
 class PluginModule(private val pluginFinder: PluginFinder) : AbstractModule() {
     private fun configureDefaults() {
-        pluginFinder.defaultKeys.forEach { base ->
+        pluginFinder.defaultBases.forEach { base ->
             base as KClass<Plugin>
             pluginFinder[base]?.apply {
                 bind(base.java).toProvider(javax.inject.Provider { this })

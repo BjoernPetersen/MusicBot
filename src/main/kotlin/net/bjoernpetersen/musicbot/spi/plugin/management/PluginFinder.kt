@@ -17,7 +17,7 @@ class PluginFinder(
     val providers: List<Provider>,
     val suggesters: List<Suggester>) {
 
-    val defaultKeys: Set<KClass<out Plugin>>
+    val defaultBases: Set<KClass<out Plugin>>
         get() = defaultByBase.keys
 
     operator fun <T : Plugin> get(base: KClass<T>): T? = defaultByBase[base] as T?
