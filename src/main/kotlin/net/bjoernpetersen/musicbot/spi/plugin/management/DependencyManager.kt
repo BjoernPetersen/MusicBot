@@ -50,6 +50,14 @@ interface DependencyManager {
     fun findActiveSuggester(): List<Suggester> = suggesters.filter(::isActive)
 
     @Beta
+    fun findOptionalDependencies(): Set<KClass<out Plugin>> {
+        return allPlugins
+            .filter { it::class.isActive }
+            .map { it.id }
+            .toSet()
+    }
+
+    @Beta
     fun findActiveDependencies(): Set<KClass<out Plugin>> {
         val result = allPlugins
             .filter(::isActive)
@@ -61,11 +69,6 @@ interface DependencyManager {
             .flatMap { it.asSequence() }
             .filter { it.value }
             .map { it.key }
-            .forEach { result.add(it) }
-        // TODO remove the following?
-        allPlugins
-            .filter { it::class.isActive }
-            .map { it.id }
             .forEach { result.add(it) }
         return result
     }
