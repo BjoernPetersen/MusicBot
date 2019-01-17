@@ -11,7 +11,8 @@ jobs:
       # Download and cache dependencies
     - restore_cache:
         keys:
-        - v2-dependencies-{{ checksum "build.gradle.kts" }}-{{ checksum "buildSrc/src/main/kotlin" }}
+        - v2-dependencies-{{ checksum "build.gradle.kts" }}-{{ checksum "buildSrc/src/main/kotlin/Plugin.kts" }}-{{ checksum "buildSrc/src/main/kotlin/Lib.kts" }}
+        - v2-dependencies-{{ checksum "build.gradle.kts" }}-{{ checksum "buildSrc/src/main/kotlin/Plugin.kts" }}
         - v2-dependencies-{{ checksum "build.gradle.kts" }}
         # fallback to using the latest cache if no exact match is found
         - v2-dependencies-
@@ -21,7 +22,7 @@ jobs:
     - save_cache:
         paths:
         - ~/.gradle
-        key: v2-dependencies-{{ checksum "build.gradle.kts" }}-{{ checksum "buildSrc/src/main/kotlin" }}
+        key: v2-dependencies-{{ checksum "build.gradle.kts" }}-{{ checksum "buildSrc/src/main/kotlin/Plugin.kts" }}-{{ checksum "buildSrc/src/main/kotlin/Lib.kts" }}
 
     - run: ./gradlew test
     - store_test_results:
