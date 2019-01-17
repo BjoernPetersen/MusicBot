@@ -39,8 +39,6 @@ class ConfigTest {
             })
     }
 
-    private fun implDescriptor(impl: Impl) = baseDescriptor(impl)
-
     private fun baseDescriptor(base: Base): String {
         return base.name
     }
