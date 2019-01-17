@@ -70,7 +70,7 @@ private class TestProvider : TestProviderBase {
         TODO("not implemented")
     }
 
-    override fun search(query: String): List<Song> {
+    override fun search(query: String, offset: Int): List<Song> {
         TODO("not implemented")
     }
 

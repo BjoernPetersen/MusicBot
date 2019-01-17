@@ -13,9 +13,10 @@ interface Provider : Plugin, UserFacing {
      * It is recommended only to return about 30 songs at max.
      *
      * @param query a search query, trimmed and not empty
+     * @param offset the index of the first result to return (may be used for pagination)
      * @return a list of songs
      */
-    fun search(query: String): List<Song>
+    fun search(query: String, offset: Int = 0): List<Song>
 
     /**
      * Looks up a song by its ID.
