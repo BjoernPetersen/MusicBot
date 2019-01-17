@@ -13,7 +13,7 @@ plugins {
 
     signing
     `maven-publish`
-    id("com.github.spotbugs") version Plugin.SPOTBUGS
+    id("com.github.spotbugs") version Plugin.SPOTBUGS_PLUGIN
 }
 
 group = "com.github.bjoernpetersen"
@@ -44,6 +44,7 @@ val processResources by tasks.getting(ProcessResources::class) {
 
 spotbugs {
     isIgnoreFailures = true
+    toolVersion = Plugin.SPOTBUGS_TOOL
 }
 
 tasks {
