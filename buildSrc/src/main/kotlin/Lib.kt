@@ -1,9 +1,7 @@
-object Version {
-    const val KOTLIN = "1.3.10"
-    const val DOKKA = "0.9.17"
+object Lib {
+    const val KOTLIN = Plugin.KOTLIN
     const val SLF4J = "1.7.25"
     const val KOTLIN_LOGGING = "1.6.10"
-    const val SPOTBUGS = "1.6.3"
 
     const val GUAVA = "23.0"
     const val GUICE = "4.2.1"

@@ -3,15 +3,17 @@ import org.jetbrains.dokka.gradle.DokkaTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version Version.KOTLIN
+    id("com.github.ben-manes.versions") version Plugin.VERSIONS
+
+    kotlin("jvm") version Plugin.KOTLIN
     `java-library`
 
-    id("org.jetbrains.dokka") version Version.DOKKA
+    id("org.jetbrains.dokka") version Plugin.DOKKA
     idea
 
     signing
     `maven-publish`
-    id("com.github.spotbugs") version Version.SPOTBUGS
+    id("com.github.spotbugs") version Plugin.SPOTBUGS
 }
 
 group = "com.github.bjoernpetersen"
@@ -87,6 +89,12 @@ tasks {
             html.isEnabled = true
         }
     }
+
+    withType(Jar::class) {
+        from(project.projectDir) {
+            include("LICENSE")
+        }
+    }
 }
 
 dependencies {
@@ -95,38 +103,38 @@ dependencies {
     implementation(
         group = "io.github.microutils",
         name = "kotlin-logging",
-        version = Version.KOTLIN_LOGGING)
+        version = Lib.KOTLIN_LOGGING)
 
-    api(group = "org.slf4j", name = "slf4j-api", version = Version.SLF4J)
-    api(group = "com.google.guava", name = "guava", version = Version.GUAVA)
-    api(group = "com.google.inject", name = "guice", version = Version.GUICE)
+    api(group = "org.slf4j", name = "slf4j-api", version = Lib.SLF4J)
+    api(group = "com.google.guava", name = "guava", version = Lib.GUAVA)
+    api(group = "com.google.inject", name = "guice", version = Lib.GUICE)
 
-    implementation(group = "org.xerial", name = "sqlite-jdbc", version = Version.SQLITE)
+    implementation(group = "org.xerial", name = "sqlite-jdbc", version = Lib.SQLITE)
 
-    implementation(group = "org.mindrot", name = "jbcrypt", version = Version.JBCRYPT)
+    implementation(group = "org.mindrot", name = "jbcrypt", version = Lib.JBCRYPT)
     implementation(
         group = "io.jsonwebtoken",
         name = "jjwt",
-        version = Version.JJWT)
+        version = Lib.JJWT)
     api(group = "com.github.zafarkhaja",
         name = "java-semver",
-        version = Version.JAVA_SEMVER)
+        version = Lib.JAVA_SEMVER)
 
-    testImplementation(group = "org.slf4j", name = "slf4j-simple", version = Version.SLF4J)
+    testImplementation(group = "org.slf4j", name = "slf4j-simple", version = Lib.SLF4J)
     testRuntime(
         group = "org.junit.jupiter",
         name = "junit-jupiter-engine",
-        version = Version.JUNIT)
+        version = Lib.JUNIT)
     testImplementation(
         group = "org.junit.jupiter",
         name = "junit-jupiter-api",
-        version = Version.JUNIT)
+        version = Lib.JUNIT)
     testImplementation(
         group = "name.falgout.jeffrey.testing.junit5",
         name = "guice-extension",
-        version = Version.JUNIT_GUICE)
-    testImplementation(group = "io.mockk", name = "mockk", version = Version.MOCK_K)
-    testImplementation(group = "org.assertj", name = "assertj-core", version = Version.ASSERT_J)
+        version = Lib.JUNIT_GUICE)
+    testImplementation(group = "io.mockk", name = "mockk", version = Lib.MOCK_K)
+    testImplementation(group = "org.assertj", name = "assertj-core", version = Lib.ASSERT_J)
 }
 
 publishing {
@@ -176,12 +184,6 @@ publishing {
                 }
             }
         }
-    }
-}
-
-tasks.withType(Jar::class) {
-    from(project.projectDir) {
-        include("LICENSE")
     }
 }
 
