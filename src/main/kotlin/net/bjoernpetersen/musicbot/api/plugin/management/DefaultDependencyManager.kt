@@ -101,8 +101,7 @@ class DefaultDependencyManager(
                 plugin
             }
 
-        return PluginFinder(defaultByBase,
-            genericPlugins, playbackFactories, providers, suggesters)
+        return PluginFinder(defaultByBase, genericPlugins, playbackFactories, providers, suggesters)
     }
 
     private fun Config.defaultEntry(base: KClass<out Plugin>): Config.SerializedEntry<Plugin> {
