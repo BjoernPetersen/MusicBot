@@ -2,6 +2,7 @@ package net.bjoernpetersen.musicbot.spi.plugin
 
 import net.bjoernpetersen.musicbot.api.Song
 import net.bjoernpetersen.musicbot.api.player.SongEntry
+import net.bjoernpetersen.musicbot.api.plugin.ActiveBase
 
 @ActiveBase
 interface Suggester : Plugin, UserFacing {

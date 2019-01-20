@@ -1,8 +1,8 @@
 package net.bjoernpetersen.musicbot.api.config
 
+import mu.KotlinLogging
 import net.bjoernpetersen.musicbot.spi.config.ConfigChecker
 import net.bjoernpetersen.musicbot.spi.config.ConfigStorageAdapter
-import mu.KotlinLogging
 
 class Config internal constructor(
     private val adapter: ConfigStorageAdapter,
@@ -10,6 +10,11 @@ class Config internal constructor(
 
     private val logger = KotlinLogging.logger {}
     private val entries: MutableMap<String, String> = adapter.load(scope).toMutableMap()
+
+    internal fun dump() {
+        // TODO delet this
+        println(entries)
+    }
 
     private fun getValue(key: String): String? {
         return entries[key]?.let {

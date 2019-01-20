@@ -1,4 +1,4 @@
-package net.bjoernpetersen.musicbot.spi.plugin.management
+package net.bjoernpetersen.musicbot.api.plugin.management
 
 import net.bjoernpetersen.musicbot.spi.plugin.GenericPlugin
 import net.bjoernpetersen.musicbot.spi.plugin.PlaybackFactory
@@ -20,5 +20,6 @@ class PluginFinder(
     val defaultBases: Set<KClass<out Plugin>>
         get() = defaultByBase.keys
 
+    @Suppress("UNCHECKED_CAST")
     operator fun <T : Plugin> get(base: KClass<T>): T? = defaultByBase[base] as T?
 }

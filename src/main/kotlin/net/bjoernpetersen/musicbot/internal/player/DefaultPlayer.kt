@@ -1,5 +1,7 @@
 package net.bjoernpetersen.musicbot.internal.player
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder
+import mu.KotlinLogging
 import net.bjoernpetersen.musicbot.api.Song
 import net.bjoernpetersen.musicbot.api.player.DefaultSuggester
 import net.bjoernpetersen.musicbot.api.player.ErrorState
@@ -10,6 +12,7 @@ import net.bjoernpetersen.musicbot.api.player.QueueEntry
 import net.bjoernpetersen.musicbot.api.player.SongEntry
 import net.bjoernpetersen.musicbot.api.player.StopState
 import net.bjoernpetersen.musicbot.api.player.SuggestedSongEntry
+import net.bjoernpetersen.musicbot.api.plugin.management.PluginFinder
 import net.bjoernpetersen.musicbot.spi.loader.SongLoader
 import net.bjoernpetersen.musicbot.spi.player.Player
 import net.bjoernpetersen.musicbot.spi.player.PlayerStateListener
@@ -21,9 +24,6 @@ import net.bjoernpetersen.musicbot.spi.plugin.Playback
 import net.bjoernpetersen.musicbot.spi.plugin.PlaybackState
 import net.bjoernpetersen.musicbot.spi.plugin.Provider
 import net.bjoernpetersen.musicbot.spi.plugin.Suggester
-import net.bjoernpetersen.musicbot.spi.plugin.management.PluginFinder
-import com.google.common.util.concurrent.ThreadFactoryBuilder
-import mu.KotlinLogging
 import java.io.IOException
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -91,12 +91,16 @@ internal class DefaultPlayer @Inject private constructor(
 
     private fun Song.findProvider(): Provider? {
         val base = try {
-            classLoader.loadClass(provider.id).kotlin
+            @Suppress("UNCHECKED_CAST")
+            classLoader.loadClass(provider.id).kotlin as KClass<Provider>
         } catch (e: ClassNotFoundException) {
             logger.error(e) { "Could not find provider class for song" }
             return null
+        } catch (e: ClassCastException) {
+            logger.error(e) { "Could not cast ID base to KClass<Provider>" }
+            return null
         }
-        val provider: Provider? = pluginFinder[base as KClass<Provider>]
+        val provider: Provider? = pluginFinder[base]
         if (provider == null) {
             logger.error { "Could not find provider for class ${base.qualifiedName}" }
             return null

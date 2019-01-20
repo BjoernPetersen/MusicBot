@@ -1,4 +1,4 @@
-package net.bjoernpetersen.musicbot.spi.plugin
+package net.bjoernpetersen.musicbot.api.plugin
 
 /**
  * Marks a base class or interface of a plugin which may be used to depend on the plugin.

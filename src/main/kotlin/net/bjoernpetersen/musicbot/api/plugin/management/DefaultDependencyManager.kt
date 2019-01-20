@@ -17,7 +17,6 @@ import net.bjoernpetersen.musicbot.spi.plugin.Suggester
 import net.bjoernpetersen.musicbot.spi.plugin.bases
 import net.bjoernpetersen.musicbot.spi.plugin.management.DependencyConfigurationException
 import net.bjoernpetersen.musicbot.spi.plugin.management.DependencyManager
-import net.bjoernpetersen.musicbot.spi.plugin.management.PluginFinder
 import kotlin.reflect.KClass
 
 class DefaultDependencyManager(
@@ -32,6 +31,7 @@ class DefaultDependencyManager(
     private val basesByPlugin: Map<Plugin, Set<KClass<out Plugin>>> = allPlugins
         .associateWith { it.bases.toSet() }
     private val allBases: Set<KClass<out Plugin>> = basesByPlugin.values.flatten().toSet()
+    @Suppress("UnstableApiUsage")
     private val pluginsByBase = MultimapBuilder.SetMultimapBuilder
         .hashKeys()
         .hashSetValues()
@@ -62,8 +62,8 @@ class DefaultDependencyManager(
         plugins.providers,
         plugins.suggesters)
 
-    override fun getDefaults(plugin: Plugin): Map<KClass<out Plugin>, Boolean> {
-        return basesByPlugin[plugin]?.associateWith { defaultByBase[it]?.get() == plugin }
+    override fun getDefaults(plugin: Plugin): Sequence<KClass<out Plugin>> {
+        return basesByPlugin[plugin]?.asSequence()?.filter { defaultByBase[it]?.get() == plugin }
             ?: throw IllegalStateException()
     }
 
@@ -86,40 +86,30 @@ class DefaultDependencyManager(
 
     @Throws(DependencyConfigurationException::class)
     override fun finish(): PluginFinder {
-        val genericPlugins: List<GenericPlugin> = findActiveGeneric()
-        val playbackFactories: List<PlaybackFactory> = findActivePlaybackFactory()
-        val providers: List<Provider> = findActiveProvider()
-        val suggesters: List<Suggester> = findActiveSuggester()
+        val genericPlugins: List<GenericPlugin> = findEnabledGeneric()
+        val playbackFactories: List<PlaybackFactory> = findEnabledPlaybackFactory()
+        val providers: List<Provider> = findEnabledProvider()
+        val suggesters: List<Suggester> = findEnabledSuggester()
 
-        val defaultByBase = findActiveDependencies()
+        val defaultByBase = findEnabledDependencies()
             .associateWith { base ->
                 val plugin = try {
                     getDefault(base)
                 } catch (e: SerializationException) {
                     null
                 } ?: throw DependencyConfigurationException("No default: ${base.qualifiedName}")
-
-                if (!isActive(plugin))
-                    throw DependencyConfigurationException(
-                        "Default plugin for base ${base.qualifiedName} not enabled: ${plugin.name}")
-
                 plugin
             }
 
-        return PluginFinder(defaultByBase, genericPlugins, playbackFactories, providers, suggesters)
+        return PluginFinder(defaultByBase,
+            genericPlugins, playbackFactories, providers, suggesters)
     }
 
     private fun Config.defaultEntry(base: KClass<out Plugin>): Config.SerializedEntry<Plugin> {
         fun defaultEntryUi(): UiNode<Plugin> {
             return ChoiceBox(
                 { it.name },
-                {
-                    basesByPlugin.asSequence()
-                        .filter { it.value.contains(base) }
-                        .map { it.key }
-                        .filter { isActive(it) }
-                        .toList()
-                })
+                { pluginsByBase[base].toList() })
         }
 
         val key = "${base.qualifiedName!!}.default"

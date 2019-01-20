@@ -1,6 +1,6 @@
 package net.bjoernpetersen.musicbot.spi.plugin.predefined
 
-import net.bjoernpetersen.musicbot.spi.plugin.Base
+import net.bjoernpetersen.musicbot.api.plugin.Base
 
 /**
  * PlaybackFactory capable of playing `.aac` and `.m4a` files.

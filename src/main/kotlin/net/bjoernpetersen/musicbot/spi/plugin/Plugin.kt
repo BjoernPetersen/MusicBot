@@ -2,6 +2,9 @@ package net.bjoernpetersen.musicbot.spi.plugin
 
 import com.google.common.annotations.Beta
 import net.bjoernpetersen.musicbot.api.config.Config
+import net.bjoernpetersen.musicbot.api.plugin.ActiveBase
+import net.bjoernpetersen.musicbot.api.plugin.Base
+import net.bjoernpetersen.musicbot.api.plugin.IdBase
 import net.bjoernpetersen.musicbot.spi.plugin.management.InitStateWriter
 import java.io.IOException
 import javax.inject.Inject
@@ -142,9 +145,9 @@ val KClass<*>.isActiveBase: Boolean
 val KClass<*>.isIdBase: Boolean
     get() = findAnnotation<IdBase>() != null
 
-val KClass<*>.isActive: Boolean
+val KClass<*>.hasActiveBase: Boolean
     get() = findAnnotation<ActiveBase>() != null
-        || superclasses.any { it.isActive }
+        || superclasses.any { it.hasActiveBase }
 
 val Plugin.bases: List<KClass<out Plugin>>
     get() {
@@ -160,7 +163,10 @@ val Plugin.bases: List<KClass<out Plugin>>
                     }
                 }
             }
-            .map { it as KClass<out Plugin> }
+            .map {
+                @Suppress("UNCHECKED_CAST")
+                it as KClass<out Plugin>
+            }
             .forEach { specs.add(it) }
 
         return specs
