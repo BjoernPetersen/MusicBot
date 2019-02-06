@@ -1,7 +1,7 @@
 object Lib {
     const val KOTLIN = Plugin.KOTLIN
     const val SLF4J = "1.8.0-beta2"
-    const val KOTLIN_LOGGING = "1.6.22"
+    const val KOTLIN_LOGGING = "1.6.23"
 
     const val GUAVA = "27.0.1-android"
     const val GUICE = "4.2.2"
