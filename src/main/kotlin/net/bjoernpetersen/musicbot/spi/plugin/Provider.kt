@@ -1,6 +1,6 @@
 package net.bjoernpetersen.musicbot.spi.plugin
 
-import net.bjoernpetersen.musicbot.api.Song
+import net.bjoernpetersen.musicbot.api.player.Song
 import net.bjoernpetersen.musicbot.api.plugin.ActiveBase
 import java.io.IOException
 import kotlin.reflect.KClass

@@ -2,7 +2,7 @@ package net.bjoernpetersen.musicbot.internal.player
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder
 import mu.KotlinLogging
-import net.bjoernpetersen.musicbot.api.Song
+import net.bjoernpetersen.musicbot.api.player.Song
 import net.bjoernpetersen.musicbot.api.player.DefaultSuggester
 import net.bjoernpetersen.musicbot.api.player.ErrorState
 import net.bjoernpetersen.musicbot.api.player.PauseState

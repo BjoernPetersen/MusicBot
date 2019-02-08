@@ -1,6 +1,5 @@
 package net.bjoernpetersen.musicbot.api.player
 
-import net.bjoernpetersen.musicbot.api.Song
 import net.bjoernpetersen.musicbot.api.auth.User
 
 sealed class SongEntry {

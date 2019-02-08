@@ -1,6 +1,6 @@
 package net.bjoernpetersen.musicbot.spi.loader
 
-import net.bjoernpetersen.musicbot.api.Song
+import net.bjoernpetersen.musicbot.api.player.Song
 import net.bjoernpetersen.musicbot.spi.plugin.Provider
 import java.util.concurrent.Future
 

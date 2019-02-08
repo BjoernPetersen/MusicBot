@@ -1,6 +1,6 @@
 package net.bjoernpetersen.musicbot.internal.player
 
-import net.bjoernpetersen.musicbot.api.Song
+import net.bjoernpetersen.musicbot.api.player.Song
 import net.bjoernpetersen.musicbot.api.player.QueueEntry
 import net.bjoernpetersen.musicbot.spi.player.QueueChangeListener
 import net.bjoernpetersen.musicbot.spi.player.SongQueue

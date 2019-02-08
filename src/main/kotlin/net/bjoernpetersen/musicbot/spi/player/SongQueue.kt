@@ -1,6 +1,6 @@
 package net.bjoernpetersen.musicbot.spi.player
 
-import net.bjoernpetersen.musicbot.api.Song
+import net.bjoernpetersen.musicbot.api.player.Song
 import net.bjoernpetersen.musicbot.api.player.QueueEntry
 
 interface SongQueue {

@@ -2,7 +2,7 @@ package net.bjoernpetersen.musicbot.api.plugin.management
 
 import com.google.common.collect.MultimapBuilder
 import mu.KotlinLogging
-import net.bjoernpetersen.musicbot.api.PluginLoader
+import net.bjoernpetersen.musicbot.api.plugin.PluginLoader
 import net.bjoernpetersen.musicbot.api.config.ChoiceBox
 import net.bjoernpetersen.musicbot.api.config.Config
 import net.bjoernpetersen.musicbot.api.config.ConfigSerializer

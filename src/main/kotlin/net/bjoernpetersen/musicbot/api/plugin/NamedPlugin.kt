@@ -1,4 +1,4 @@
-package net.bjoernpetersen.musicbot.api
+package net.bjoernpetersen.musicbot.api.plugin
 
 import net.bjoernpetersen.musicbot.spi.plugin.Plugin
 import kotlin.reflect.KClass

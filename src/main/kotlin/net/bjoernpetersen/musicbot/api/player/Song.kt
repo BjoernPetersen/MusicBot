@@ -1,5 +1,6 @@
-package net.bjoernpetersen.musicbot.api
+package net.bjoernpetersen.musicbot.api.player
 
+import net.bjoernpetersen.musicbot.api.plugin.NamedPlugin
 import net.bjoernpetersen.musicbot.spi.plugin.Provider
 import net.bjoernpetersen.musicbot.spi.plugin.id
 
@@ -19,7 +20,8 @@ data class Song private constructor(
         duration: Int? = null,
         albumArtUrl: String? = null) : this(
         id = id,
-        provider = NamedPlugin(provider.id.qualifiedName!!, provider.subject),
+        provider = NamedPlugin(provider.id.qualifiedName!!,
+            provider.subject),
         title = title,
         description = description,
         duration = duration,
