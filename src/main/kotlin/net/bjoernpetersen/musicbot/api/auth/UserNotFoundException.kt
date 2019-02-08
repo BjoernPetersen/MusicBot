@@ -1,6 +1,6 @@
-package net.bjoernpetersen.musicbot.spi.auth
+package net.bjoernpetersen.musicbot.api.auth
 
-class DuplicateUserException : Exception {
+class UserNotFoundException : Exception {
     constructor() : super()
     constructor(message: String) : super(message)
     constructor(message: String, cause: Throwable) : super(message, cause)

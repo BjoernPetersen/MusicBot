@@ -9,9 +9,7 @@ import io.jsonwebtoken.impl.crypto.MacSigner
 import net.bjoernpetersen.musicbot.api.config.Config
 import net.bjoernpetersen.musicbot.api.config.ConfigManager
 import net.bjoernpetersen.musicbot.api.config.GenericConfigScope
-import net.bjoernpetersen.musicbot.spi.auth.DuplicateUserException
 import net.bjoernpetersen.musicbot.spi.auth.UserDatabase
-import net.bjoernpetersen.musicbot.spi.auth.UserNotFoundException
 import org.mindrot.jbcrypt.BCrypt
 import java.nio.charset.StandardCharsets
 import java.sql.SQLException
@@ -36,12 +34,14 @@ class UserManager @Inject constructor(
     fun createTemporaryUser(name: String, id: String): User {
         if (BotUser.name.equals(name, ignoreCase = true))
             throw DuplicateUserException("Invalid username")
-        if (BotUser.name == name) throw DuplicateUserException("Invalid ID")
+        if (BotUser.name == name) throw DuplicateUserException(
+            "Invalid ID")
 
         try {
             // TODO create "hasUser" method in Database
             getUser(name)
-            throw DuplicateUserException("User already exists: $name")
+            throw DuplicateUserException(
+                "User already exists: $name")
         } catch (expected: UserNotFoundException) {
             val user = GuestUser(name, id)
             temporaryUsers[user.name.toLowerCase(Locale.US)] = user
@@ -56,7 +56,8 @@ class UserManager @Inject constructor(
         }
         return temporaryUsers[name.toLowerCase(Locale.US)]
             ?: userDatabase.findUser(name)
-            ?: throw UserNotFoundException("Could not find user: $name")
+            ?: throw UserNotFoundException(
+                "Could not find user: $name")
     }
 
     /**

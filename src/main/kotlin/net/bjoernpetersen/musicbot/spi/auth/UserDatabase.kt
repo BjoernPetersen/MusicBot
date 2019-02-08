@@ -1,5 +1,6 @@
 package net.bjoernpetersen.musicbot.spi.auth
 
+import net.bjoernpetersen.musicbot.api.auth.DuplicateUserException
 import net.bjoernpetersen.musicbot.api.auth.FullUser
 import net.bjoernpetersen.musicbot.api.auth.Permission
 

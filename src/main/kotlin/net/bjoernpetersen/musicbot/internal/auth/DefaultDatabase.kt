@@ -2,9 +2,9 @@ package net.bjoernpetersen.musicbot.internal.auth
 
 import net.bjoernpetersen.musicbot.api.auth.FullUser
 import net.bjoernpetersen.musicbot.api.auth.Permission
-import net.bjoernpetersen.musicbot.spi.auth.DuplicateUserException
+import net.bjoernpetersen.musicbot.api.auth.DuplicateUserException
 import net.bjoernpetersen.musicbot.spi.auth.UserDatabase
-import net.bjoernpetersen.musicbot.spi.auth.UserNotFoundException
+import net.bjoernpetersen.musicbot.api.auth.UserNotFoundException
 import com.google.common.base.Splitter
 import java.sql.DriverManager
 import java.sql.SQLException
@@ -51,7 +51,8 @@ internal class DefaultDatabase(databaseUrl: String) : UserDatabase {
                 var permissionString: String
                 getUser.executeQuery().use { resultSet ->
                     if (!resultSet.next()) {
-                        throw UserNotFoundException("No such user: $id")
+                        throw UserNotFoundException(
+                            "No such user: $id")
                     }
                     dbName = resultSet.getString("name")
                     hash = resultSet.getString("password")
