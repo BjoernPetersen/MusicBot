@@ -121,6 +121,11 @@ dependencies {
         group = "io.jsonwebtoken",
         name = "jjwt-impl",
         version = Lib.JJWT)
+    runtime(
+        group = "io.jsonwebtoken",
+        name = "jjwt-jackson",
+        version = Lib.JJWT)
+
     api(group = "com.github.zafarkhaja",
         name = "java-semver",
         version = Lib.JAVA_SEMVER)
