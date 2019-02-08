@@ -1,7 +1,10 @@
 package net.bjoernpetersen.musicbot.spi.plugin
 
+import net.bjoernpetersen.musicbot.api.loader.NoResource
+import net.bjoernpetersen.musicbot.api.loader.SongLoadingException
 import net.bjoernpetersen.musicbot.api.player.Song
 import net.bjoernpetersen.musicbot.api.plugin.ActiveBase
+import net.bjoernpetersen.musicbot.spi.loader.Resource
 import java.io.IOException
 import kotlin.reflect.KClass
 
@@ -29,20 +32,39 @@ interface Provider : Plugin, UserFacing {
     @Throws(NoSuchSongException::class)
     fun lookup(id: String): Song
 
-    fun getPlaybackSupplier(song: Song): PlaybackSupplier
+    /**
+     * Supplies the playback object for the specified song.
+     *
+     * This method should call a [PlaybackFactory].
+     *
+     * @param song a song
+     * @param resource the resource returned by [loadSong] for the song. Guaranteed to be valid.
+     * @return a Playback object
+     * @throws IOException if the playback could not be created
+     */
+    @Throws(IOException::class)
+    fun supplyPlayback(song: Song, resource: Resource): Playback
 
     /**
      * Loads a song, i.e. prepares it before it can be played.
      *
-     * This method can potentially download a song before it is being played. The song might never be
-     * actually played, so this should not prepare a {@link Playback} object in any way.
+     * This method can potentially download a song before it is being played.
+     * The song might never be actually played, so this should never
+     * prepare a [Playback] object in any way.
+     *
+     * The returned resource may be freed without notifying the Provider whenever it is deemed to
+     * be unused. As long as the resource is [valid][Resource.isValid], it may be reused multiple
+     * times without calling this method again.
+     *
+     * If you don't allocate any resources, feel free to return [NoResource].
      *
      * This method will not be called on an UI Thread, so it may block.
      *
      * @param song the song to load
-     * @return whether the song has been loaded successfully
+     * @return a resource, if any has been allocated
      */
-    fun loadSong(song: Song): Boolean
+    @Throws(SongLoadingException::class)
+    fun loadSong(song: Song): Resource
 
     /**
      * Looks up a batch of song IDs. If any can't be looked up, they will be dropped.
@@ -61,22 +83,6 @@ interface Provider : Plugin, UserFacing {
         }
         return result.toList()
     }
-}
-
-interface PlaybackSupplier {
-    /**
-     * Supplies the playback object for the specified song.
-     *
-     * @param song a song
-     * @return a Playback object
-     * @throws IOException if the playback could not be created
-     */
-    @Throws(IOException::class)
-    fun supply(song: Song): Playback
-}
-
-fun playbackSupplier(supplier: (Song) -> Playback) = object : PlaybackSupplier {
-    override fun supply(song: Song): Playback = supplier(song)
 }
 
 class NoSuchSongException : Exception {

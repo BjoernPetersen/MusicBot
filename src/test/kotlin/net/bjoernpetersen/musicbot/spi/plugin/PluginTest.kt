@@ -1,8 +1,9 @@
 package net.bjoernpetersen.musicbot.spi.plugin
 
-import net.bjoernpetersen.musicbot.api.player.Song
 import net.bjoernpetersen.musicbot.api.config.Config
+import net.bjoernpetersen.musicbot.api.player.Song
 import net.bjoernpetersen.musicbot.api.plugin.IdBase
+import net.bjoernpetersen.musicbot.spi.loader.Resource
 import net.bjoernpetersen.musicbot.spi.plugin.management.InitStateWriter
 import org.junit.jupiter.api.Assertions.assertDoesNotThrow
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -59,11 +60,11 @@ private class TestProvider : TestProviderBase {
     override val description: String = ""
     override val name: String = "TestProvider"
 
-    override fun loadSong(song: Song): Boolean {
+    override fun loadSong(song: Song): Resource {
         TODO("not implemented")
     }
 
-    override fun getPlaybackSupplier(song: Song): PlaybackSupplier {
+    override fun supplyPlayback(song: Song, resource: Resource): Playback {
         TODO("not implemented")
     }
 

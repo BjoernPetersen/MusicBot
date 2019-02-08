@@ -1,9 +1,10 @@
 package net.bjoernpetersen.musicbot.api.plugin.management.plugins
 
-import net.bjoernpetersen.musicbot.api.player.Song
 import net.bjoernpetersen.musicbot.api.config.Config
+import net.bjoernpetersen.musicbot.api.player.Song
 import net.bjoernpetersen.musicbot.api.plugin.IdBase
-import net.bjoernpetersen.musicbot.spi.plugin.PlaybackSupplier
+import net.bjoernpetersen.musicbot.spi.loader.Resource
+import net.bjoernpetersen.musicbot.spi.plugin.Playback
 import net.bjoernpetersen.musicbot.spi.plugin.Provider
 import net.bjoernpetersen.musicbot.spi.plugin.management.InitStateWriter
 import javax.inject.Inject
@@ -30,11 +31,11 @@ private class TodoProvider(override val name: String) : Provider {
         TODO("not implemented")
     }
 
-    override fun getPlaybackSupplier(song: Song): PlaybackSupplier {
+    override fun supplyPlayback(song: Song, resource: Resource): Playback {
         TODO("not implemented")
     }
 
-    override fun loadSong(song: Song): Boolean {
+    override fun loadSong(song: Song): Resource {
         TODO("not implemented")
     }
 

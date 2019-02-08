@@ -16,7 +16,7 @@ interface SongLoader {
      * @param song a song to be loaded
      * @return a future eventually yielding the result of [Provider.loadSong]
      */
-    fun startLoading(provider: Provider, song: Song): Future<Boolean>
+    fun startLoading(provider: Provider, song: Song): Future<Resource>
 
     @Throws(InterruptedException::class)
     fun close()

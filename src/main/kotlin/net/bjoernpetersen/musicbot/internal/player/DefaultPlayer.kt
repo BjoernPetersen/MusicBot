@@ -2,18 +2,18 @@ package net.bjoernpetersen.musicbot.internal.player
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder
 import mu.KotlinLogging
-import net.bjoernpetersen.musicbot.api.player.Song
 import net.bjoernpetersen.musicbot.api.player.DefaultSuggester
 import net.bjoernpetersen.musicbot.api.player.ErrorState
 import net.bjoernpetersen.musicbot.api.player.PauseState
 import net.bjoernpetersen.musicbot.api.player.PlayState
 import net.bjoernpetersen.musicbot.api.player.PlayerState
 import net.bjoernpetersen.musicbot.api.player.QueueEntry
+import net.bjoernpetersen.musicbot.api.player.Song
 import net.bjoernpetersen.musicbot.api.player.SongEntry
 import net.bjoernpetersen.musicbot.api.player.StopState
 import net.bjoernpetersen.musicbot.api.player.SuggestedSongEntry
 import net.bjoernpetersen.musicbot.api.plugin.management.PluginFinder
-import net.bjoernpetersen.musicbot.spi.loader.SongLoader
+import net.bjoernpetersen.musicbot.spi.loader.ResourceCache
 import net.bjoernpetersen.musicbot.spi.player.Player
 import net.bjoernpetersen.musicbot.spi.player.PlayerStateListener
 import net.bjoernpetersen.musicbot.spi.player.QueueChangeListener
@@ -22,7 +22,6 @@ import net.bjoernpetersen.musicbot.spi.player.SongQueue
 import net.bjoernpetersen.musicbot.spi.plugin.BrokenSuggesterException
 import net.bjoernpetersen.musicbot.spi.plugin.Playback
 import net.bjoernpetersen.musicbot.spi.plugin.PlaybackState
-import net.bjoernpetersen.musicbot.spi.plugin.Provider
 import net.bjoernpetersen.musicbot.spi.plugin.Suggester
 import java.io.IOException
 import java.util.concurrent.ExecutorService
@@ -32,15 +31,14 @@ import java.util.concurrent.locks.ReentrantLock
 import javax.inject.Inject
 import javax.inject.Named
 import kotlin.concurrent.withLock
-import kotlin.reflect.KClass
 
 internal class DefaultPlayer @Inject private constructor(
     private val queue: SongQueue,
-    private val songLoader: SongLoader,
-    private val pluginFinder: PluginFinder,
-    private val songPlayedNotifier: SongPlayedNotifier,
+    private val resourceCache: ResourceCache,
     @Named("PluginClassLoader")
     private val classLoader: ClassLoader,
+    private val pluginFinder: PluginFinder,
+    private val songPlayedNotifier: SongPlayedNotifier,
     defaultSuggester: DefaultSuggester) : Player {
 
     private val logger = KotlinLogging.logger {}
@@ -72,7 +70,7 @@ internal class DefaultPlayer @Inject private constructor(
     init {
         queue.addListener(object : QueueChangeListener {
             override fun onAdd(entry: QueueEntry) {
-                startLoading(entry.song)
+                resourceCache[entry.song]
             }
 
             override fun onRemove(entry: QueueEntry) {}
@@ -89,31 +87,6 @@ internal class DefaultPlayer @Inject private constructor(
         autoPlayer.submit { this.autoPlay() }
     }
 
-    private fun Song.findProvider(): Provider? {
-        val base = try {
-            @Suppress("UNCHECKED_CAST")
-            classLoader.loadClass(provider.id).kotlin as KClass<Provider>
-        } catch (e: ClassNotFoundException) {
-            logger.error(e) { "Could not find provider class for song" }
-            return null
-        } catch (e: ClassCastException) {
-            logger.error(e) { "Could not cast ID base to KClass<Provider>" }
-            return null
-        }
-        val provider: Provider? = pluginFinder[base]
-        if (provider == null) {
-            logger.error { "Could not find provider for class ${base.qualifiedName}" }
-            return null
-        }
-        return provider
-    }
-
-    private fun startLoading(song: Song) {
-        song.findProvider()?.let {
-            songLoader.startLoading(it, song)
-        }
-    }
-
     private fun preloadSuggestion(suggester: Suggester) {
         if (queue.isEmpty) {
             val suggestions: List<Song>
@@ -123,7 +96,7 @@ internal class DefaultPlayer @Inject private constructor(
                 return
             }
 
-            startLoading(suggestions[0])
+            resourceCache[suggestions[0]]
         }
     }
 
@@ -242,11 +215,13 @@ internal class DefaultPlayer @Inject private constructor(
             songPlayedNotifier.notifyPlayed(nextEntry)
             logger.debug("Next song is: $nextSong")
             try {
-                playback = nextSong
-                    .findProvider()
-                    ?.getPlaybackSupplier(nextSong)
-                    ?.supply(nextSong)
-                    ?: throw IOException()
+                val resource = try {
+                    resourceCache[nextSong].get()
+                } catch (e: Exception) {
+                    throw IOException(e)
+                }
+                playback = nextSong.provider.findPlugin(classLoader, pluginFinder)
+                    .supplyPlayback(nextSong, resource)
             } catch (e: IOException) {
                 logger.warn(e) { "Error creating playback" }
 
