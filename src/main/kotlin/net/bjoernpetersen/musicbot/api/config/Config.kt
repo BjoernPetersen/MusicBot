@@ -54,7 +54,7 @@ class Config internal constructor(
     inner class StringEntry @JvmOverloads constructor(
         key: String,
         description: String,
-        private val configChecker: ConfigChecker<String>,
+        private val configChecker: ConfigChecker<in String>,
         uiNode: UiNode<in String>? = null,
         val default: String? = null) : Entry<String>(key, description, uiNode) {
 
@@ -77,7 +77,7 @@ class Config internal constructor(
         key: String,
         description: String,
         private val serializer: ConfigSerializer<T>,
-        private val configChecker: ConfigChecker<T>,
+        private val configChecker: ConfigChecker<in T>,
         uiNode: UiNode<in T>? = null,
         private val default: T? = null) : Entry<T>(key, description, uiNode) {
 
