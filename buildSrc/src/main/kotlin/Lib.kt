@@ -8,7 +8,7 @@ object Lib {
     const val SQLITE = "3.25.2"
 
     const val JBCRYPT = "0.4"
-    const val JJWT = "0.9.1"
+    const val JJWT = "0.10.5"
     const val JAVA_SEMVER = "0.9.0"
 
     const val JUNIT = "5.3.1"

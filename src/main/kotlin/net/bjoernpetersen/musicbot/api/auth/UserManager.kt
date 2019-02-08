@@ -5,17 +5,18 @@ import io.jsonwebtoken.Jws
 import io.jsonwebtoken.JwtException
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
-import io.jsonwebtoken.impl.crypto.MacSigner
+import io.jsonwebtoken.security.Keys
 import net.bjoernpetersen.musicbot.api.config.Config
 import net.bjoernpetersen.musicbot.api.config.ConfigManager
 import net.bjoernpetersen.musicbot.api.config.GenericConfigScope
 import net.bjoernpetersen.musicbot.spi.auth.UserDatabase
 import org.mindrot.jbcrypt.BCrypt
-import java.nio.charset.StandardCharsets
 import java.sql.SQLException
 import java.time.Instant
 import java.time.Period
-import java.util.*
+import java.util.Date
+import java.util.HashMap
+import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -170,7 +171,7 @@ class UserManager @Inject constructor(
     }
 
     private fun createSignatureKey(): String {
-        val encoded = Base64.getEncoder().encode(MacSigner.generateKey().encoded)
-        return String(encoded, StandardCharsets.UTF_8)
+        val encoded = Keys.secretKeyFor(SignatureAlgorithm.HS512).encoded
+        return String(encoded, Charsets.UTF_8)
     }
 }
