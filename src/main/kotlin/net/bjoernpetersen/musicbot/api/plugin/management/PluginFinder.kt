@@ -22,4 +22,11 @@ class PluginFinder(
 
     @Suppress("UNCHECKED_CAST")
     operator fun <T : Plugin> get(base: KClass<T>): T? = defaultByBase[base] as T?
+
+    fun allPlugins(): Sequence<Plugin> = sequenceOf(
+        genericPlugins,
+        playbackFactories,
+        providers,
+        suggesters)
+        .flatMap { it.asSequence() }
 }
