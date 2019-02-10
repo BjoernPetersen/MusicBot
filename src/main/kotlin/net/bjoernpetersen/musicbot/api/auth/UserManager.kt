@@ -1,16 +1,14 @@
 package net.bjoernpetersen.musicbot.api.auth
 
-import io.jsonwebtoken.Claims
-import io.jsonwebtoken.Jws
-import io.jsonwebtoken.JwtException
-import io.jsonwebtoken.Jwts
-import io.jsonwebtoken.SignatureAlgorithm
-import io.jsonwebtoken.security.Keys
+import com.auth0.jwt.JWT
+import com.auth0.jwt.algorithms.Algorithm
+import com.auth0.jwt.exceptions.JWTVerificationException
 import net.bjoernpetersen.musicbot.api.config.Config
 import net.bjoernpetersen.musicbot.api.config.ConfigManager
 import net.bjoernpetersen.musicbot.api.config.GenericConfigScope
 import net.bjoernpetersen.musicbot.spi.auth.UserDatabase
 import org.mindrot.jbcrypt.BCrypt
+import java.security.SecureRandom
 import java.sql.SQLException
 import java.time.Instant
 import java.time.Period
@@ -35,8 +33,6 @@ class UserManager @Inject constructor(
     fun createTemporaryUser(name: String, id: String): User {
         if (BotUser.name.equals(name, ignoreCase = true))
             throw DuplicateUserException("Invalid username")
-        if (BotUser.name == name) throw DuplicateUserException(
-            "Invalid ID")
 
         try {
             // TODO create "hasUser" method in Database
@@ -122,38 +118,36 @@ class UserManager @Inject constructor(
         } else {
             getSignatureKey()
         }
-        val builder = Jwts.builder()
-            .setSubject(user.name)
-            .setIssuedAt(Date())
-            .signWith(SignatureAlgorithm.HS512, signatureKey)
-            .setExpiration(Date.from(Instant.now().plus(Period.ofDays(7))))
 
-        for (permission in user.permissions) {
-            builder.claim(permission.label, true)
-        }
-
-        return builder.compact()
+        return JWT.create()
+            .withSubject(user.name)
+            .withIssuedAt(Date())
+            .withExpiresAt(Date.from(Instant.now().plus(Period.ofDays(7))))
+            .withArrayClaim("permissions", user.permissions.map { it.label }.toTypedArray())
+            .sign(Algorithm.HMAC512(signatureKey))
     }
 
     @Throws(InvalidTokenException::class)
     fun fromToken(token: String): User {
-        val parsed: Jws<Claims> = try {
-            Jwts.parser()
-                .setSigningKey(getSignatureKey())
-                .parseClaimsJws(token)
-        } catch (e: JwtException) {
+        val decoded = try {
+            JWT
+                .require(Algorithm.HMAC512(getSignatureKey()))
+                .build()
+                .verify(token)
+        } catch (e: JWTVerificationException) {
             // try again with guest key
             try {
-                Jwts.parser()
-                    .setSigningKey(guestSignatureKey)
-                    .parseClaimsJws(token)
-            } catch (e1: JwtException) {
+                JWT
+                    .require(Algorithm.HMAC512(guestSignatureKey))
+                    .build()
+                    .verify(token)
+            } catch (e1: JWTVerificationException) {
                 e1.addSuppressed(e)
                 throw InvalidTokenException(e1)
             }
         }
 
-        val id = parsed.body.subject ?: throw InvalidTokenException("ID missing")
+        val id = decoded.subject ?: throw InvalidTokenException("ID missing")
 
         try {
             return getUser(id)
@@ -171,7 +165,9 @@ class UserManager @Inject constructor(
     }
 
     private fun createSignatureKey(): String {
-        val encoded = Keys.secretKeyFor(SignatureAlgorithm.HS512).encoded
-        return String(encoded, Charsets.UTF_8)
+        val rand = SecureRandom()
+        val bytes = ByteArray(4096)
+        rand.nextBytes(bytes)
+        return String(bytes, Charsets.UTF_8)
     }
 }

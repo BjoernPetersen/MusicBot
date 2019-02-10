@@ -114,16 +114,8 @@ dependencies {
 
     implementation(group = "org.mindrot", name = "jbcrypt", version = Lib.JBCRYPT)
     implementation(
-        group = "io.jsonwebtoken",
-        name = "jjwt-api",
-        version = Lib.JJWT)
-    runtime(
-        group = "io.jsonwebtoken",
-        name = "jjwt-impl",
-        version = Lib.JJWT)
-    runtime(
-        group = "io.jsonwebtoken",
-        name = "jjwt-jackson",
+        group = "com.auth0",
+        name = "java-jwt",
         version = Lib.JJWT)
 
     api(group = "com.github.zafarkhaja",
