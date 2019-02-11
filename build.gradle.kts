@@ -108,7 +108,7 @@ dependencies {
 
     api(group = "org.slf4j", name = "slf4j-api", version = Lib.SLF4J)
     api(group = "com.google.guava", name = "guava", version = Lib.GUAVA)
-    api(group = "com.google.inject", name = "guice", version = Lib.GUICE)
+    api(group = "com.google.inject", name = "guice", version = Lib.GUICE, classifier = "no_aop")
 
     implementation(group = "org.xerial", name = "sqlite-jdbc", version = Lib.SQLITE)
 
