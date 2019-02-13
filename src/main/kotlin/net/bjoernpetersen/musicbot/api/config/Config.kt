@@ -96,7 +96,7 @@ class Config internal constructor(
             setValue(key, value?.let { serializer.serialize(it) })
         }
 
-        override fun checkError(): String? = configChecker(getWithoutDefault())
+        override fun checkError(): String? = configChecker(get())
     }
 
     inner class BooleanEntry(
