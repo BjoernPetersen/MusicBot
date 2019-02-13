@@ -79,7 +79,7 @@ class Config internal constructor(
         private val serializer: ConfigSerializer<T>,
         private val configChecker: ConfigChecker<in T>,
         uiNode: UiNode<in T>? = null,
-        private val default: T? = null) : Entry<T>(key, description, uiNode) {
+        val default: T? = null) : Entry<T>(key, description, uiNode) {
 
         override fun getWithoutDefault(): T? = try {
             getValue(key)?.let { serializer.deserialize(it) }
