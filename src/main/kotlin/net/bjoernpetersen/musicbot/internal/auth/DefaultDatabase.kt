@@ -1,28 +1,18 @@
 package net.bjoernpetersen.musicbot.internal.auth
 
+import com.google.common.base.Splitter
+import net.bjoernpetersen.musicbot.api.auth.DuplicateUserException
 import net.bjoernpetersen.musicbot.api.auth.FullUser
 import net.bjoernpetersen.musicbot.api.auth.Permission
-import net.bjoernpetersen.musicbot.api.auth.DuplicateUserException
-import net.bjoernpetersen.musicbot.spi.auth.UserDatabase
 import net.bjoernpetersen.musicbot.api.auth.UserNotFoundException
-import com.google.common.base.Splitter
+import net.bjoernpetersen.musicbot.spi.auth.UserDatabase
 import java.sql.DriverManager
 import java.sql.SQLException
-import java.util.*
+import java.util.HashSet
+import java.util.Locale
 
 internal class DefaultDatabase(databaseUrl: String) : UserDatabase {
     private val connection = DriverManager.getConnection(databaseUrl)
-
-    private val getUser = connection.prepareStatement(
-        "SELECT name, password, permissions FROM users WHERE id=?")
-    private val getUsers = connection.prepareStatement("SELECT * FROM users")
-    private val createUser = connection.prepareStatement(
-        "INSERT OR ABORT INTO users(id, name, password, permissions) VALUES(?, ?, ?, ?)")
-    private val updatePassword = connection.prepareStatement(
-        "UPDATE users SET password=? WHERE id=?")
-    private val updatePermissions = connection.prepareStatement(
-        "UPDATE users SET permissions=? WHERE id=?")
-    private val deleteUser = connection.prepareStatement("DELETE FROM users WHERE id=?")
 
     init {
         connection.createStatement().use { statement ->
@@ -34,6 +24,17 @@ internal class DefaultDatabase(databaseUrl: String) : UserDatabase {
                     permissions TEXT NOT NULL)""".trimMargin())
         }
     }
+
+    private val getUser = connection.prepareStatement(
+        "SELECT name, password, permissions FROM users WHERE id=?")
+    private val getUsers = connection.prepareStatement("SELECT * FROM users")
+    private val createUser = connection.prepareStatement(
+        "INSERT OR ABORT INTO users(id, name, password, permissions) VALUES(?, ?, ?, ?)")
+    private val updatePassword = connection.prepareStatement(
+        "UPDATE users SET password=? WHERE id=?")
+    private val updatePermissions = connection.prepareStatement(
+        "UPDATE users SET permissions=? WHERE id=?")
+    private val deleteUser = connection.prepareStatement("DELETE FROM users WHERE id=?")
 
     private fun getPermissions(permissionString: String): Set<Permission> = Splitter.on(',')
         .omitEmptyStrings()
