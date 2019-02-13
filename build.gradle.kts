@@ -147,9 +147,10 @@ publishing {
             artifact(tasks.getByName("sourcesJar"))
 
             pom {
-                description.set(
-                    "Core library of JMusicBot, which plays music from various providers.")
-                url.set("https://github.com/BjoernPetersen/jmusicbot")
+                name.set("MusicBot")
+                description
+                    .set("Core library of MusicBot, which plays music from various providers.")
+                url.set("https://github.com/BjoernPetersen/JMusicBot")
 
                 licenses {
                     license {
@@ -161,6 +162,7 @@ publishing {
                 scm {
                     connection.set("scm:git:https://github.com/BjoernPetersen/JMusicBot.git")
                     developerConnection.set("scm:git:git@github.com:BjoernPetersen/JMusicBot.git")
+                    url.set("https://github.com/BjoernPetersen/JMusicBot")
                 }
 
                 developers {
