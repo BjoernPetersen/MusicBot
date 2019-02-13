@@ -27,9 +27,11 @@ annotation class ActiveBase
  *
  * An ID base may be `SpotifyProviderBase`, identifying whichever Spotify provider implementation
  * is active at runtime, even if the implementation changes between sessions.
+ *
+ * @param displayName a short name to represent the ID
  */
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.RUNTIME)
 @Base
 @MustBeDocumented
-annotation class IdBase
+annotation class IdBase(val displayName: String)
