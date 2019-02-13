@@ -9,10 +9,10 @@ import net.bjoernpetersen.musicbot.spi.plugin.Provider
 import net.bjoernpetersen.musicbot.spi.plugin.management.InitStateWriter
 import javax.inject.Inject
 
-@IdBase
+@IdBase("Self ID")
 class SelfIdProvider : Provider by TodoProvider("self")
 
-@IdBase
+@IdBase("Separate ID")
 interface MyProvider : Provider
 
 class MyProviderImpl : Provider by TodoProvider("My"), MyProvider

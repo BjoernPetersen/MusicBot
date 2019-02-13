@@ -1,13 +1,13 @@
 package net.bjoernpetersen.musicbot.api.plugin.management.plugins
 
-import net.bjoernpetersen.musicbot.api.player.Song
 import net.bjoernpetersen.musicbot.api.config.Config
+import net.bjoernpetersen.musicbot.api.player.Song
 import net.bjoernpetersen.musicbot.api.plugin.IdBase
 import net.bjoernpetersen.musicbot.spi.plugin.Suggester
 import net.bjoernpetersen.musicbot.spi.plugin.management.InitStateWriter
 import javax.inject.Inject
 
-@IdBase
+@IdBase("Authed")
 class AuthMySuggester : Suggester by TodoSuggester("AuthMy") {
 
     @Inject

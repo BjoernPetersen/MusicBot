@@ -3,17 +3,17 @@ package net.bjoernpetersen.musicbot.api.plugin.management.plugins
 import net.bjoernpetersen.musicbot.api.config.Config
 import net.bjoernpetersen.musicbot.api.plugin.ActiveBase
 import net.bjoernpetersen.musicbot.api.plugin.Base
-import net.bjoernpetersen.musicbot.spi.plugin.GenericPlugin
 import net.bjoernpetersen.musicbot.api.plugin.IdBase
+import net.bjoernpetersen.musicbot.spi.plugin.GenericPlugin
 import net.bjoernpetersen.musicbot.spi.plugin.management.InitStateWriter
 
-@IdBase
+@IdBase("Self ID")
 @ActiveBase
 class SelfIdActiveGeneric : GenericPlugin by TodoGeneric("self active")
 
 class SelfIdGeneric : GenericPlugin by TodoGeneric("self inactive")
 
-@IdBase
+@IdBase("Separate ID")
 @ActiveBase
 interface ActiveGenericId : GenericPlugin
 

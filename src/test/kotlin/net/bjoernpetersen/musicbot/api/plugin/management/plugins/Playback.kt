@@ -6,7 +6,7 @@ import net.bjoernpetersen.musicbot.api.plugin.IdBase
 import net.bjoernpetersen.musicbot.spi.plugin.PlaybackFactory
 import net.bjoernpetersen.musicbot.spi.plugin.management.InitStateWriter
 
-@IdBase
+@IdBase("Self ID")
 class SelfIdPlayback : PlaybackFactory by TodoPlaybackFactory("self")
 
 @Base
@@ -15,7 +15,7 @@ interface EchoPlayback : PlaybackFactory {
     fun echoThis(message: String)
 }
 
-@IdBase
+@IdBase("Separate ID")
 interface MyPlayback : EchoPlayback
 
 class MyPlaybackImpl : MyPlayback, PlaybackFactory by TodoPlaybackFactory("MyEcho") {

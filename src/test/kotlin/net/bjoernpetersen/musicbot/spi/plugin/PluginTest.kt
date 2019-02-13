@@ -30,10 +30,8 @@ class PluginTest {
     }
 }
 
-@IdBase
-private interface TestProviderBase : Provider {
-
-}
+@IdBase("Test")
+private interface TestProviderBase : Provider
 
 private class TestProvider : TestProviderBase {
     override fun createConfigEntries(config: Config): List<Config.Entry<*>> {
