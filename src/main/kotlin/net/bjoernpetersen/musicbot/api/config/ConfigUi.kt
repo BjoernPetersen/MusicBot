@@ -15,7 +15,16 @@ data class ActionButton<T>(
     val action: () -> Boolean) : UiNode<T>()
 
 data class NumberBox @JvmOverloads constructor(val min: Int = 0, val max: Int = 100) : UiNode<Int>()
-data class FileChooser(val isDirectory: Boolean = true) : UiNode<File>()
+data class FileChooser(
+    val isDirectory: Boolean = true,
+    val isOpen: Boolean = true) : UiNode<File>() {
+
+    init {
+        if (isDirectory && !isOpen)
+            throw IllegalArgumentException("isDirectory requires isOpen")
+    }
+}
+
 @Beta
 data class ChoiceBox<T> @JvmOverloads constructor(
     val descriptor: (T) -> String,
