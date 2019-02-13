@@ -46,6 +46,16 @@ enum class PlaybackState {
     BROKEN
 }
 
+/**
+ * A plugin that provides playback objects for some media/input type.
+ *
+ * Note that this interface is relatively worthless by itself, because it doesn't have
+ * a `createPlayback` method. The reason for that is, that the signature of such a method is highly
+ * dependent on the capabilities of the media/input format a PlaybackFactory can handle.
+ *
+ * Have a look at the `predefined` subpackage for some subtypes that are sensible to implement or
+ * depend on.
+ */
 interface PlaybackFactory : Plugin
 
 /**

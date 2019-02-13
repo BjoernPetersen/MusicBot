@@ -18,7 +18,15 @@ import kotlin.reflect.full.superclasses
  * Base interface for plugins. This interface isn't meant to be directly implemented, but to be
  * extended by a specialized interface first.
  *
- * Every plugin MUST be annotated with [Bases] and [IdBase].
+ * ## Specialized subtypes
+ *
+ * Your plugin should (directly or indirectly) implement **one** of the following
+ * specialized subtypes:
+ *
+ * - [GenericPlugin]
+ * - [PlaybackFactory]
+ * - [Provider]
+ * - [Suggester]
  *
  * ## Dependencies
  *
@@ -28,7 +36,7 @@ import kotlin.reflect.full.superclasses
  * ## Lifecycle
  *
  * A plugin goes through several different lifecycle phases due to the way it is integrated in the
- * MusicBot.
+ * MusicBot. Those phases are the following, in order:
  *
  * ### Creation
  *
@@ -45,6 +53,9 @@ import kotlin.reflect.full.superclasses
  * The plugin is asked to provide its configuration entries by [createConfigEntries] and
  * [createSecretEntries]. The returned entries are shown to the user and their value may change
  * any number of times during this phase.
+ *
+ * [createStateEntries] is also called in this phase, but state entries are never displayed to the
+ * user.
  *
  * ### Initialization
  *
@@ -90,14 +101,14 @@ interface UserFacing {
     /**
      * The subject of the content provided by this plugin.
      *
-     * This will be shown to end users, together with the type of plugin, this should give users
-     * an idea of they will be getting.
+     * This will be shown to (client) end users, together with the type of plugin,
+     * this should give users an idea of what content they will be getting.
      *
      * Note that the value of this may even change during runtime, especially during configuration.
      *
      * Some good examples:
      * - For providers: "Spotify" or "YouTube"
-     * - For suggesters: "Random MP3s", a playlist name, "Based on last played song"
+     * - For suggesters: "Random MP3s", a playlist name, "Based on <last played song>"
      */
     val subject: String
 }

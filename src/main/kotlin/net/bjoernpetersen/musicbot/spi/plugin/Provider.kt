@@ -1,5 +1,6 @@
 package net.bjoernpetersen.musicbot.spi.plugin
 
+import mu.KotlinLogging
 import net.bjoernpetersen.musicbot.api.loader.NoResource
 import net.bjoernpetersen.musicbot.api.loader.SongLoadingException
 import net.bjoernpetersen.musicbot.api.player.Song
@@ -8,6 +9,10 @@ import net.bjoernpetersen.musicbot.spi.loader.Resource
 import java.io.IOException
 import kotlin.reflect.KClass
 
+/**
+ * A plugin that provides songs from somewhere. That may be an external service, local files, or
+ * basically anything you can manage to implement.
+ */
 @ActiveBase
 interface Provider : Plugin, UserFacing {
 
@@ -78,7 +83,7 @@ interface Provider : Plugin, UserFacing {
             try {
                 result.add(lookup(id))
             } catch (e: NoSuchSongException) {
-                // TODO log or something
+                KotlinLogging.logger { }.warn(e) { "Could not find a song in a batch lookup" }
             }
         }
         return result.toList()

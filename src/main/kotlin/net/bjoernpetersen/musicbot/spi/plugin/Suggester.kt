@@ -4,6 +4,9 @@ import net.bjoernpetersen.musicbot.api.player.Song
 import net.bjoernpetersen.musicbot.api.player.SongEntry
 import net.bjoernpetersen.musicbot.api.plugin.ActiveBase
 
+/**
+ * A plugin that provides song suggestions. Typically depends on a [Provider].
+ */
 @ActiveBase
 interface Suggester : Plugin, UserFacing {
 
