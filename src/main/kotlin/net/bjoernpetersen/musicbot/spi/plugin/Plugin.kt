@@ -149,6 +149,9 @@ val KClass<*>.hasActiveBase: Boolean
     get() = findAnnotation<ActiveBase>() != null
         || superclasses.any { it.hasActiveBase }
 
+val KClass<*>.idName: String
+    get() = findAnnotation<IdBase>()?.displayName ?: throw DeclarationException()
+
 val Plugin.bases: List<KClass<out Plugin>>
     get() {
         val specs = mutableListOf<KClass<out Plugin>>()
