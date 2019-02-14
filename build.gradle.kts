@@ -150,7 +150,7 @@ publishing {
                 name.set("MusicBot")
                 description
                     .set("Core library of MusicBot, which plays music from various providers.")
-                url.set("https://github.com/BjoernPetersen/JMusicBot")
+                url.set("https://github.com/BjoernPetersen/MusicBot")
 
                 licenses {
                     license {
@@ -160,9 +160,9 @@ publishing {
                 }
 
                 scm {
-                    connection.set("scm:git:https://github.com/BjoernPetersen/JMusicBot.git")
-                    developerConnection.set("scm:git:git@github.com:BjoernPetersen/JMusicBot.git")
-                    url.set("https://github.com/BjoernPetersen/JMusicBot")
+                    connection.set("scm:git:https://github.com/BjoernPetersen/MusicBot.git")
+                    developerConnection.set("scm:git:git@github.com:BjoernPetersen/MusicBot.git")
+                    url.set("https://github.com/BjoernPetersen/MusicBot")
                 }
 
                 developers {
