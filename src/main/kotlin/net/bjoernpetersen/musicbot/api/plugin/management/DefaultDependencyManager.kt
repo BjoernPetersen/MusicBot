@@ -2,19 +2,21 @@ package net.bjoernpetersen.musicbot.api.plugin.management
 
 import com.google.common.collect.MultimapBuilder
 import mu.KotlinLogging
-import net.bjoernpetersen.musicbot.api.plugin.PluginLoader
 import net.bjoernpetersen.musicbot.api.config.ChoiceBox
 import net.bjoernpetersen.musicbot.api.config.Config
 import net.bjoernpetersen.musicbot.api.config.ConfigSerializer
 import net.bjoernpetersen.musicbot.api.config.NonnullConfigChecker
 import net.bjoernpetersen.musicbot.api.config.SerializationException
 import net.bjoernpetersen.musicbot.api.config.UiNode
+import net.bjoernpetersen.musicbot.api.plugin.PluginLoader
 import net.bjoernpetersen.musicbot.spi.plugin.GenericPlugin
 import net.bjoernpetersen.musicbot.spi.plugin.PlaybackFactory
 import net.bjoernpetersen.musicbot.spi.plugin.Plugin
 import net.bjoernpetersen.musicbot.spi.plugin.Provider
 import net.bjoernpetersen.musicbot.spi.plugin.Suggester
 import net.bjoernpetersen.musicbot.spi.plugin.bases
+import net.bjoernpetersen.musicbot.spi.plugin.hasActiveBase
+import net.bjoernpetersen.musicbot.spi.plugin.id
 import net.bjoernpetersen.musicbot.spi.plugin.management.DependencyConfigurationException
 import net.bjoernpetersen.musicbot.spi.plugin.management.DependencyManager
 import kotlin.reflect.KClass
@@ -92,13 +94,20 @@ class DefaultDependencyManager(
         val suggesters: List<Suggester> = findEnabledSuggester()
 
         val defaultByBase = findEnabledDependencies()
-            .associateWith { base ->
+            .associateWithTo(HashMap()) { base ->
                 val plugin = try {
                     getDefault(base)
                 } catch (e: SerializationException) {
                     null
                 } ?: throw DependencyConfigurationException("No default: ${base.qualifiedName}")
                 plugin
+            }
+
+        sequenceOf(genericPlugins, playbackFactories, providers, suggesters)
+            .flatMap { it.asSequence() }
+            .filter { it::class.hasActiveBase }
+            .forEach {
+                defaultByBase[it.id] = it
             }
 
         return PluginFinder(defaultByBase, genericPlugins, playbackFactories, providers, suggesters)
