@@ -99,8 +99,8 @@ tasks {
 }
 
 dependencies {
-    implementation(kotlin("stdlib-jdk8"))
-    implementation(kotlin("reflect"))
+    api(kotlin("stdlib-jdk8"))
+    api(kotlin("reflect"))
     implementation(
         group = "io.github.microutils",
         name = "kotlin-logging",
