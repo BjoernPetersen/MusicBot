@@ -6,7 +6,7 @@ import kotlin.reflect.full.findAnnotation
 
 /**
  * User permissions to perform certain actions.
- * @param label A human-readable label for this permission.
+ * @param label A unique, human-readable label for this permission.
  */
 enum class Permission(val label: String) {
 
