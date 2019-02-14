@@ -1,9 +1,9 @@
-# MusicBot [![GitHub (pre-)release](https://img.shields.io/github/release/BjoernPetersen/JMusicBot/all.svg)](https://github.com/BjoernPetersen/JMusicBot/releases) [![CircleCI branch](https://img.shields.io/circleci/project/github/BjoernPetersen/JMusicBot/master.svg)](https://circleci.com/gh/BjoernPetersen/JMusicBot/tree/master) [![GitHub license](https://img.shields.io/github/license/BjoernPetersen/JMusicBot.svg)](https://github.com/BjoernPetersen/JMusicBot/blob/master/LICENSE)
+# MusicBot [![GitHub (pre-)release](https://img.shields.io/github/release/BjoernPetersen/MusicBot/all.svg)](https://github.com/BjoernPetersen/MusicBot/releases) [![CircleCI branch](https://img.shields.io/circleci/project/github/BjoernPetersen/MusicBot/master.svg)](https://circleci.com/gh/BjoernPetersen/MusicBot/tree/master) [![GitHub license](https://img.shields.io/github/license/BjoernPetersen/MusicBot.svg)](https://github.com/BjoernPetersen/MusicBot/blob/master/LICENSE)
 
-This is the core library of the JMusicBot project.
+This is the core library of the MusicBot project.
 APIs should not be considered stable until version 1.0.0.
 
-If you want to have a working version of the bot, [have a look at the JMusicBot-desktop project](https://github.com/BjoernPetersen/JMusicBot-desktop/releases).
+If you want to have a working version of the bot, [have a look at the MusicBot-desktop project](https://github.com/BjoernPetersen/MusicBot-desktop/releases).
 
 ## Usage
 
@@ -54,9 +54,9 @@ This is only the core library for the MusicBot, it needs to be wrapped an implem
 to actually work.
 
 The only known implementation can be found in the
-[JMusicBot-desktop](https://github.com/BjoernPetersen/JMusicBot-desktop) project.
+[MusicBot-desktop](https://github.com/BjoernPetersen/MusicBot-desktop) project.
 
 ### Plugins
 
 For documentation on how to implement plugins, have a look at the JavaDocs or
-at the [docs hosted on github.io](https://bjoernpetersen.github.io/JMusicBot/).
+at the [docs hosted on github.io](https://bjoernpetersen.github.io/MusicBot/).
