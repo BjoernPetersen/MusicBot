@@ -2,28 +2,28 @@ version: 2
 jobs:
   build:
     docker:
-    - image: circleci/openjdk:8-jdk
+      - image: circleci/openjdk:8-jdk
     working_directory: ~/app
     steps:
-    - checkout
-    - run: chmod +x gradlew
+      - checkout
+      - run: chmod +x gradlew
 
-      # Download and cache dependencies
-    - restore_cache:
-        keys:
-        - v2-dependencies-{{ checksum "build.gradle.kts" }}-{{ checksum "buildSrc/src/main/kotlin/Plugin.kt" }}-{{ checksum "buildSrc/src/main/kotlin/Lib.kt" }}
-        - v2-dependencies-{{ checksum "build.gradle.kts" }}-{{ checksum "buildSrc/src/main/kotlin/Plugin.kt" }}
-        - v2-dependencies-{{ checksum "build.gradle.kts" }}
-        # fallback to using the latest cache if no exact match is found
-        - v2-dependencies-
+        # Download and cache dependencies
+      - restore_cache:
+          keys:
+            - v2-dependencies-{{ checksum "build.gradle.kts" }}-{{ checksum "buildSrc/src/main/kotlin/Plugin.kt" }}-{{ checksum "buildSrc/src/main/kotlin/Lib.kt" }}
+            - v2-dependencies-{{ checksum "build.gradle.kts" }}-{{ checksum "buildSrc/src/main/kotlin/Plugin.kt" }}
+            - v2-dependencies-{{ checksum "build.gradle.kts" }}
+            # fallback to using the latest cache if no exact match is found
+            - v2-dependencies-
 
-    - run: ./gradlew dependencies
+      - run: ./gradlew dependencies
 
-    - save_cache:
-        paths:
-        - ~/.gradle
-        key: v2-dependencies-{{ checksum "build.gradle.kts" }}-{{ checksum "buildSrc/src/main/kotlin/Plugin.kt" }}-{{ checksum "buildSrc/src/main/kotlin/Lib.kt" }}
+      - save_cache:
+          paths:
+            - ~/.gradle
+          key: v2-dependencies-{{ checksum "build.gradle.kts" }}-{{ checksum "buildSrc/src/main/kotlin/Plugin.kt" }}-{{ checksum "buildSrc/src/main/kotlin/Lib.kt" }}
 
-    - run: ./gradlew test
-    - store_test_results:
-        path: build/test-results
+      - run: ./gradlew test
+      - store_test_results:
+          path: build/test-results
