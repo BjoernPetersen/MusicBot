@@ -278,7 +278,7 @@ internal class DefaultPlayer @Inject private constructor(
 
             autoPlayer.submit { this.autoPlay() }
         } catch (e: InterruptedException) {
-            logger.info("autoPlay interrupted", e)
+            logger.info("autoPlay interrupted")
         }
     }
 
