@@ -3,6 +3,7 @@ package net.bjoernpetersen.musicbot.api.auth
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import com.auth0.jwt.exceptions.JWTVerificationException
+import mu.KotlinLogging
 import net.bjoernpetersen.musicbot.api.config.Config
 import net.bjoernpetersen.musicbot.api.config.ConfigManager
 import net.bjoernpetersen.musicbot.api.config.GenericConfigScope
@@ -22,6 +23,8 @@ import javax.inject.Singleton
 class UserManager @Inject constructor(
     private val userDatabase: UserDatabase,
     configManager: ConfigManager) {
+
+    private val logger = KotlinLogging.logger { }
 
     private val secrets = configManager[GenericConfigScope(UserManager::class)].state
     private val signatureKey: Config.StringEntry = secrets.StringEntry("signatureKey", "", { null })
@@ -129,14 +132,29 @@ class UserManager @Inject constructor(
 
     @Throws(InvalidTokenException::class)
     fun fromToken(token: String): User {
-        val decoded = try {
-            JWT
+        try {
+            val decoded = JWT
                 .require(Algorithm.HMAC512(getSignatureKey()))
                 .build()
                 .verify(token)
+            val name = decoded.subject ?: throw InvalidTokenException("subject missing")
+            val permissions: Set<Permission> = decoded
+                .getClaim("permissions")
+                .asList(String::class.java)
+                .mapNotNull {
+                    try {
+                        Permission.matchByLabel(it)
+                    } catch (e: IllegalArgumentException) {
+                        logger.error { "Unknown permission in token: $it" }
+                        null
+                    }
+                }
+                .toSet()
+
+            return FullUser(name, permissions, "")
         } catch (e: JWTVerificationException) {
             // try again with guest key
-            try {
+            val decoded = try {
                 JWT
                     .require(Algorithm.HMAC512(guestSignatureKey))
                     .build()
@@ -145,14 +163,9 @@ class UserManager @Inject constructor(
                 e1.addSuppressed(e)
                 throw InvalidTokenException(e1)
             }
-        }
 
-        val id = decoded.subject ?: throw InvalidTokenException("ID missing")
-
-        try {
-            return getUser(id)
-        } catch (e: UserNotFoundException) {
-            throw InvalidTokenException(e)
+            val name = decoded.subject ?: throw InvalidTokenException("subject missing")
+            return GuestUser(name, "");
         }
     }
 

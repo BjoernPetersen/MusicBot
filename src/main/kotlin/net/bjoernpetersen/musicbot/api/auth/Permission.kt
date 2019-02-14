@@ -59,9 +59,12 @@ enum class Permission(val label: String) {
                 .firstOrNull() ?: throw IllegalArgumentException()
         }
 
+        /**
+         * Gets the standard set of default permissions.
+         */
         @Beta
         @JvmStatic
-        internal fun getDefaults() = values().filterTo(HashSet()) {
+        fun getDefaults() = values().filterTo(HashSet()) {
             it::class.findAnnotation<Default>() != null
         }
     }
