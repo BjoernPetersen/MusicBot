@@ -84,14 +84,14 @@ internal class DefaultDatabase(databaseUrl: String) : UserDatabase {
         }
     }
 
-    override fun insertUser(user: FullUser) {
+    override fun insertUser(user: FullUser, hash: String) {
         val id = user.name.toLowerCase(Locale.US)
         synchronized(createUser) {
             try {
                 createUser.clearParameters()
                 createUser.setString(1, id)
                 createUser.setString(2, user.name)
-                createUser.setString(3, user.hash)
+                createUser.setString(3, hash)
                 createUser.setString(4, "")
                 createUser.execute()
             } catch (e: SQLException) {
@@ -100,11 +100,11 @@ internal class DefaultDatabase(databaseUrl: String) : UserDatabase {
         }
     }
 
-    override fun updatePassword(user: FullUser) {
+    override fun updatePassword(user: FullUser, hash: String) {
         val id = user.name.toLowerCase(Locale.US)
         synchronized(updatePassword) {
             updatePassword.clearParameters()
-            updatePassword.setString(1, user.hash)
+            updatePassword.setString(1, hash)
             updatePassword.setString(2, id)
             updatePassword.execute()
         }

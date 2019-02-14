@@ -10,9 +10,9 @@ interface UserDatabase {
     fun getUsers(): Set<FullUser>
 
     @Throws(DuplicateUserException::class)
-    fun insertUser(user: FullUser)
+    fun insertUser(user: FullUser, hash: String)
 
-    fun updatePassword(user: FullUser)
+    fun updatePassword(user: FullUser, hash: String)
 
     fun updatePermissions(name: String, permissions: Set<Permission>)
 

@@ -81,10 +81,10 @@ class UserManager @Inject constructor(
         val hash = hash(password)
         return FullUser(user.name, user.permissions, hash).also {
             if (user is GuestUser) {
-                userDatabase.insertUser(it)
+                userDatabase.insertUser(it, hash)
                 temporaryUsers.remove(user.name.toLowerCase(Locale.US))
             } else {
-                userDatabase.updatePassword(it)
+                userDatabase.updatePassword(it, hash)
             }
         }
     }
