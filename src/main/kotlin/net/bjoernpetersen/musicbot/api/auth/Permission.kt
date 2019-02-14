@@ -47,26 +47,25 @@ enum class Permission(val label: String) {
     ALTER_SUGGESTIONS("alter_suggestions");
 
     companion object {
+        private val defaultPermissions: Set<Permission> by lazy {
+            values().filterTo(HashSet()) { it::class.findAnnotation<Default>() != null }
+        }
+
         /**
          * Finds the permission with the specified label.
          * @throws IllegalArgumentException if there is no Permission with that label
          */
         @JvmStatic
-        fun matchByLabel(label: String): Permission {
-            return Permission.values()
-                .asSequence()
-                .filter { it.label == label }
-                .firstOrNull() ?: throw IllegalArgumentException()
-        }
+        fun matchByLabel(label: String): Permission = Permission.values()
+            .firstOrNull { it.label == label }
+            ?: throw IllegalArgumentException()
 
         /**
          * Gets the standard set of default permissions.
          */
         @Beta
         @JvmStatic
-        fun getDefaults() = values().filterTo(HashSet()) {
-            it::class.findAnnotation<Default>() != null
-        }
+        fun getDefaults(): Set<Permission> = defaultPermissions
     }
 }
 
