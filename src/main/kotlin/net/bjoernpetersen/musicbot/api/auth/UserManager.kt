@@ -40,8 +40,7 @@ class UserManager @Inject constructor(
         try {
             // TODO create "hasUser" method in Database
             getUser(name)
-            throw DuplicateUserException(
-                "User already exists: $name")
+            throw DuplicateUserException(                "User already exists: $name")
         } catch (expected: UserNotFoundException) {
             val user = GuestUser(name, id)
             temporaryUsers[user.name.toLowerCase(Locale.US)] = user
