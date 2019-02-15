@@ -2,9 +2,21 @@ package net.bjoernpetersen.musicbot.api.plugin
 
 import net.bjoernpetersen.musicbot.api.plugin.management.PluginFinder
 import net.bjoernpetersen.musicbot.spi.plugin.Plugin
+import net.bjoernpetersen.musicbot.spi.plugin.UserFacing
 import kotlin.reflect.KClass
 
-data class NamedPlugin<out T : Plugin>(val id: String, val subject: String) {
+
+/**
+ * Static, serializable representation of a plugin.
+ *
+ * @param id the qualified name of the plugin's [ID base][IdBase]
+ * @param name the plugin's [subject][UserFacing.subject]
+ */
+data class NamedPlugin<out T : Plugin>(
+    val id: String,
+    val name: String) {
+
+    @Deprecated("Will be removed in a future version")
     constructor(idClass: KClass<out T>, name: String) : this(idClass.java.name, name)
 
     @Throws(IllegalStateException::class)
