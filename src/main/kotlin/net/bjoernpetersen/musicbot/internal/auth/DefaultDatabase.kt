@@ -86,13 +86,14 @@ internal class DefaultDatabase(databaseUrl: String) : UserDatabase {
 
     override fun insertUser(user: FullUser, hash: String) {
         val id = user.name.toLowerCase(Locale.US)
+        val permissionString = user.permissions.joinToString(",") { it.label }
         synchronized(createUser) {
             try {
                 createUser.clearParameters()
                 createUser.setString(1, id)
                 createUser.setString(2, user.name)
                 createUser.setString(3, hash)
-                createUser.setString(4, "")
+                createUser.setString(4, permissionString)
                 createUser.execute()
             } catch (e: SQLException) {
                 throw DuplicateUserException(e)
