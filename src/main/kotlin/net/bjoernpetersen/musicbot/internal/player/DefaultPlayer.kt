@@ -196,7 +196,7 @@ internal class DefaultPlayer @Inject private constructor(
 
             val next = queue.pop()
             if (next == null && suggester == null) {
-                logger.info("Queue is empty. Stopping.")
+                if (this.state !is StopState) logger.info("Queue is empty. Stopping.")
                 playback = DummyPlayback
                 this.state = StopState
                 return
