@@ -2,7 +2,6 @@ package net.bjoernpetersen.musicbot.api.auth
 
 import com.google.common.annotations.Beta
 import net.bjoernpetersen.musicbot.spi.plugin.Suggester
-import kotlin.reflect.full.findAnnotation
 
 /**
  * User permissions to perform certain actions.
@@ -48,7 +47,11 @@ enum class Permission(val label: String) {
 
     companion object {
         private val defaultPermissions: Set<Permission> by lazy {
-            values().filterTo(HashSet()) { it::class.findAnnotation<Default>() != null }
+            values().filterTo(HashSet()) { permission ->
+                Permission::class.java
+                    .getField(permission.name)
+                    .isAnnotationPresent(Default::class.java)
+            }
         }
 
         /**
@@ -70,4 +73,6 @@ enum class Permission(val label: String) {
 }
 
 @Beta
+@Target(AnnotationTarget.FIELD)
+@Retention(AnnotationRetention.RUNTIME)
 private annotation class Default
