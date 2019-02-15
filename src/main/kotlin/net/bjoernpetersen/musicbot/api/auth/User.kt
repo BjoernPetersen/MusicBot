@@ -19,6 +19,19 @@ data class GuestUser(
     }
 
     override val permissions: Set<Permission> = DefaultPermissions.defaultPermissions
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is GuestUser) return false
+
+        if (name != other.name) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return name.hashCode()
+    }
 }
 
 /**
@@ -40,6 +53,19 @@ data class FullUser(
             throw IllegalStateException()
         }
         return BCrypt.checkpw(password, hash)
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is GuestUser) return false
+
+        if (name != other.name) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return name.hashCode()
     }
 }
 
