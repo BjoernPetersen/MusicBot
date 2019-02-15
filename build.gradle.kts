@@ -62,13 +62,13 @@ tasks {
     @Suppress("UNUSED_VARIABLE")
     val javadocJar by creating(Jar::class) {
         dependsOn("dokkaJavadoc")
-        classifier = "javadoc"
+        archiveClassifier.set("javadoc")
         from("$buildDir/javadoc")
     }
 
     @Suppress("UNUSED_VARIABLE")
     val sourcesJar by creating(Jar::class) {
-        classifier = "sources"
+        archiveClassifier.set("sources")
         from(sourceSets["main"].allSource)
     }
 
