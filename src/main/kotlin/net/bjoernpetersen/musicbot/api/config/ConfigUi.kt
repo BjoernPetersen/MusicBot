@@ -44,7 +44,7 @@ object CheckBox : UiNode<Boolean>()
 data class ActionButton<T>(
     val label: String,
     val descriptor: (T) -> String,
-    val action: () -> Boolean) : UiNode<T>()
+    val action: (Config.Entry<T>) -> Boolean) : UiNode<T>()
 
 /**
  * Some form of input box that only accepts numbers.
