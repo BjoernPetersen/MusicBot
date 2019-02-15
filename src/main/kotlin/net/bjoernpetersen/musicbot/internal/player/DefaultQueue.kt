@@ -1,13 +1,18 @@
 package net.bjoernpetersen.musicbot.internal.player
 
-import net.bjoernpetersen.musicbot.api.player.Song
+import mu.KotlinLogging
 import net.bjoernpetersen.musicbot.api.player.QueueEntry
+import net.bjoernpetersen.musicbot.api.player.Song
 import net.bjoernpetersen.musicbot.spi.player.QueueChangeListener
 import net.bjoernpetersen.musicbot.spi.player.SongQueue
-import java.util.*
+import java.util.Collections
+import java.util.HashSet
+import java.util.LinkedList
+import java.util.Objects
 import javax.inject.Inject
 
 internal class DefaultQueue @Inject private constructor() : SongQueue {
+    private val logger = KotlinLogging.logger {}
 
     private val queue: LinkedList<QueueEntry> = LinkedList()
     private val listeners: MutableSet<QueueChangeListener> = HashSet()
@@ -51,32 +56,24 @@ internal class DefaultQueue @Inject private constructor() : SongQueue {
         return Collections.unmodifiableList(queue)
     }
 
-    /**
-     *
-     * Moves the specified QueueEntry to the specified index in the queue.
-     *
-     *   * If the QueueEntry is not in the queue, this method does nothing.  * If the index
-     * is greater than the size of the queue, the entry is moved to the end of the queue.
-     *
-     * @param queueEntry a QueueEntry
-     * @param index a 0-based index
-     * @throws IllegalArgumentException if the index is smaller than 0
-     */
     override fun move(queueEntry: QueueEntry, index: Int) {
         if (index < 0) {
             throw IllegalArgumentException("Index below 0")
         }
 
-        val oldIndex = queue.indexOf(queueEntry)
+        val oldIndex = queue.indexOfFirst {
+            it.song.id == queueEntry.song.id && it.user.name == queueEntry.user.name
+        }
         if (oldIndex > -1) {
             val newIndex = Math.min(queue.size - 1, index)
+            logger.debug { "Moving ${queueEntry.song.title} from $oldIndex to $newIndex" }
             if (oldIndex != newIndex) {
                 if (queue.remove(queueEntry)) {
                     queue.add(newIndex, queueEntry)
                     listeners.forEach { l -> l.onMove(queueEntry, oldIndex, newIndex) }
                 }
             }
-        }
+        } else logger.debug { "Tried to move song that's not in the queue" }
     }
 
     override fun addListener(listener: QueueChangeListener) {
