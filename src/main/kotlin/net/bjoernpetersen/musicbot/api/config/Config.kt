@@ -126,7 +126,6 @@ class Config internal constructor(
             null
         }
 
-        @Throws(SerializationException::class)
         override fun get(): T? = getWithoutDefault() ?: default
 
         override fun set(value: T?) {
