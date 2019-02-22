@@ -1,4 +1,4 @@
-site_name: JMusicBot
+site_name: MusicBot
 markdown_extensions:
   - toc:
       permalink: True
