@@ -20,22 +20,23 @@ internal class DefaultQueue @Inject private constructor() : SongQueue {
     override val isEmpty: Boolean
         get() = queue.isEmpty()
 
-    override fun insert(entry: QueueEntry) {
-        if (!queue.contains(entry)) {
+    override fun insert(entry: QueueEntry) = synchronized(queue) {
+        if (!queue.asSequence().map { it.song }.contains(entry.song)) {
             queue.add(entry)
             notifyListeners { listener -> listener.onAdd(entry) }
         }
     }
 
-    override fun remove(song: Song) {
-        val matching = queue.filter { it.song == song }
-        matching.forEach {
-            queue.remove(it)
-            notifyListeners { listener -> listener.onRemove(it) }
-        }
+    override fun remove(song: Song) = synchronized(queue) {
+        queue
+            .filter { it.song == song }
+            .forEach {
+                queue.remove(it)
+                notifyListeners { listener -> listener.onRemove(it) }
+            }
     }
 
-    override fun pop(): QueueEntry? {
+    override fun pop(): QueueEntry? = synchronized(queue) {
         return if (queue.isEmpty()) null
         else {
             val entry = queue.pop()
@@ -44,34 +45,27 @@ internal class DefaultQueue @Inject private constructor() : SongQueue {
         }
     }
 
-    override fun clear() {
+    override fun clear() = synchronized(queue) {
         queue.clear()
     }
 
-    private operator fun get(index: Int): Song {
-        return queue[index].song
-    }
-
-    override fun toList(): List<QueueEntry> {
+    override fun toList(): List<QueueEntry> = synchronized(queue) {
         return Collections.unmodifiableList(queue)
     }
 
-    override fun move(queueEntry: QueueEntry, index: Int) {
+    override fun move(song: Song, index: Int) = synchronized(queue) {
         if (index < 0) {
             throw IllegalArgumentException("Index below 0")
         }
 
-        val oldIndex = queue.indexOfFirst {
-            it.song.id == queueEntry.song.id && it.user.name == queueEntry.user.name
-        }
+        val oldIndex = queue.indexOfFirst { it.song == song }
         if (oldIndex > -1) {
             val newIndex = Math.min(queue.size - 1, index)
-            logger.debug { "Moving ${queueEntry.song.title} from $oldIndex to $newIndex" }
+            logger.debug { "Moving ${song.title} from $oldIndex to $newIndex" }
             if (oldIndex != newIndex) {
-                if (queue.remove(queueEntry)) {
-                    queue.add(newIndex, queueEntry)
-                    listeners.forEach { l -> l.onMove(queueEntry, oldIndex, newIndex) }
-                }
+                val queueEntry = queue.removeAt(oldIndex)
+                queue.add(newIndex, queueEntry)
+                listeners.forEach { l -> l.onMove(queueEntry, oldIndex, newIndex) }
             }
         } else logger.debug { "Tried to move song that's not in the queue" }
     }
