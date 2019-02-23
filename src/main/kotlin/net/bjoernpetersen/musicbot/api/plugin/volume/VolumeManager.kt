@@ -34,8 +34,12 @@ class VolumeManager @Inject private constructor(injector: Injector) {
      * Sets the volume.
      *
      * If no [VolumeHandler] has been configured, this method does nothing.
+     *
+     * @throws IllegalArgumentException if [volume] is less than 0 or greater than 100
      */
     fun setVolume(volume: Int) {
+        if (volume < 0 || volume > 100)
+            throw IllegalArgumentException("Volume is not between 0 and 100")
         handler?.let { it.volume = volume }
     }
 }

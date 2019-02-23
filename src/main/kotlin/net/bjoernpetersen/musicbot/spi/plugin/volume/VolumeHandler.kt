@@ -14,7 +14,7 @@ import net.bjoernpetersen.musicbot.spi.plugin.GenericPlugin
 interface VolumeHandler : GenericPlugin {
 
     /**
-     * The current volume.
+     * The current volume, between 0 and 100, inclusively.
      *
      * This may represent the system volume, but it could also represent the volume of anything
      * else, like the volume of a Chromecast or a remote Spotify client.
