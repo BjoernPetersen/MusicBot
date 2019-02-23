@@ -43,7 +43,12 @@ enum class Permission(val label: String) {
      * Songs enqueued by users without this permission do not affect suggestions.
      */
     @Default
-    ALTER_SUGGESTIONS("alter_suggestions");
+    ALTER_SUGGESTIONS("alter_suggestions"),
+
+    /**
+     * Change the bot volume.
+     */
+    CHANGE_VOLUME("change_volume");
 
     companion object {
         private val defaultPermissions: Set<Permission> by lazy {
