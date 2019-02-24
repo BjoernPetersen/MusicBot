@@ -173,7 +173,7 @@ val Plugin.bases: List<KClass<out Plugin>>
             .filter {
                 it.isSubclassOf(Plugin::class).also { isSubclass ->
                     if (!isSubclass) {
-                        DeclarationException("Base ${it.qualifiedName} is not a plugin subtype")
+                        throw DeclarationException("Base ${it.qualifiedName} is not a plugin subtype")
                     }
                 }
             }

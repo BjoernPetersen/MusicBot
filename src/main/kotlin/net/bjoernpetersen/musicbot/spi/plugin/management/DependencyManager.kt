@@ -1,9 +1,9 @@
 package net.bjoernpetersen.musicbot.spi.plugin.management
 
 import com.google.common.annotations.Beta
-import net.bjoernpetersen.musicbot.api.plugin.management.findDependencies
 import net.bjoernpetersen.musicbot.api.plugin.ActiveBase
 import net.bjoernpetersen.musicbot.api.plugin.management.PluginFinder
+import net.bjoernpetersen.musicbot.api.plugin.management.findDependencies
 import net.bjoernpetersen.musicbot.spi.plugin.GenericPlugin
 import net.bjoernpetersen.musicbot.spi.plugin.PlaybackFactory
 import net.bjoernpetersen.musicbot.spi.plugin.Plugin
@@ -99,10 +99,9 @@ interface DependencyManager {
 
         // TODO: this is very expensive
         return allPlugins.asSequence()
-            .filter { it !in visited }
-            .filter { isRequired(it, visited) }
-            .map { it.findDependencies() }
-            .any { !it.intersect(bases).isEmpty() }
+            .filter { it !== plugin }
+            .filter { !it.findDependencies().intersect(bases).isEmpty() }
+            .any { isRequired(it, visited) }
             .also { visited[plugin] = it }
     }
 
