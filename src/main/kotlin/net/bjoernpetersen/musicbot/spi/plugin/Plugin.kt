@@ -106,9 +106,11 @@ interface UserFacing {
      *
      * Note that the value of this may even change during runtime, especially during configuration.
      *
+     * This will not be called before the plugin is [initialized][Plugin.initialize].
+     *
      * Some good examples:
      * - For providers: "Spotify" or "YouTube"
-     * - For suggesters: "Random MP3s", a playlist name, "Based on <last played song>"
+     * - For suggesters: "Random MP3s", a playlist name, "Based on `<last played song>`"
      */
     val subject: String
 }
@@ -173,7 +175,8 @@ val Plugin.bases: List<KClass<out Plugin>>
             .filter {
                 it.isSubclassOf(Plugin::class).also { isSubclass ->
                     if (!isSubclass) {
-                        throw DeclarationException("Base ${it.qualifiedName} is not a plugin subtype")
+                        throw DeclarationException(
+                            "Base ${it.qualifiedName} is not a plugin subtype")
                     }
                 }
             }
