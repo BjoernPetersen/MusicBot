@@ -86,13 +86,47 @@ interface Plugin {
      */
     val description: String
 
+    /**
+     * Create config entries that should be stored in a plain config file and possibly be
+     * shown to the user.
+     *
+     * @param config a Config instance specifically scoped for this method and this plugin
+     * @return the created entries which should be shown to the user
+     */
     fun createConfigEntries(config: Config): List<Config.Entry<*>>
+
+    /**
+     * Create config entries that should be stored as securely as possible and possibly be
+     * shown to the user.
+     *
+     * @param secrets a Config instance specifically scoped for this method and this plugin
+     * @return the created entries which should be shown to the user
+     */
     fun createSecretEntries(secrets: Config): List<Config.Entry<*>>
+
+    /**
+     * Create config entries with which to store the current plugin state.
+     *
+     * If state entries are deleted between bot runs, the plugin should not lose any
+     * manual (user) configuration.
+     *
+     * @param state a Config instance specifically scoped for this method and this plugin
+     */
     fun createStateEntries(state: Config)
 
+    /**
+     * Initialize and allocate resources.
+     * After this method is called, the plugin is deemed active until [close] is called.
+     *
+     * @param initStateWriter a writer to tell the user what you're doing
+     * @throws InitializationException if any problems occurs during initialization
+     */
     @Throws(InitializationException::class)
     fun initialize(initStateWriter: InitStateWriter)
 
+    /**
+     * Close whatever resources have been allocated in [initialize].
+     */
     @Throws(IOException::class)
     fun close()
 }
