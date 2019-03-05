@@ -92,7 +92,7 @@ dependencies {
         version = Lib.KOTLIN_COROUTINES
     )
     api(kotlin("reflect"))
-    implementation(
+    api(
         group = "io.github.microutils",
         name = "kotlin-logging",
         version = Lib.KOTLIN_LOGGING
