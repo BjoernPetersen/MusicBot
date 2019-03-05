@@ -100,11 +100,17 @@ tasks {
 
 dependencies {
     api(kotlin("stdlib-jdk8"))
+    api(
+        group = "org.jetbrains.kotlinx",
+        name = "kotlinx-coroutines-core",
+        version = Lib.KOTLIN_COROUTINES
+    )
     api(kotlin("reflect"))
     implementation(
         group = "io.github.microutils",
         name = "kotlin-logging",
-        version = Lib.KOTLIN_LOGGING)
+        version = Lib.KOTLIN_LOGGING
+    )
 
     api(group = "org.slf4j", name = "slf4j-api", version = Lib.SLF4J)
     api(group = "com.google.guava", name = "guava", version = Lib.GUAVA)
@@ -116,25 +122,31 @@ dependencies {
     implementation(
         group = "com.auth0",
         name = "java-jwt",
-        version = Lib.JJWT)
+        version = Lib.JJWT
+    )
 
-    api(group = "com.github.zafarkhaja",
+    api(
+        group = "com.github.zafarkhaja",
         name = "java-semver",
-        version = Lib.JAVA_SEMVER)
+        version = Lib.JAVA_SEMVER
+    )
 
     testImplementation(group = "org.slf4j", name = "slf4j-simple", version = Lib.SLF4J)
     testRuntime(
         group = "org.junit.jupiter",
         name = "junit-jupiter-engine",
-        version = Lib.JUNIT)
+        version = Lib.JUNIT
+    )
     testImplementation(
         group = "org.junit.jupiter",
         name = "junit-jupiter-api",
-        version = Lib.JUNIT)
+        version = Lib.JUNIT
+    )
     testImplementation(
         group = "name.falgout.jeffrey.testing.junit5",
         name = "guice-extension",
-        version = Lib.JUNIT_GUICE)
+        version = Lib.JUNIT_GUICE
+    )
     testImplementation(group = "io.mockk", name = "mockk", version = Lib.MOCK_K)
     testImplementation(group = "org.assertj", name = "assertj-core", version = Lib.ASSERT_J)
 }
@@ -180,8 +192,10 @@ publishing {
                 val releasesRepoUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2"
                 val snapshotsRepoUrl = "https://oss.sonatype.org/content/repositories/snapshots"
                 // change to point to your repo, e.g. http://my.org/repo
-                url = uri(if (version.toString().endsWith("SNAPSHOT")) snapshotsRepoUrl
-                else releasesRepoUrl)
+                url = uri(
+                    if (version.toString().endsWith("SNAPSHOT")) snapshotsRepoUrl
+                    else releasesRepoUrl
+                )
                 credentials {
                     username = project.properties["ossrh.username"]?.toString()
                     password = project.properties["ossrh.password"]?.toString()
