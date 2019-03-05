@@ -1,4 +1,3 @@
-import com.github.spotbugs.SpotBugsTask
 import org.jetbrains.dokka.gradle.DokkaTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -13,7 +12,6 @@ plugins {
 
     signing
     `maven-publish`
-    id("com.github.spotbugs") version Plugin.SPOTBUGS_PLUGIN
 }
 
 group = "com.github.bjoernpetersen"
@@ -40,11 +38,6 @@ val processResources by tasks.getting(ProcessResources::class) {
             it.replace("%APP_VERSION%", version.toString())
         }
     }
-}
-
-spotbugs {
-    isIgnoreFailures = true
-    toolVersion = Plugin.SPOTBUGS_TOOL
 }
 
 tasks {
@@ -82,13 +75,6 @@ tasks {
 
     "test"(Test::class) {
         useJUnitPlatform()
-    }
-
-    withType(SpotBugsTask::class) {
-        reports {
-            xml.isEnabled = false
-            html.isEnabled = true
-        }
     }
 
     withType(Jar::class) {
