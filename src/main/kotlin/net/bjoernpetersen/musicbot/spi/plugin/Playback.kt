@@ -1,10 +1,6 @@
 package net.bjoernpetersen.musicbot.spi.plugin
 
-import java.util.concurrent.atomic.AtomicBoolean
-import java.util.concurrent.locks.Condition
-import java.util.concurrent.locks.Lock
-import java.util.concurrent.locks.ReentrantLock
-import kotlin.concurrent.withLock
+import kotlinx.coroutines.CompletableDeferred
 
 /**
  * A feedback channel back to the player to send signals about playback state changes
@@ -23,7 +19,7 @@ import kotlin.concurrent.withLock
  * If the playback has finished, don't call this listener, but rather release all waiting threads
  * from the [Playback.waitForFinish] method instead.
  */
-typealias PlaybackStateListener = (PlaybackState) -> Unit
+typealias PlaybackStateListener = suspend (PlaybackState) -> Unit
 
 /**
  * A kind of Playback state.
@@ -61,7 +57,7 @@ interface PlaybackFactory : Plugin
 /**
  * Playback for a single song. Playback should not start before [play] is called the first time.
  */
-interface Playback : AutoCloseable {
+interface Playback {
 
     /**
      * Provides the playback with a PlaybackStateListener.
@@ -81,8 +77,10 @@ interface Playback : AutoCloseable {
      */
     fun pause()
 
-    @Throws(InterruptedException::class)
-    fun waitForFinish()
+    suspend fun waitForFinish()
+
+    @Throws(Exception::class)
+    suspend fun close()
 }
 
 /**
@@ -92,13 +90,9 @@ interface Playback : AutoCloseable {
  * @param lock A lock which will be used for critical code
  * @param done A condition which will come true when this Playback finishes
  */
-abstract class AbstractPlayback private constructor(
-    protected val lock: Lock,
-    protected val done: Condition,
-    private val _isDone: AtomicBoolean) : Playback {
+abstract class AbstractPlayback protected constructor() : Playback {
 
-    protected constructor() : this(ReentrantLock())
-    private constructor(lock: Lock) : this(lock, lock.newCondition(), AtomicBoolean())
+    protected val done = CompletableDeferred<Unit>()
 
     protected var playbackListener: PlaybackStateListener? = null
         private set
@@ -107,33 +101,24 @@ abstract class AbstractPlayback private constructor(
         playbackListener = listener
     }
 
-    protected fun isDone(): Boolean = _isDone.get()
+    protected fun isDone(): Boolean = done.isCompleted
 
     /**
      * Waits for the [done] condition.
-     * @throws InterruptedException if the thread is interrupted while waiting
      */
-    @Throws(InterruptedException::class)
-    override fun waitForFinish() {
-        lock.withLock {
-            while (!isDone()) {
-                done.await()
-            }
-        }
+    override suspend fun waitForFinish() {
+        done.await()
     }
 
     /**
      * Signals all threads waiting for the [done] condition.
      */
     protected fun markDone() {
-        lock.withLock {
-            _isDone.set(true)
-            done.signalAll()
-        }
+        done.complete(Unit)
     }
 
     @Throws(Exception::class)
-    override fun close() {
+    override suspend fun close() {
         markDone()
     }
 }

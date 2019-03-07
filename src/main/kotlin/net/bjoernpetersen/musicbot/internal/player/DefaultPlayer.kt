@@ -1,6 +1,13 @@
 package net.bjoernpetersen.musicbot.internal.player
 
-import com.google.common.util.concurrent.ThreadFactoryBuilder
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.newSingleThreadContext
+import kotlinx.coroutines.withContext
 import mu.KotlinLogging
 import net.bjoernpetersen.musicbot.api.player.DefaultSuggester
 import net.bjoernpetersen.musicbot.api.player.ErrorState
@@ -12,7 +19,6 @@ import net.bjoernpetersen.musicbot.api.player.Song
 import net.bjoernpetersen.musicbot.api.player.SongEntry
 import net.bjoernpetersen.musicbot.api.player.StopState
 import net.bjoernpetersen.musicbot.api.player.SuggestedSongEntry
-import net.bjoernpetersen.musicbot.api.plugin.management.PluginFinder
 import net.bjoernpetersen.musicbot.spi.loader.ResourceCache
 import net.bjoernpetersen.musicbot.spi.player.Player
 import net.bjoernpetersen.musicbot.spi.player.PlayerStateListener
@@ -22,35 +28,28 @@ import net.bjoernpetersen.musicbot.spi.player.SongQueue
 import net.bjoernpetersen.musicbot.spi.plugin.BrokenSuggesterException
 import net.bjoernpetersen.musicbot.spi.plugin.Playback
 import net.bjoernpetersen.musicbot.spi.plugin.PlaybackState
+import net.bjoernpetersen.musicbot.spi.plugin.PluginLookup
 import net.bjoernpetersen.musicbot.spi.plugin.Suggester
 import java.io.IOException
-import java.util.concurrent.ExecutorService
-import java.util.concurrent.Executors
-import java.util.concurrent.locks.Lock
-import java.util.concurrent.locks.ReentrantLock
 import javax.inject.Inject
-import javax.inject.Named
-import kotlin.concurrent.withLock
+import kotlin.coroutines.CoroutineContext
 
 internal class DefaultPlayer @Inject private constructor(
     private val queue: SongQueue,
     private val resourceCache: ResourceCache,
-    @Named("PluginClassLoader")
-    private val classLoader: ClassLoader,
-    private val pluginFinder: PluginFinder,
+    private val pluginLookup: PluginLookup,
     private val songPlayedNotifier: SongPlayedNotifier,
-    defaultSuggester: DefaultSuggester) : Player {
+    defaultSuggester: DefaultSuggester
+) : Player, CoroutineScope {
 
     private val logger = KotlinLogging.logger {}
-    private val autoPlayer: ExecutorService = Executors.newSingleThreadExecutor(
-        ThreadFactoryBuilder()
-            .setDaemon(true)
-            .setNameFormat("playerPool-%d")
-            .build()
-    )
+
+    private lateinit var job: Job
+    @Suppress("EXPERIMENTAL_API_USAGE")
+    override val coroutineContext: CoroutineContext
+        get() = newSingleThreadContext("Player")
 
     private val suggester: Suggester? = defaultSuggester.suggester
-    private val stateLock: Lock = ReentrantLock()
 
     /**
      * The current state of this player. This might be play, pause, stop or error.
@@ -70,7 +69,7 @@ internal class DefaultPlayer @Inject private constructor(
     init {
         queue.addListener(object : QueueChangeListener {
             override fun onAdd(entry: QueueEntry) {
-                resourceCache[entry.song]
+                launch { resourceCache.get(entry.song) }
             }
 
             override fun onRemove(entry: QueueEntry) {}
@@ -84,7 +83,10 @@ internal class DefaultPlayer @Inject private constructor(
     }
 
     override fun start() {
-        autoPlayer.submit { this.autoPlay() }
+        job = Job()
+        launch {
+            autoPlay()
+        }
     }
 
     private fun preloadSuggestion(suggester: Suggester) {
@@ -96,7 +98,9 @@ internal class DefaultPlayer @Inject private constructor(
                 return
             }
 
-            resourceCache[suggestions[0]]
+            launch {
+                resourceCache.get(suggestions[0])
+            }
         }
     }
 
@@ -114,6 +118,7 @@ internal class DefaultPlayer @Inject private constructor(
         stateListeners.remove(listener)
     }
 
+
     /**
      * Pauses the player.
      *
@@ -121,23 +126,18 @@ internal class DefaultPlayer @Inject private constructor(
      *
      * This method blocks until the playback is paused.
      */
-    @Throws(InterruptedException::class)
-    override fun pause() {
-        if (!stateLock.tryLock()) return
-        try {
+    override suspend fun pause() {
+        withContext(coroutineContext) {
             logger.debug("Pausing...")
-            val state = state
-            if (state is PauseState) {
-                logger.trace("Already paused.")
-                return
-            } else if (state !is PlayState) {
-                logger.info { "Tried to pause player in state $state" }
-                return
+            val oldState = state
+            when (oldState) {
+                is PauseState -> logger.trace("Already paused.")
+                !is PlayState -> logger.info { "Tried to pause player in state $oldState" }
+                else -> {
+                    playback.pause()
+                    state = oldState.pause()
+                }
             }
-            playback.pause()
-            this.state = state.pause()
-        } finally {
-            stateLock.unlock()
         }
     }
 
@@ -148,23 +148,18 @@ internal class DefaultPlayer @Inject private constructor(
      *
      * This method blocks until the playback is resumed.
      */
-    @Throws(InterruptedException::class)
-    override fun play() {
-        if (!stateLock.tryLock()) return
-        try {
+    override suspend fun play() {
+        withContext(coroutineContext) {
             logger.debug("Playing...")
-            val state = state
-            if (state is PlayState) {
-                logger.trace("Already playing.")
-                return
-            } else if (state !is PauseState) {
-                logger.info { "Tried to play in state $state" }
-                return
+            val oldState = state
+            when (oldState) {
+                is PlayState -> logger.trace("Already playing.")
+                !is PauseState -> logger.info { "Tried to play in state $oldState" }
+                else -> {
+                    playback.play()
+                    state = oldState.play()
+                }
             }
-            playback.play()
-            this.state = state.play()
-        } finally {
-            stateLock.unlock()
         }
     }
 
@@ -177,15 +172,14 @@ internal class DefaultPlayer @Inject private constructor(
      *
      * This method blocks until either a new song is playing or the StopState is reached.
      */
-    @Throws(InterruptedException::class)
-    override fun next() {
-        val state = this.state
-        stateLock.withLock {
+    override suspend fun next() {
+        val preState = this.state
+        withContext(coroutineContext) {
             logger.debug("Next...")
-            val newState = this.state
-            if (state.entry !== newState.entry) {
+            val newState = state
+            if (preState.entry !== newState.entry) {
                 logger.debug("Skipping next call due to state change while waiting for lock.")
-                return
+                return@withContext
             }
 
             try {
@@ -196,10 +190,10 @@ internal class DefaultPlayer @Inject private constructor(
 
             val next = queue.pop()
             if (next == null && suggester == null) {
-                if (this.state !is StopState) logger.info("Queue is empty. Stopping.")
+                if (state !is StopState) logger.info("Queue is empty. Stopping.")
                 playback = DummyPlayback
-                this.state = StopState
-                return
+                state = StopState
+                return@withContext
             }
 
             val nextEntry: SongEntry = next ?: try {
@@ -207,8 +201,8 @@ internal class DefaultPlayer @Inject private constructor(
             } catch (e: BrokenSuggesterException) {
                 logger.warn("Default suggester could not suggest anything. Stopping.")
                 playback = DummyPlayback
-                this.state = StopState
-                return
+                state = StopState
+                return@withContext
             }
 
             val nextSong = nextEntry.song
@@ -216,82 +210,76 @@ internal class DefaultPlayer @Inject private constructor(
             logger.debug("Next song is: $nextSong")
             try {
                 val resource = try {
-                    resourceCache[nextSong].get()
+                    resourceCache.get(nextSong)
                 } catch (e: Exception) {
                     throw IOException(e)
                 }
-                playback = nextSong.provider.findPlugin(classLoader, pluginFinder)
+                playback = pluginLookup
+                    .lookup(nextSong.provider)
                     .supplyPlayback(nextSong, resource)
             } catch (e: IOException) {
                 logger.warn(e) { "Error creating playback" }
 
-                this.state = ErrorState
+                state = ErrorState
                 playback = DummyPlayback
-                return
+                return@withContext
             }
 
-            playback.setPlaybackStateListener { this.onPlaybackFeedback(it) }
+            playback.setPlaybackStateListener { onPlaybackFeedback(it) }
 
-            this.state = PauseState(nextEntry)
+            state = PauseState(nextEntry)
             play()
         }
     }
 
-    private fun onPlaybackFeedback(feedback: PlaybackState) {
+    private suspend fun onPlaybackFeedback(feedback: PlaybackState) {
         logger.trace { "Playback state update: $feedback" }
-        stateLock.withLock {
-            val state = state
+        withContext(coroutineContext) {
+            val oldState = state
             when (feedback) {
-                PlaybackState.PLAY -> if (state is PauseState) {
+                PlaybackState.PLAY -> if (oldState is PauseState) {
                     logger.debug { "Changed to PLAY by Playback request" }
-                    this.state = state.play()
+                    state = oldState.play()
                 }
-                PlaybackState.PAUSE -> if (state is PlayState) {
+                PlaybackState.PAUSE -> if (oldState is PlayState) {
                     logger.debug { "Changed to PAUSE by Playback request" }
-                    this.state = state.pause()
+                    state = oldState.pause()
                 }
-                PlaybackState.BROKEN -> if (state !is ErrorState) {
+                PlaybackState.BROKEN -> if (oldState !is ErrorState) {
                     logger.error { "Playback broke: ${playback::class.qualifiedName}" }
-                    this.state = ErrorState
+                    state = ErrorState
                     next()
                 }
             }
         }
     }
 
-    private fun autoPlay() {
-        try {
+    private suspend fun autoPlay() {
+        while (isActive) {
             val state = this.state
             logger.debug("Waiting for song to finish")
             playback.waitForFinish()
             logger.trace("Waiting done")
 
-            stateLock.withLock {
-                // Prevent auto next calls if next was manually called
-                if (this.state.entry !== state.entry) {
-                    logger.debug("Skipping auto call to next()")
-                } else {
-                    logger.debug("Auto call to next()")
-                    next()
-                }
+            // Prevent auto next calls if next was manually called
+            if (this.state.entry !== state.entry) {
+                logger.debug("Skipping auto call to next()")
+            } else {
+                logger.debug("Auto call to next()")
+                next()
             }
-
-            autoPlayer.submit { this.autoPlay() }
-        } catch (e: InterruptedException) {
-            logger.info("autoPlay interrupted")
         }
     }
 
-    @Throws(IOException::class)
-    override fun close() {
-        stateLock.withLock {
+    override suspend fun close() {
+        withContext(coroutineContext) {
             try {
-                autoPlayer.shutdownNow()
                 playback.close()
-                state = StopState
             } catch (e: Exception) {
-                throw IOException(e)
+                logger.error(e) { "Could not close playback" }
             }
+            state = StopState
+            job.cancelAndJoin()
         }
     }
 }
@@ -301,10 +289,9 @@ private object DummyPlayback : Playback {
 
     override fun pause() {}
 
-    @Throws(InterruptedException::class)
-    override fun waitForFinish() {
-        Thread.sleep(2000)
+    override suspend fun waitForFinish() {
+        delay(1000)
     }
 
-    override fun close() {}
+    override suspend fun close() {}
 }

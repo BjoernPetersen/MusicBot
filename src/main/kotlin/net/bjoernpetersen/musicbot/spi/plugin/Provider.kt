@@ -6,7 +6,6 @@ import net.bjoernpetersen.musicbot.api.loader.SongLoadingException
 import net.bjoernpetersen.musicbot.api.player.Song
 import net.bjoernpetersen.musicbot.api.plugin.ActiveBase
 import net.bjoernpetersen.musicbot.spi.loader.Resource
-import java.io.IOException
 import kotlin.reflect.KClass
 
 /**
@@ -45,10 +44,10 @@ interface Provider : Plugin, UserFacing {
      * @param song a song
      * @param resource the resource returned by [loadSong] for the song. Guaranteed to be valid.
      * @return a Playback object
-     * @throws IOException if the playback could not be created
+     * @throws Exception if the playback could not be created
      */
-    @Throws(IOException::class)
-    fun supplyPlayback(song: Song, resource: Resource): Playback
+    @Throws(Exception::class)
+    suspend fun supplyPlayback(song: Song, resource: Resource): Playback
 
     /**
      * Loads a song, i.e. prepares it before it can be played.
@@ -69,7 +68,7 @@ interface Provider : Plugin, UserFacing {
      * @return a resource, if any has been allocated
      */
     @Throws(SongLoadingException::class)
-    fun loadSong(song: Song): Resource
+    suspend fun loadSong(song: Song): Resource
 
     /**
      * Looks up a batch of song IDs. If any can't be looked up, they will be dropped.

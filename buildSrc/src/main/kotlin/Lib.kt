@@ -13,8 +13,6 @@ object Lib {
     const val JAVA_SEMVER = "0.9.0"
 
     const val JUNIT = "5.3.1"
-    const val JUNIT_PLATFORM = "1.3.1"
-    const val JUNIT_GUICE = "1.1.0"
     const val MOCK_K = "1.9"
     const val ASSERT_J = "3.11.1"
 }

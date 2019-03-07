@@ -1,6 +1,7 @@
 package net.bjoernpetersen.musicbot.api.module
 
 import com.google.inject.Injector
+import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 import net.bjoernpetersen.musicbot.api.plugin.management.PluginFinder
 import net.bjoernpetersen.musicbot.spi.loader.ResourceCache
@@ -101,9 +102,9 @@ class InstanceStopper(private val injector: Injector) {
     fun stop(): Unit = unstopped {
         additionalBefore.forEach(::close)
 
-        Player::class.withLookup { close(it, Player::close) }
-        ResourceCache::class.withLookup { close(it, ResourceCache::close) }
-        SongLoader::class.withLookup { close(it, SongLoader::close) }
+        Player::class.withLookup { close(it) { runBlocking { it.close() } } }
+        ResourceCache::class.withLookup { close(it) { runBlocking { it.close() } } }
+        SongLoader::class.withLookup { close(it) { runBlocking { it.close() } } }
         PluginFinder::class.withLookup { finder ->
             finder.allPlugins().forEach { close(it, Plugin::close) }
         }

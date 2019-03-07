@@ -1,0 +1,201 @@
+package net.bjoernpetersen.musicbot.internal.loader
+
+import com.google.inject.AbstractModule
+import com.google.inject.Guice
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
+import net.bjoernpetersen.musicbot.api.config.Config
+import net.bjoernpetersen.musicbot.api.module.DefaultSongLoaderModule
+import net.bjoernpetersen.musicbot.api.player.Song
+import net.bjoernpetersen.musicbot.api.plugin.IdBase
+import net.bjoernpetersen.musicbot.api.plugin.NamedPlugin
+import net.bjoernpetersen.musicbot.api.plugin.management.LogInitStateWriter
+import net.bjoernpetersen.musicbot.spi.loader.Resource
+import net.bjoernpetersen.musicbot.spi.loader.ResourceCache
+import net.bjoernpetersen.musicbot.spi.plugin.Playback
+import net.bjoernpetersen.musicbot.spi.plugin.Plugin
+import net.bjoernpetersen.musicbot.spi.plugin.PluginLookup
+import net.bjoernpetersen.musicbot.spi.plugin.Provider
+import net.bjoernpetersen.musicbot.spi.plugin.management.InitStateWriter
+import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertNotSame
+import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.Test
+import kotlin.coroutines.CoroutineContext
+import kotlin.reflect.KClass
+
+private fun createCache(): ResourceCache = Guice
+    .createInjector(DefaultSongLoaderModule(), DummyPluginLookupModule)
+    .getInstance(DefaultResourceCache::class.java)
+
+class DefaultResourceCacheTest {
+    @Test
+    fun `all cleaned up`() {
+        val cache: ResourceCache = createCache()
+
+        val size = 1000
+        val resources: List<Resource> = runBlocking {
+            (1..size)
+                .asSequence()
+                .map { it.toString() }
+                .map { DummyProvider.lookup(it) }
+                .map { async { cache.get(it) } }
+                .toList()
+                .mapTo(ArrayList(size)) {
+                    try {
+                        it.await()
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                        throw e
+                    }
+                }
+        }
+
+        assertEquals(size, resources.size)
+
+        runBlocking {
+            cache.close()
+            resources.forEach { assertFalse(it.isValid) }
+        }
+    }
+
+    @Test
+    fun `get works`() {
+        val cache = createCache()
+        val song = DummyProvider.lookup("test")
+        runBlocking {
+            val resource = cache.get(song)
+            assertTrue(resource.isValid)
+        }
+    }
+
+    @Test
+    fun `get refreshes`() {
+        val cache = createCache()
+        val song = DummyProvider.lookup("test")
+        runBlocking {
+            val resource = cache.get(song)
+            resource.free()
+            assertFalse(resource.isValid)
+            val refreshed = cache.get(song)
+            assertNotSame(resource, refreshed)
+            assertTrue(refreshed.isValid)
+        }
+    }
+
+    companion object {
+        @BeforeAll
+        @JvmStatic
+        fun initProvider() {
+            DummyProvider.initialize(LogInitStateWriter())
+        }
+
+        @AfterAll
+        @JvmStatic
+        fun closeProvider() {
+            DummyProvider.close()
+        }
+    }
+}
+
+private class DummyResource(private val freeTime: Long) : Resource {
+    private val mutex = Mutex()
+    override var isValid: Boolean = true
+
+    override suspend fun free() {
+        mutex.withLock {
+            if (!isValid) return
+            delay(freeTime)
+            isValid = false
+        }
+    }
+}
+
+private object DummyPluginLookupModule : AbstractModule() {
+    override fun configure() {
+        bind(PluginLookup::class.java).toInstance(DummyProviderLookup)
+    }
+}
+
+@Suppress("UNCHECKED_CAST")
+private object DummyProviderLookup : PluginLookup {
+
+    override fun <T : Plugin> lookup(plugin: NamedPlugin<T>): T {
+        return DummyProvider as T
+    }
+
+    override fun <T : Plugin> lookup(base: KClass<T>): T {
+        return DummyProvider as T
+    }
+}
+
+@IdBase("Dummy")
+private object DummyProvider : Provider, CoroutineScope {
+
+    override val name = "DummyProvider"
+    override val description = ""
+    override val subject
+        get() = name
+
+    private lateinit var job: Job
+    override val coroutineContext: CoroutineContext
+        get() = Dispatchers.IO + job
+
+    var loadTime: Long = 50
+    var freeTime: Long = 50
+
+    override fun search(query: String, offset: Int): List<Song> {
+        TODO("not implemented")
+    }
+
+    override fun lookup(id: String) = Song(
+        id = id,
+        provider = this,
+        title = id,
+        description = ""
+    )
+
+    override suspend fun supplyPlayback(song: Song, resource: Resource): Playback {
+        TODO("not implemented")
+    }
+
+    override suspend fun loadSong(song: Song): Resource {
+        return coroutineScope {
+            withContext(coroutineContext) {
+                delay(loadTime)
+                DummyResource(freeTime)
+            }
+        }
+    }
+
+    override fun createConfigEntries(config: Config): List<Config.Entry<*>> {
+        TODO("not implemented")
+    }
+
+    override fun createSecretEntries(secrets: Config): List<Config.Entry<*>> {
+        TODO("not implemented")
+    }
+
+    override fun createStateEntries(state: Config) {
+        TODO("not implemented")
+    }
+
+    override fun initialize(initStateWriter: InitStateWriter) {
+        job = Job()
+    }
+
+    override fun close() {
+        job.cancel()
+    }
+}

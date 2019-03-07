@@ -58,11 +58,11 @@ private class TestProvider : TestProviderBase {
     override val description: String = ""
     override val name: String = "TestProvider"
 
-    override fun loadSong(song: Song): Resource {
+    override suspend fun loadSong(song: Song): Resource {
         TODO("not implemented")
     }
 
-    override fun supplyPlayback(song: Song, resource: Resource): Playback {
+    override suspend fun supplyPlayback(song: Song, resource: Resource): Playback {
         TODO("not implemented")
     }
 

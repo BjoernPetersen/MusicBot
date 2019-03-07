@@ -31,11 +31,11 @@ private class TodoProvider(override val name: String) : Provider {
         TODO("not implemented")
     }
 
-    override fun supplyPlayback(song: Song, resource: Resource): Playback {
+    override suspend fun supplyPlayback(song: Song, resource: Resource): Playback {
         TODO("not implemented")
     }
 
-    override fun loadSong(song: Song): Resource {
+    override suspend fun loadSong(song: Song): Resource {
         TODO("not implemented")
     }
 
