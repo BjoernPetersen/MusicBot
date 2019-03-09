@@ -1,6 +1,10 @@
 package net.bjoernpetersen.musicbot.spi.plugin
 
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlin.coroutines.CoroutineContext
 
 /**
  * A feedback channel back to the player to send signals about playback state changes
@@ -70,12 +74,12 @@ interface Playback {
      *
      * This is also called to initially start playing.
      */
-    fun play()
+    suspend fun play()
 
     /**
      * Pauses the playback. This might be called if the playback is already paused.
      */
-    fun pause()
+    suspend fun pause()
 
     suspend fun waitForFinish()
 
@@ -90,7 +94,11 @@ interface Playback {
  * @param lock A lock which will be used for critical code
  * @param done A condition which will come true when this Playback finishes
  */
-abstract class AbstractPlayback protected constructor() : Playback {
+abstract class AbstractPlayback protected constructor() : Playback, CoroutineScope {
+
+    private val job = Job()
+    override val coroutineContext: CoroutineContext
+        get() = Dispatchers.IO + job
 
     protected val done = CompletableDeferred<Unit>()
 
@@ -120,5 +128,6 @@ abstract class AbstractPlayback protected constructor() : Playback {
     @Throws(Exception::class)
     override suspend fun close() {
         markDone()
+        job.cancel()
     }
 }

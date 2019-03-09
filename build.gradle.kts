@@ -91,6 +91,16 @@ dependencies {
         name = "kotlinx-coroutines-core",
         version = Lib.KOTLIN_COROUTINES
     )
+    api(
+        group = "org.jetbrains.kotlinx",
+        name = "kotlinx-coroutines-jdk8",
+        version = Lib.KOTLIN_COROUTINES
+    )
+    api(
+        group = "org.jetbrains.kotlinx",
+        name = "kotlinx-coroutines-guava",
+        version = Lib.KOTLIN_COROUTINES
+    )
     api(kotlin("reflect"))
     api(
         group = "io.github.microutils",

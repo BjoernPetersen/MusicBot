@@ -16,7 +16,6 @@ import net.bjoernpetersen.musicbot.api.config.Config
 import net.bjoernpetersen.musicbot.api.module.DefaultSongLoaderModule
 import net.bjoernpetersen.musicbot.api.player.Song
 import net.bjoernpetersen.musicbot.api.plugin.IdBase
-import net.bjoernpetersen.musicbot.api.plugin.NamedPlugin
 import net.bjoernpetersen.musicbot.api.plugin.management.LogInitStateWriter
 import net.bjoernpetersen.musicbot.spi.loader.Resource
 import net.bjoernpetersen.musicbot.spi.loader.ResourceCache
@@ -49,7 +48,7 @@ class DefaultResourceCacheTest {
             (1..size)
                 .asSequence()
                 .map { it.toString() }
-                .map { DummyProvider.lookup(it) }
+                .map { runBlocking { DummyProvider.lookup(it) } }
                 .map { async { cache.get(it) } }
                 .toList()
                 .mapTo(ArrayList(size)) {
@@ -73,8 +72,8 @@ class DefaultResourceCacheTest {
     @Test
     fun `get works`() {
         val cache = createCache()
-        val song = DummyProvider.lookup("test")
         runBlocking {
+            val song = DummyProvider.lookup("test")
             val resource = cache.get(song)
             assertTrue(resource.isValid)
         }
@@ -83,8 +82,8 @@ class DefaultResourceCacheTest {
     @Test
     fun `get refreshes`() {
         val cache = createCache()
-        val song = DummyProvider.lookup("test")
         runBlocking {
+            val song = DummyProvider.lookup("test")
             val resource = cache.get(song)
             resource.free()
             assertFalse(resource.isValid)
@@ -98,13 +97,17 @@ class DefaultResourceCacheTest {
         @BeforeAll
         @JvmStatic
         fun initProvider() {
-            DummyProvider.initialize(LogInitStateWriter())
+            runBlocking {
+                DummyProvider.initialize(LogInitStateWriter())
+            }
         }
 
         @AfterAll
         @JvmStatic
         fun closeProvider() {
-            DummyProvider.close()
+            runBlocking {
+                DummyProvider.close()
+            }
         }
     }
 }
@@ -130,8 +133,7 @@ private object DummyPluginLookupModule : AbstractModule() {
 
 @Suppress("UNCHECKED_CAST")
 private object DummyProviderLookup : PluginLookup {
-
-    override fun <T : Plugin> lookup(plugin: NamedPlugin<T>): T {
+    override fun <T : Plugin> lookup(id: String): T {
         return DummyProvider as T
     }
 
@@ -155,11 +157,11 @@ private object DummyProvider : Provider, CoroutineScope {
     var loadTime: Long = 50
     var freeTime: Long = 50
 
-    override fun search(query: String, offset: Int): List<Song> {
+    override suspend fun search(query: String, offset: Int): List<Song> {
         TODO("not implemented")
     }
 
-    override fun lookup(id: String) = Song(
+    override suspend fun lookup(id: String) = Song(
         id = id,
         provider = this,
         title = id,
@@ -191,11 +193,11 @@ private object DummyProvider : Provider, CoroutineScope {
         TODO("not implemented")
     }
 
-    override fun initialize(initStateWriter: InitStateWriter) {
+    override suspend fun initialize(initStateWriter: InitStateWriter) {
         job = Job()
     }
 
-    override fun close() {
+    override suspend fun close() {
         job.cancel()
     }
 }

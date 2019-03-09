@@ -13,15 +13,13 @@ interface FilePlaybackFactory : PlaybackFactory {
     /**
      * Creates a playback object from the given input file.
      *
-     * This method can perform blocking IO actions.
-     *
      * @param inputFile the input file with audio data
      * @return a Playback object
      * @throws UnsupportedAudioFileException if the format of the input stream is unsupported
      * @throws IOException if any IO error occurs
      */
     @Throws(UnsupportedAudioFileException::class, IOException::class)
-    fun createPlayback(inputFile: File): Playback
+    suspend fun createPlayback(inputFile: File): Playback
 }
 
 class UnsupportedAudioFileException : Exception {

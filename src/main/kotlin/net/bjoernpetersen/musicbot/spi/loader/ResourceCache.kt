@@ -1,8 +1,8 @@
 package net.bjoernpetersen.musicbot.spi.loader
 
 import kotlinx.coroutines.async
+import kotlinx.coroutines.future.asCompletableFuture
 import kotlinx.coroutines.runBlocking
-import net.bjoernpetersen.musicbot.api.async.asFuture
 import net.bjoernpetersen.musicbot.api.player.Song
 import java.util.concurrent.Future
 
@@ -21,7 +21,7 @@ interface ResourceCache {
     fun getFuture(song: Song): Future<Resource> = runBlocking {
         async {
             get(song)
-        }.asFuture()
+        }.asCompletableFuture()
     }
 
     /**

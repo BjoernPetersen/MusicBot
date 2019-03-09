@@ -16,15 +16,15 @@ class AuthMySuggester : Suggester by TodoSuggester("AuthMy") {
 
 
 private class TodoSuggester(override val name: String) : Suggester {
-    override fun suggestNext(): Song {
+    override suspend fun suggestNext(): Song {
         TODO("not implemented")
     }
 
-    override fun getNextSuggestions(maxLength: Int): List<Song> {
+    override suspend fun getNextSuggestions(maxLength: Int): List<Song> {
         TODO("not implemented")
     }
 
-    override fun removeSuggestion(song: Song) {
+    override suspend fun removeSuggestion(song: Song) {
         TODO("not implemented")
     }
 
@@ -43,11 +43,11 @@ private class TodoSuggester(override val name: String) : Suggester {
         TODO("not implemented")
     }
 
-    override fun initialize(initStateWriter: InitStateWriter) {
+    override suspend fun initialize(initStateWriter: InitStateWriter) {
         TODO("not implemented")
     }
 
-    override fun close() {
+    override suspend fun close() {
         TODO("not implemented")
     }
 

@@ -28,7 +28,7 @@ class VolumeManager @Inject private constructor(injector: Injector) {
      * If no [VolumeHandler] has been configured, this returns an "unsupported" [Volume] object,
      * but will **never throw an exception**.
      */
-    fun getVolume(): Volume = handler?.volume?.let(::Volume) ?: Volume()
+    suspend fun getVolume(): Volume = handler?.getVolume()?.let(::Volume) ?: Volume()
 
     /**
      * Sets the volume.
@@ -37,9 +37,9 @@ class VolumeManager @Inject private constructor(injector: Injector) {
      *
      * @throws IllegalArgumentException if [volume] is less than 0 or greater than 100
      */
-    fun setVolume(volume: Int) {
+    suspend fun setVolume(volume: Int) {
         if (volume < 0 || volume > 100)
             throw IllegalArgumentException("Volume is not between 0 and 100")
-        handler?.let { it.volume = volume }
+        handler?.setVolume(volume)
     }
 }

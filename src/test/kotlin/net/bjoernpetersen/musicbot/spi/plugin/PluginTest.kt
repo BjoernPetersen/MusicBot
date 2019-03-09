@@ -46,11 +46,11 @@ private class TestProvider : TestProviderBase {
         TODO("not implemented")
     }
 
-    override fun initialize(initStateWriter: InitStateWriter) {
+    override suspend fun initialize(initStateWriter: InitStateWriter) {
         TODO("not implemented")
     }
 
-    override fun close() {
+    override suspend fun close() {
         TODO("not implemented")
     }
 
@@ -66,11 +66,11 @@ private class TestProvider : TestProviderBase {
         TODO("not implemented")
     }
 
-    override fun lookup(id: String): Song {
+    override suspend fun lookup(id: String): Song {
         TODO("not implemented")
     }
 
-    override fun search(query: String, offset: Int): List<Song> {
+    override suspend fun search(query: String, offset: Int): List<Song> {
         TODO("not implemented")
     }
 

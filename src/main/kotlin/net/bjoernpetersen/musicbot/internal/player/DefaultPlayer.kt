@@ -47,7 +47,7 @@ internal class DefaultPlayer @Inject private constructor(
     private lateinit var job: Job
     @Suppress("EXPERIMENTAL_API_USAGE")
     override val coroutineContext: CoroutineContext
-        get() = newSingleThreadContext("Player")
+        get() = newSingleThreadContext("Player") + job
 
     private val suggester: Suggester? = defaultSuggester.suggester
 
@@ -90,15 +90,13 @@ internal class DefaultPlayer @Inject private constructor(
     }
 
     private fun preloadSuggestion(suggester: Suggester) {
-        if (queue.isEmpty) {
-            val suggestions: List<Song>
-            try {
-                suggestions = suggester.getNextSuggestions(1)
-            } catch (e: BrokenSuggesterException) {
-                return
-            }
-
-            launch {
+        launch {
+            if (queue.isEmpty) {
+                val suggestions: List<Song> = try {
+                    suggester.getNextSuggestions(1)
+                } catch (e: BrokenSuggesterException) {
+                    return@launch
+                }
                 resourceCache.get(suggestions[0])
             }
         }
@@ -285,9 +283,9 @@ internal class DefaultPlayer @Inject private constructor(
 }
 
 private object DummyPlayback : Playback {
-    override fun play() {}
+    override suspend fun play() {}
 
-    override fun pause() {}
+    override suspend fun pause() {}
 
     override suspend fun waitForFinish() {
         delay(1000)

@@ -6,7 +6,6 @@ import net.bjoernpetersen.musicbot.api.plugin.ActiveBase
 import net.bjoernpetersen.musicbot.api.plugin.Base
 import net.bjoernpetersen.musicbot.api.plugin.IdBase
 import net.bjoernpetersen.musicbot.spi.plugin.management.InitStateWriter
-import java.io.IOException
 import javax.inject.Inject
 import kotlin.reflect.KClass
 import kotlin.reflect.full.allSuperclasses
@@ -122,13 +121,13 @@ interface Plugin {
      * @throws InitializationException if any problems occurs during initialization
      */
     @Throws(InitializationException::class)
-    fun initialize(initStateWriter: InitStateWriter)
+    suspend fun initialize(initStateWriter: InitStateWriter)
 
     /**
      * Close whatever resources have been allocated in [initialize].
      */
-    @Throws(IOException::class)
-    fun close()
+    @Throws(Exception::class)
+    suspend fun close()
 }
 
 interface UserFacing {
@@ -210,7 +209,8 @@ val Plugin.bases: List<KClass<out Plugin>>
                 it.isSubclassOf(Plugin::class).also { isSubclass ->
                     if (!isSubclass) {
                         throw DeclarationException(
-                            "Base ${it.qualifiedName} is not a plugin subtype")
+                            "Base ${it.qualifiedName} is not a plugin subtype"
+                        )
                     }
                 }
             }
@@ -238,11 +238,13 @@ val Plugin.id: KClass<out Plugin>
         }
         if (!foundActive) {
             throw IllegalStateException(
-                "Plugin does not implement an active base: ${this::class.qualifiedName}")
+                "Plugin does not implement an active base: ${this::class.qualifiedName}"
+            )
         }
         if (ids.isEmpty()) {
             throw DeclarationException(
-                "No ID base on plugin with active base: ${this::class.qualifiedName}")
+                "No ID base on plugin with active base: ${this::class.qualifiedName}"
+            )
         }
         if (ids.size > 1) {
             // TODO should this happen?

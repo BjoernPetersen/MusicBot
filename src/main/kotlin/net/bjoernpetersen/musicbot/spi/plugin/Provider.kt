@@ -24,7 +24,7 @@ interface Provider : Plugin, UserFacing {
      * @param offset the index of the first result to return (may be used for pagination)
      * @return a list of songs
      */
-    fun search(query: String, offset: Int = 0): List<Song>
+    suspend fun search(query: String, offset: Int = 0): List<Song>
 
     /**
      * Looks up a song by its ID.
@@ -34,7 +34,7 @@ interface Provider : Plugin, UserFacing {
      * @throws NoSuchSongException if the ID is invalid
      */
     @Throws(NoSuchSongException::class)
-    fun lookup(id: String): Song
+    suspend fun lookup(id: String): Song
 
     /**
      * Supplies the playback object for the specified song.
@@ -76,7 +76,7 @@ interface Provider : Plugin, UserFacing {
      * @param ids a list of song IDs
      * @return a list of songs
      */
-    fun lookupBatch(ids: List<String>): List<Song> {
+    suspend fun lookupBatch(ids: List<String>): List<Song> {
         val result = ArrayList<Song>(ids.size)
         for (id in ids) {
             try {

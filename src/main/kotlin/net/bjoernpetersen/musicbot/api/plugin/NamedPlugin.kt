@@ -19,6 +19,7 @@ data class NamedPlugin<out T : Plugin>(
     @Deprecated("Will be removed in a future version")
     constructor(idClass: KClass<out T>, name: String) : this(idClass.java.name, name)
 
+    @Deprecated("Use PluginLookup", ReplaceWith("PluginLookup.lookup(this)"))
     @Throws(IllegalStateException::class)
     fun findPlugin(classLoader: ClassLoader, pluginFinder: PluginFinder): T {
         val base = try {

@@ -1,13 +1,14 @@
 package net.bjoernpetersen.musicbot.api.module
 
 import com.google.inject.Injector
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import mu.KotlinLogging
 import net.bjoernpetersen.musicbot.api.plugin.management.PluginFinder
 import net.bjoernpetersen.musicbot.spi.loader.ResourceCache
 import net.bjoernpetersen.musicbot.spi.loader.SongLoader
 import net.bjoernpetersen.musicbot.spi.player.Player
-import net.bjoernpetersen.musicbot.spi.plugin.Plugin
 import java.io.Closeable
 import kotlin.reflect.KClass
 
@@ -28,7 +29,7 @@ class InstanceStopper(private val injector: Injector) {
     private val additionalBefore: MutableSet<Stopper<*>> = HashSet(32)
     private val additionalAfter: MutableSet<Stopper<*>> = HashSet(32)
 
-    private fun <T> unstopped(action: () -> T): T {
+    private suspend fun <T> unstopped(action: suspend () -> T): T {
         if (stopped) throw IllegalStateException("stop() has already been called")
         return action()
     }
@@ -40,7 +41,7 @@ class InstanceStopper(private val injector: Injector) {
         throw IllegalStateException(e)
     }
 
-    private fun <T : Any> KClass<T>.withLookup(action: (T) -> Unit) {
+    private suspend fun <T : Any> KClass<T>.withLookup(action: suspend (T) -> Unit) {
         val instance = try {
             injector.getInstance(this.java)
         } catch (e: RuntimeException) {
@@ -57,9 +58,9 @@ class InstanceStopper(private val injector: Injector) {
      * @param type the type for which to look up the implementation and close when [stop] is called
      * @param before whether to close the instance before the rest; default: `true`
      */
-    fun register(type: Class<out Closeable>, before: Boolean = true): Unit = unstopped {
-        register(type, before, Closeable::close)
-    }
+    @Deprecated("Don't use it")
+    fun register(type: Class<out Closeable>, before: Boolean = true) =
+        register(type, before) { it.close() }
 
     /**
      * Registers an additional [type] to look up via the [injector] and close either before or after
@@ -69,23 +70,28 @@ class InstanceStopper(private val injector: Injector) {
      * @param before whether to close the instance before the rest; default: `true`
      * @param close will be called to close the instance
      */
-    fun <T : Any> register(type: Class<T>, before: Boolean = true, close: (T) -> Unit): Unit {
-        val instance = try {
-            injector.getInstance(type)
-        } catch (e: RuntimeException) {
-            throw IllegalArgumentException(e)
-        }
+    fun <T : Any> register(
+        type: Class<T>,
+        before: Boolean = true,
+        close: suspend (T) -> Unit
+    ) = runBlocking<Unit> {
+        unstopped {
+            val instance = try {
+                injector.getInstance(type)
+            } catch (e: RuntimeException) {
+                throw IllegalArgumentException(e)
+            }
 
-        val set = if (before) additionalBefore else additionalAfter
-        set.add(Stopper(instance, close))
+            val set = if (before) additionalBefore else additionalAfter
+            set.add(Stopper(instance, close))
+        }
     }
 
-
-    private fun close(stopper: Stopper<*>) {
+    private suspend fun close(stopper: Stopper<*>) {
         close(stopper) { it() }
     }
 
-    private fun <T : Any> close(instance: T, closer: (T) -> Unit) {
+    private suspend fun <T : Any> close(instance: T, closer: suspend (T) -> Unit) {
         try {
             closer(instance)
         } catch (e: InterruptedException) {
@@ -99,22 +105,28 @@ class InstanceStopper(private val injector: Injector) {
     /**
      * Stops all registered instances.
      */
-    fun stop(): Unit = unstopped {
-        additionalBefore.forEach(::close)
+    suspend fun stop(): Unit = unstopped {
+        withContext(Dispatchers.Default) {
+            additionalBefore.forEach { close(it) }
 
-        Player::class.withLookup { close(it) { runBlocking { it.close() } } }
-        ResourceCache::class.withLookup { close(it) { runBlocking { it.close() } } }
-        SongLoader::class.withLookup { close(it) { runBlocking { it.close() } } }
-        PluginFinder::class.withLookup { finder ->
-            finder.allPlugins().forEach { close(it, Plugin::close) }
+            Player::class.withLookup { close(it) { it.close() } }
+            ResourceCache::class.withLookup { close(it) { it.close() } }
+            SongLoader::class.withLookup { close(it) { it.close() } }
+            PluginFinder::class.withLookup { finder ->
+                finder.allPlugins().forEach { close(it) { it.close() } }
+            }
+
+            additionalAfter.forEach { close(it) }
         }
-
-        additionalAfter.forEach(::close)
 
         stopped = true
     }
 }
 
-private data class Stopper<T : Any>(private val instance: T, private val close: (T) -> Unit) {
-    operator fun invoke() = close(instance)
+private data class Stopper<T : Any>(
+    private val instance: T,
+    private val close: suspend (T) -> Unit
+) {
+
+    suspend operator fun invoke() = close(instance)
 }

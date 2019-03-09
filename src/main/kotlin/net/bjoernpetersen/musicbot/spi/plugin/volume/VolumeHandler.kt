@@ -14,10 +14,22 @@ import net.bjoernpetersen.musicbot.spi.plugin.GenericPlugin
 interface VolumeHandler : GenericPlugin {
 
     /**
-     * The current volume, between 0 and 100, inclusively.
+     * Gets the current volume, between 0 and 100, inclusively.
      *
      * This may represent the system volume, but it could also represent the volume of anything
      * else, like the volume of a Chromecast or a remote Spotify client.
      */
-    var volume: Int
+    suspend fun getVolume(): Int
+
+    /**
+     * Set the current volume, between 0 and 100, inclusively.
+     *
+     * This may represent the system volume, but it could also represent the volume of anything
+     * else, like the volume of a Chromecast or a remote Spotify client.
+     *
+     * @throws IllegalArgumentException if [value] is not between 0 and 100
+     */
+    suspend fun setVolume(value: Int)
+
+
 }

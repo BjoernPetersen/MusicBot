@@ -17,7 +17,7 @@ interface Suggester : Plugin, UserFacing {
      * @throws BrokenSuggesterException if the suggester can't suggest anything
      */
     @Throws(BrokenSuggesterException::class)
-    fun suggestNext(): Song
+    suspend fun suggestNext(): Song
 
     /**
      * Gets a list of next suggestions which will be returned by calling [suggestNext].
@@ -29,7 +29,7 @@ interface Suggester : Plugin, UserFacing {
      * @throws BrokenSuggesterException if the suggester can't suggest anything
      */
     @Throws(BrokenSuggesterException::class)
-    fun getNextSuggestions(maxLength: Int): List<Song>
+    suspend fun getNextSuggestions(maxLength: Int): List<Song>
 
     /**
      * Notifies this Suggester that the specified song entry has been played.
@@ -43,17 +43,17 @@ interface Suggester : Plugin, UserFacing {
      *
      * @param songEntry a SongEntry
      */
-    fun notifyPlayed(songEntry: SongEntry) {
+    suspend fun notifyPlayed(songEntry: SongEntry) {
         removeSuggestion(songEntry.song)
     }
 
     /**
      *
-     * Removes the specified song from the [suggestions][.getNextSuggestions].
+     * Removes the specified song from the [suggestions][getNextSuggestions].
      *
      * @param song a song
      */
-    fun removeSuggestion(song: Song)
+    suspend fun removeSuggestion(song: Song)
 
     /**
      * Indicates a user disliking the specified song.
@@ -65,7 +65,7 @@ interface Suggester : Plugin, UserFacing {
      *
      * @param song a song
      */
-    fun dislike(song: Song) {
+    suspend fun dislike(song: Song) {
         removeSuggestion(song)
     }
 }
