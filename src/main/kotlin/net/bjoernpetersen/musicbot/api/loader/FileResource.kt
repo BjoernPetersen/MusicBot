@@ -12,10 +12,11 @@ import java.io.IOException
 class FileResource(val file: File) : Resource {
 
     private var deleted = false
-    override fun free() {
+    override suspend fun free() {
         deleted = file.delete()
         if (!deleted) throw IOException("Could not delete ${file.path}")
     }
 
-    override fun isValid() = !deleted && file.isFile
+    override val isValid
+        get() = !deleted && file.isFile
 }

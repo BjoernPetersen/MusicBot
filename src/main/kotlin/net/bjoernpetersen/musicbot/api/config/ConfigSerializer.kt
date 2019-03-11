@@ -1,5 +1,7 @@
 package net.bjoernpetersen.musicbot.api.config
 
+import java.io.File
+
 interface ConfigSerializer<T> {
     /**
      * Serializes the given object to a string.
@@ -24,4 +26,18 @@ object IntSerializer : ConfigSerializer<Int> {
     @Throws(SerializationException::class)
     override fun deserialize(string: String): Int = string.toIntOrNull()
         ?: throw SerializationException()
+}
+
+/**
+ * Serializer for files. Will not check for existence on deserialization.
+ */
+object FileSerializer : ConfigSerializer<File> {
+
+    override fun serialize(obj: File): String {
+        return obj.path
+    }
+
+    override fun deserialize(string: String): File {
+        return File(string)
+    }
 }

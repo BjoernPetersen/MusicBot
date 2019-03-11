@@ -91,6 +91,11 @@ dependencies {
         name = "kotlinx-coroutines-core",
         version = Lib.KOTLIN_COROUTINES
     )
+    implementation(
+        group = "org.jetbrains.kotlinx",
+        name = "kotlinx-coroutines-jdk8",
+        version = Lib.KOTLIN_COROUTINES
+    )
     api(kotlin("reflect"))
     api(
         group = "io.github.microutils",
@@ -127,11 +132,6 @@ dependencies {
         group = "org.junit.jupiter",
         name = "junit-jupiter-api",
         version = Lib.JUNIT
-    )
-    testImplementation(
-        group = "name.falgout.jeffrey.testing.junit5",
-        name = "guice-extension",
-        version = Lib.JUNIT_GUICE
     )
     testImplementation(group = "io.mockk", name = "mockk", version = Lib.MOCK_K)
     testImplementation(group = "org.assertj", name = "assertj-core", version = Lib.ASSERT_J)

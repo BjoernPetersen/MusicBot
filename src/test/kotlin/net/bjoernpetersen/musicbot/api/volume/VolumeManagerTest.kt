@@ -4,6 +4,7 @@ import com.google.inject.AbstractModule
 import com.google.inject.Guice
 import com.google.inject.Injector
 import com.google.inject.Provides
+import kotlinx.coroutines.runBlocking
 import net.bjoernpetersen.musicbot.api.config.Config
 import net.bjoernpetersen.musicbot.api.plugin.volume.Volume
 import net.bjoernpetersen.musicbot.api.plugin.volume.VolumeManager
@@ -32,7 +33,7 @@ class VolumeManagerTest {
     }
 
     @Test
-    fun unboundGet() {
+    fun unboundGet() = runBlocking {
         val manager = injector(false).manager
         assertEquals(Volume(), manager.getVolume())
     }
@@ -43,34 +44,40 @@ class VolumeManagerTest {
         return listOf(0, 50, 100)
             .map {
                 dynamicTest(it.toString()) {
-                    assertDoesNotThrow { manager.setVolume(it) }
+                    assertDoesNotThrow {
+                        runBlocking { manager.setVolume(it) }
+                    }
                 }
             }
     }
 
     @Test
-    fun volumeTooLow() {
+    fun volumeTooLow() = runBlocking<Unit> {
         val injector = injector(false)
-        assertThrows<IllegalArgumentException> { injector.manager.setVolume(-1) }
+        assertThrows<IllegalArgumentException> {
+            runBlocking { injector.manager.setVolume(-1) }
+        }
     }
 
     @Test
-    fun volumeTooHigh() {
+    fun volumeTooHigh() = runBlocking<Unit> {
         val injector = injector(false)
-        assertThrows<IllegalArgumentException> { injector.manager.setVolume(101) }
+        assertThrows<IllegalArgumentException> {
+            runBlocking { injector.manager.setVolume(101) }
+        }
     }
 
     @Test
-    fun boundGet() {
+    fun boundGet() = runBlocking<Unit> {
         val injector = injector(true)
         val handler = injector.handler
         val manager = injector.manager
-        val expectedVolume = Volume(handler.volume)
+        val expectedVolume = Volume(handler.getVolume())
         assertEquals(expectedVolume, manager.getVolume())
     }
 
     @Test
-    fun boundSet() {
+    fun boundSet() = runBlocking {
         val injector = injector(true)
         val manager = injector.manager
 
@@ -80,7 +87,7 @@ class VolumeManagerTest {
 
         val handler = injector.handler
         assertEquals(expectedVolume, manager.getVolume())
-        assertEquals(expectedVolume.volume, handler.volume)
+        assertEquals(expectedVolume.volume, handler.getVolume())
     }
 }
 
@@ -99,11 +106,17 @@ private class HandlerModule : AbstractModule() {
 }
 
 private class TestHandler : VolumeHandler {
-    override var volume: Int = 0
+    private var volume: Int = 0
     override val name: String
         get() = TODO("not implemented")
     override val description: String
         get() = TODO("not implemented")
+
+    override suspend fun getVolume(): Int = volume
+
+    override suspend fun setVolume(value: Int) {
+        volume = value
+    }
 
     override fun createConfigEntries(config: Config): List<Config.Entry<*>> {
         TODO("not implemented")
@@ -117,11 +130,11 @@ private class TestHandler : VolumeHandler {
         TODO("not implemented")
     }
 
-    override fun initialize(initStateWriter: InitStateWriter) {
+    override suspend fun initialize(initStateWriter: InitStateWriter) {
         TODO("not implemented")
     }
 
-    override fun close() {
+    override suspend fun close() {
         TODO("not implemented")
     }
 }

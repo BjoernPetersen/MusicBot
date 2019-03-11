@@ -7,6 +7,7 @@ import net.bjoernpetersen.musicbot.spi.loader.Resource
  */
 object NoResource : Resource {
 
-    override fun free() = Unit
-    override fun isValid(): Boolean = true
+    override suspend fun free() = Unit
+    override val isValid
+        get() = true
 }

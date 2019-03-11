@@ -6,7 +6,6 @@ import net.bjoernpetersen.musicbot.api.loader.SongLoadingException
 import net.bjoernpetersen.musicbot.api.player.Song
 import net.bjoernpetersen.musicbot.api.plugin.ActiveBase
 import net.bjoernpetersen.musicbot.spi.loader.Resource
-import java.io.IOException
 import kotlin.reflect.KClass
 
 /**
@@ -25,7 +24,7 @@ interface Provider : Plugin, UserFacing {
      * @param offset the index of the first result to return (may be used for pagination)
      * @return a list of songs
      */
-    fun search(query: String, offset: Int = 0): List<Song>
+    suspend fun search(query: String, offset: Int = 0): List<Song>
 
     /**
      * Looks up a song by its ID.
@@ -35,7 +34,7 @@ interface Provider : Plugin, UserFacing {
      * @throws NoSuchSongException if the ID is invalid
      */
     @Throws(NoSuchSongException::class)
-    fun lookup(id: String): Song
+    suspend fun lookup(id: String): Song
 
     /**
      * Supplies the playback object for the specified song.
@@ -45,10 +44,10 @@ interface Provider : Plugin, UserFacing {
      * @param song a song
      * @param resource the resource returned by [loadSong] for the song. Guaranteed to be valid.
      * @return a Playback object
-     * @throws IOException if the playback could not be created
+     * @throws Exception if the playback could not be created
      */
-    @Throws(IOException::class)
-    fun supplyPlayback(song: Song, resource: Resource): Playback
+    @Throws(Exception::class)
+    suspend fun supplyPlayback(song: Song, resource: Resource): Playback
 
     /**
      * Loads a song, i.e. prepares it before it can be played.
@@ -69,7 +68,7 @@ interface Provider : Plugin, UserFacing {
      * @return a resource, if any has been allocated
      */
     @Throws(SongLoadingException::class)
-    fun loadSong(song: Song): Resource
+    suspend fun loadSong(song: Song): Resource
 
     /**
      * Looks up a batch of song IDs. If any can't be looked up, they will be dropped.
@@ -77,7 +76,7 @@ interface Provider : Plugin, UserFacing {
      * @param ids a list of song IDs
      * @return a list of songs
      */
-    fun lookupBatch(ids: List<String>): List<Song> {
+    suspend fun lookupBatch(ids: List<String>): List<Song> {
         val result = ArrayList<Song>(ids.size)
         for (id in ids) {
             try {

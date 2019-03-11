@@ -40,11 +40,11 @@ private class TodoPlaybackFactory(override val name: String) : PlaybackFactory {
         TODO("not implemented")
     }
 
-    override fun initialize(initStateWriter: InitStateWriter) {
+    override suspend fun initialize(initStateWriter: InitStateWriter) {
         TODO("not implemented")
     }
 
-    override fun close() {
+    override suspend fun close() {
         TODO("not implemented")
     }
 }

@@ -1,7 +1,5 @@
 package net.bjoernpetersen.musicbot.spi.loader
 
-import java.io.IOException
-
 /**
  * A resource that is allocated when a song is loaded and needs to be deallocated at some point.
  *
@@ -16,13 +14,12 @@ interface Resource {
      * This means you should introduce an `isFreed` field to short-circuit [isValid].
      *
      */
-    @Throws(IOException::class)
-    fun free()
+    suspend fun free()
 
     /**
      * Checks whether this resource is still valid and can be used.
      *
      * For example: a file resource may check whether the file still exists
      */
-    fun isValid(): Boolean
+    val isValid: Boolean
 }

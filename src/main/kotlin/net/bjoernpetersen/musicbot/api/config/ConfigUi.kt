@@ -27,7 +27,8 @@ object CheckBox : UiNode<Boolean>()
  * associated entry. It may actively change the value of any entry, or even multiple entries.
  *
  * The [action] is executed on a non-UI thread.
- * Implementations should make an effort to prevent the action from running multiple times at once.
+ * Button implementations should make an effort to prevent the action from
+ * running multiple times at once.
  *
  * ### Example: "refresh OAuth token" button:
  *
@@ -44,7 +45,8 @@ object CheckBox : UiNode<Boolean>()
 data class ActionButton<T>(
     val label: String,
     val descriptor: (T) -> String,
-    val action: (Config.Entry<T>) -> Boolean) : UiNode<T>()
+    val action: suspend (Config.Entry<T>) -> Boolean
+) : UiNode<T>()
 
 /**
  * Some form of input box that only accepts numbers.
@@ -62,7 +64,8 @@ data class NumberBox @JvmOverloads constructor(val min: Int = 0, val max: Int = 
  */
 data class FileChooser(
     val isDirectory: Boolean = true,
-    val isOpen: Boolean = true) : UiNode<File>() {
+    val isOpen: Boolean = true
+) : UiNode<File>() {
 
     init {
         if (isDirectory && !isOpen)
@@ -83,5 +86,6 @@ data class FileChooser(
  */
 data class ChoiceBox<T> @JvmOverloads constructor(
     val descriptor: (T) -> String,
-    val refresh: () -> List<T>?,
-    val lazy: Boolean = false) : UiNode<T>()
+    val refresh: suspend () -> List<T>?,
+    val lazy: Boolean = false
+) : UiNode<T>()

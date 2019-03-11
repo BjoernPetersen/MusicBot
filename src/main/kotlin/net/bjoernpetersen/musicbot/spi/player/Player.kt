@@ -2,7 +2,6 @@ package net.bjoernpetersen.musicbot.spi.player
 
 import net.bjoernpetersen.musicbot.api.player.PlayerState
 import net.bjoernpetersen.musicbot.api.player.StopState
-import java.io.IOException
 
 typealias PlayerStateListener = (PlayerState) -> Unit
 
@@ -32,8 +31,7 @@ interface Player {
      *
      * This method blocks until the playback is paused.
      */
-    @Throws(InterruptedException::class)
-    fun pause()
+    suspend fun pause()
 
     /**
      * Resumes the playback.
@@ -42,8 +40,7 @@ interface Player {
      *
      * This method blocks until the playback is resumed.
      */
-    @Throws(InterruptedException::class)
-    fun play()
+    suspend fun play()
 
     /**
      * Plays the next song.
@@ -54,9 +51,7 @@ interface Player {
      *
      * This method blocks until either a new song is playing or the StopState is reached.
      */
-    @Throws(InterruptedException::class)
-    fun next()
+    suspend fun next()
 
-    @Throws(InterruptedException::class, IOException::class)
-    fun close()
+    suspend fun close()
 }
