@@ -6,7 +6,7 @@ import com.google.inject.Scopes
 import net.bjoernpetersen.musicbot.internal.auth.DefaultDatabase
 import net.bjoernpetersen.musicbot.internal.loader.DefaultResourceCache
 import net.bjoernpetersen.musicbot.internal.loader.DefaultSongLoader
-import net.bjoernpetersen.musicbot.internal.player.DefaultPlayer
+import net.bjoernpetersen.musicbot.internal.player.ActorPlayer
 import net.bjoernpetersen.musicbot.internal.player.DefaultQueue
 import net.bjoernpetersen.musicbot.spi.auth.UserDatabase
 import net.bjoernpetersen.musicbot.spi.loader.ResourceCache
@@ -19,7 +19,7 @@ import javax.inject.Singleton
 class DefaultPlayerModule(suggester: Suggester?) : PlayerModule(suggester) {
     override fun configure() {
         super.configure()
-        bind(Player::class.java).to(DefaultPlayer::class.java).`in`(Scopes.SINGLETON)
+        bind(Player::class.java).to(ActorPlayer::class.java).`in`(Scopes.SINGLETON)
     }
 }
 

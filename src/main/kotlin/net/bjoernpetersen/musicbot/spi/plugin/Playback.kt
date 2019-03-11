@@ -4,6 +4,7 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.withContext
 import kotlin.coroutines.CoroutineContext
 
 /**
@@ -115,7 +116,9 @@ abstract class AbstractPlayback protected constructor() : Playback, CoroutineSco
      * Waits for the [done] condition.
      */
     override suspend fun waitForFinish() {
-        done.await()
+        withContext(coroutineContext) {
+            done.await()
+        }
     }
 
     /**
@@ -127,7 +130,9 @@ abstract class AbstractPlayback protected constructor() : Playback, CoroutineSco
 
     @Throws(Exception::class)
     override suspend fun close() {
-        markDone()
+        withContext(coroutineContext) {
+            markDone()
+        }
         job.cancel()
     }
 }

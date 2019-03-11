@@ -90,12 +90,13 @@ internal class DefaultResourceCache @Inject private constructor(
                     try {
                         cleanupJob.children.forEach { it.join() }
                     } catch (e: TimeoutCancellationException) {
-                        job.cancel()
+                        logger.warn { "Resource cache clean up timed out after one minute." }
                     }
                 }
-                job.cancel()
             }
         }
+
+        job.cancel()
 
         logger.info { "Resource cache closed." }
     }
@@ -112,7 +113,7 @@ private class CacheSongLoader @Inject constructor(
     @Suppress("DeferredIsResult")
     override fun load(key: Song): Deferred<Resource> {
         return async(start = CoroutineStart.LAZY) {
-            val provider = pluginLookup.lookup(key.provider)
+            val provider = pluginLookup.lookup(key.provider)!!
             songLoader.load(provider, key)
         }
     }

@@ -14,31 +14,22 @@ internal class PluginLookupImpl @Inject private constructor(
     private val pluginFinder: PluginFinder
 ) : PluginLookup {
 
-    override fun <T : Plugin> lookup(base: KClass<T>): T {
-        val plugin = pluginFinder[base]
-            ?: throw IllegalStateException(
-                "Could not find provider for class ${base.qualifiedName}"
-            )
-
-        return try {
-            plugin
-        } catch (e: ClassCastException) {
-            throw IllegalStateException()
-        }
+    override fun <T : Plugin> lookup(base: KClass<T>): T? {
+        return pluginFinder[base]
     }
 
-    override fun <T : Plugin> lookup(plugin: NamedPlugin<T>): T {
+    override fun <T : Plugin> lookup(plugin: NamedPlugin<T>): T? {
         return lookup(plugin.id)
     }
 
-    override fun <T : Plugin> lookup(id: String): T {
+    override fun <T : Plugin> lookup(id: String): T? {
         val base = try {
             @Suppress("UNCHECKED_CAST")
             classLoader.loadClass(id).kotlin as KClass<T>
         } catch (e: ClassNotFoundException) {
-            throw IllegalStateException("Could not find plugin class for ID: $id")
+            return null
         } catch (e: ClassCastException) {
-            throw IllegalStateException("Could not cast ID base to KClass<Plugin>")
+            return null
         }
         return lookup(base)
     }

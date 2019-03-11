@@ -5,12 +5,14 @@ import com.google.inject.Guice
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.time.withTimeout
 import kotlinx.coroutines.withContext
 import net.bjoernpetersen.musicbot.api.config.Config
 import net.bjoernpetersen.musicbot.api.module.DefaultSongLoaderModule
@@ -25,12 +27,15 @@ import net.bjoernpetersen.musicbot.spi.plugin.PluginLookup
 import net.bjoernpetersen.musicbot.spi.plugin.Provider
 import net.bjoernpetersen.musicbot.spi.plugin.management.InitStateWriter
 import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNotSame
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
+import java.time.Duration
 import kotlin.coroutines.CoroutineContext
 import kotlin.reflect.KClass
 
@@ -39,6 +44,12 @@ private fun createCache(): ResourceCache = Guice
     .getInstance(DefaultResourceCache::class.java)
 
 class DefaultResourceCacheTest {
+    @AfterEach
+    fun resetProvider() {
+        DummyProvider.loadTime = 50
+        DummyProvider.freeTime = 50
+    }
+
     @Test
     fun `all cleaned up`() {
         val cache: ResourceCache = createCache()
@@ -67,6 +78,26 @@ class DefaultResourceCacheTest {
             cache.close()
             resources.forEach { assertFalse(it.isValid) }
         }
+    }
+
+    @Test
+    fun `clean up aborts with timeout`() {
+        val cache = createCache()
+        val resource = runBlocking {
+            DummyProvider.freeTime = Duration.ofMinutes(2).toMillis()
+            val song = DummyProvider.lookup("longFreeResource")
+            cache.get(song)
+        }
+
+        assertThrows<TimeoutCancellationException> {
+            runBlocking {
+                withTimeout(Duration.ofSeconds(90)) {
+                    cache.close()
+                }
+            }
+        }
+
+        assertTrue(resource.isValid)
     }
 
     @Test
@@ -133,6 +164,7 @@ private object DummyPluginLookupModule : AbstractModule() {
 
 @Suppress("UNCHECKED_CAST")
 private object DummyProviderLookup : PluginLookup {
+
     override fun <T : Plugin> lookup(id: String): T {
         return DummyProvider as T
     }
