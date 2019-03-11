@@ -27,6 +27,7 @@ import net.bjoernpetersen.musicbot.spi.player.PlayerStateListener
 import net.bjoernpetersen.musicbot.spi.player.QueueChangeListener
 import net.bjoernpetersen.musicbot.spi.player.SongPlayedNotifier
 import net.bjoernpetersen.musicbot.spi.player.SongQueue
+import net.bjoernpetersen.musicbot.spi.plugin.AbstractPlayback
 import net.bjoernpetersen.musicbot.spi.plugin.BrokenSuggesterException
 import net.bjoernpetersen.musicbot.spi.plugin.Playback
 import net.bjoernpetersen.musicbot.spi.plugin.PlaybackState
@@ -38,6 +39,8 @@ import kotlin.coroutines.CoroutineContext
 private sealed class PlayerMessage
 private sealed class FeedbackPlayerMessage<T>(val response: CompletableDeferred<T>) :
     PlayerMessage()
+
+private class Start(response: CompletableDeferred<Unit>) : FeedbackPlayerMessage<Unit>(response)
 
 private data class StateChange(
     val oldState: PlayerState,
@@ -53,6 +56,18 @@ private class Next(
     val oldState: PlayerState,
     response: CompletableDeferred<Unit>
 ) : FeedbackPlayerMessage<Unit>(response)
+
+private class Await(response: CompletableDeferred<Unit>) : FeedbackPlayerMessage<Unit>(response)
+
+/**
+ * A playback implementation that doesn't actually do anything. The only way it ever ends is if
+ * [close] is called.
+ */
+private class CompletablePlayback : AbstractPlayback() {
+
+    override suspend fun play() {}
+    override suspend fun pause() {}
+}
 
 /**
  * A player implementation that performs no synchronization at all, so it is not thread safe.
@@ -83,7 +98,7 @@ private class SyncPlayer @Inject private constructor(
                 listener(value)
             }
         }
-    private var playback: Playback = DummyPlayback
+    private var playback: Playback = CompletablePlayback()
     private lateinit var actor: SendChannel<PlayerMessage>
 
     private val suggester: Suggester? = defaultSuggester.suggester
@@ -112,6 +127,7 @@ private class SyncPlayer @Inject private constructor(
     }
 
     suspend fun awaitCurrentPlayback() {
+        logger.debug { "Awaiting playback $playback" }
         playback.waitForFinish()
     }
 
@@ -132,7 +148,10 @@ private class SyncPlayer @Inject private constructor(
         val oldState = state
         when (oldState) {
             is PlayState -> logger.debug { "Already playing." }
-            !is PauseState -> logger.info { "Tried to play in state $oldState" }
+            !is PauseState -> {
+                logger.debug { "Calling next because of play call in state ${oldState.name}" }
+                next()
+            }
             else -> {
                 playback.play()
                 state = oldState.play()
@@ -155,7 +174,9 @@ private class SyncPlayer @Inject private constructor(
 
     override suspend fun next() {
         logger.debug("Next...")
+
         try {
+            logger.debug { "Closing playback $playback" }
             playback.close()
         } catch (e: Exception) {
             logger.warn(e) { "Error closing playback" }
@@ -164,7 +185,7 @@ private class SyncPlayer @Inject private constructor(
         val nextQueueEntry = queue.pop()
         if (nextQueueEntry == null && suggester == null) {
             if (state !is StopState) logger.info("Queue is empty. Stopping.")
-            playback = DummyPlayback
+            playback = CompletablePlayback()
             state = StopState
             return
         }
@@ -173,7 +194,7 @@ private class SyncPlayer @Inject private constructor(
             SuggestedSongEntry(suggester!!.suggestNext())
         } catch (e: BrokenSuggesterException) {
             logger.warn("Default suggester could not suggest anything. Stopping.")
-            playback = DummyPlayback
+            playback = CompletablePlayback()
             state = StopState
             return
         }
@@ -190,13 +211,15 @@ private class SyncPlayer @Inject private constructor(
         } catch (e: Exception) {
             logger.warn(e) { "Error creating playback" }
 
+            playback = CompletablePlayback()
             state = ErrorState
-            playback = DummyPlayback
             return
         }
 
         playback.setPlaybackStateListener { feedback ->
             logger.trace { "Playback state update: $feedback" }
+            // This runs on an arbitrary thread, so we need to send it to
+            // our actor before acting on it
             try {
                 actor.send(StateChange(state) { applyFeedback(feedback) })
             } catch (e: CancellationException) {
@@ -213,6 +236,7 @@ private class SyncPlayer @Inject private constructor(
         } catch (e: Exception) {
             logger.error(e) { "Could not close playback" }
         }
+        playback = CompletablePlayback()
         state = StopState
     }
 }
@@ -240,6 +264,10 @@ internal class ActorPlayer @Inject private constructor(
         for (msg in channel) {
             try {
                 when (msg) {
+                    is Start -> {
+                        syncPlayer.play()
+                        msg.response.complete(Unit)
+                    }
                     is AddListener -> syncPlayer.addListener(msg.listener)
                     is RemoveListener -> syncPlayer.removeListener(msg.listener)
                     is Play -> {
@@ -267,11 +295,19 @@ internal class ActorPlayer @Inject private constructor(
                             logger.debug { "Ignoring playback state due to state change" }
                         } else msg.changeState()
                     }
+                    is Await -> {
+                        launch {
+                            syncPlayer.awaitCurrentPlayback()
+                            msg.response.complete(Unit)
+                        }
+                    }
                 }
             } catch (e: Throwable) {
                 if (msg is FeedbackPlayerMessage<*>) {
                     msg.response.completeExceptionally(e)
                 }
+                // TODO remove
+                logger.warn(e) { "May be cancellation in ActorPlayer actor loop" }
                 if (e is CancellationException) {
                     throw e
                 }
@@ -299,6 +335,9 @@ internal class ActorPlayer @Inject private constructor(
 
     override fun start() {
         launch {
+            val response = CompletableDeferred<Unit>()
+            actor.send(Start(response))
+            response.await()
             autoPlay()
         }
     }
@@ -359,7 +398,9 @@ internal class ActorPlayer @Inject private constructor(
             while (isActive) {
                 val previousState = state
                 logger.debug("Waiting for song to finish")
-                syncPlayer.awaitCurrentPlayback()
+                val await = CompletableDeferred<Unit>()
+                actor.send(Await(await))
+                await.await()
                 logger.trace("Waiting done")
 
                 // Prevent auto next calls if next was manually called
