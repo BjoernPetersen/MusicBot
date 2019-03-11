@@ -16,19 +16,8 @@ guaranteed that the `Resource.free()` method will be called.
 
 If you don't need to allocate any resources, you can simply return the `NoResource` singleton.
 
-** Kotlin: **
-
 ```kotlin
 override fun loadSong(song: Song): Resource = NoResource
-```
-
-** Java: **
-
-```java
-@Override
-public Resource loadSong(Song song) {
-    return NoResource.INSTANCE;
-}
 ```
 
 ### File resources
@@ -39,8 +28,6 @@ because storage space is typically finite.
 For that use case, the `FileResource` class is already included in the Core library.
 
 In this case your `loadSong()` and `supplyPlayback()` methods might look the following way:
-
-** Kotlin: **
 
 ```kotlin
 
@@ -62,35 +49,6 @@ class MyProvider : Provider {
     override fun supplyPlayback(song: Song, resource: Resource): Playback {
         val fileResource = resource as FileResource
         return myPlaybackFactory.createPlayback(fileResource.file)
-    }
-}
-```
-
-** Java: **
-
-```java
-// file MyPlaybackFactory.java
-@Base
-public interface MyPlaybackFactory extends FilePlaybackFactory {}
-
-// file MyProvider.java
-@IdBase
-public class MyProvider implements Provider {
-    @Inject
-    private myPlaybackFactory: MyPlaybackFactory
-
-    // ...
-
-    @Override
-    public Resource loadSong(Song song) {
-        File file = downloadSong(song);
-        return new FileResource(file);
-    }
-
-    @Override
-    public Playback supplyPlayback(song: Song, resource: Resource) {
-        FileResource fileResource = (FileResource) resource
-        return myPlaybackFactory.createPlayback(fileResource.getFile())
     }
 }
 ```

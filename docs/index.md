@@ -15,11 +15,13 @@ This section will list a few key features that make MusicBot superior to those a
 
 ### Multiple users
 
-Multiple users can connect to the bot with their own device and enqueue songs. This is not only
-more convenient than sharing one device, but also adds some accountability to the situation:
+Multiple users can connect to the bot with their own, personal devices and enqueue songs.
+This is not only more convenient than sharing one device, but also adds some
+accountability to the situation:
 
 You no longer have to worry about some half-wit skipping the Piña Colada Song you added to the queue
-or wonder who the hilarious dude that snuck Never Gonna Give You Up into the queue for the millionth time is.
+or wonder who the hilarious dude that snuck Never Gonna Give You Up into the queue for
+the millionth time is.
 
 ### Multiple song providers
 

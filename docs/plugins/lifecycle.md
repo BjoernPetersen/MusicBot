@@ -1,6 +1,7 @@
 # Lifecycle
 
-Plugins have a well defined lifecycle, and it is extremely important that you understand it in order to create your own implementation.
+Plugins have a well defined lifecycle, and it is extremely important that you understand it in
+order to create your own implementation.
 
 ## Creation
 

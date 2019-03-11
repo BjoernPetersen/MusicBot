@@ -1,6 +1,6 @@
 # Plugin types
 
-JMusicBot allows you to write a variety of plugins. There are four specific service interfaces,
+MusicBot allows you to write a variety of plugins. There are four specific service interfaces,
 which all extend the same basic `Plugin` interface:
 
 - `GenericPlugin`
