@@ -15,8 +15,13 @@ interface FileStorage {
      *
      * The returned directory is guaranteed to exist and actually be a directory.
      *
+     * Multiple calls of this method will return the same directory, but be aware that it will also
+     * be cleaned if the [clean] parameter is `true`, which you probably don't want.
+     *
      * @param plugin the plugin to provide a directory for
      * @param clean whether the directory should be cleaned/emptied
      */
     fun forPlugin(plugin: Plugin, clean: Boolean = false): File
+
+
 }
