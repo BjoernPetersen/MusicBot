@@ -32,14 +32,6 @@ java {
     targetCompatibility = JavaVersion.VERSION_1_8
 }
 
-val processResources by tasks.getting(ProcessResources::class) {
-    filesMatching("**/version.properties") {
-        filter {
-            it.replace("%APP_VERSION%", version.toString())
-        }
-    }
-}
-
 tasks {
     "dokka"(DokkaTask::class) {
         outputFormat = "html"
@@ -63,6 +55,14 @@ tasks {
     val sourcesJar by creating(Jar::class) {
         archiveClassifier.set("sources")
         from(sourceSets["main"].allSource)
+    }
+
+    "processResources"(ProcessResources::class) {
+        filesMatching("**/version.properties") {
+            filter {
+                it.replace("%APP_VERSION%", version.toString())
+            }
+        }
     }
 
     "compileKotlin"(KotlinCompile::class) {
