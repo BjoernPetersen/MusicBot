@@ -14,7 +14,7 @@ import kotlinx.coroutines.async
  */
 @Beta
 @Suppress("DeferredIsResult")
-internal class AsyncLoader<K, V>(
+class AsyncLoader<K, V>(
     private val scope: CoroutineScope,
     private val syncLoad: suspend (key: K) -> V
 ) : CacheLoader<K, Deferred<V>>() {
