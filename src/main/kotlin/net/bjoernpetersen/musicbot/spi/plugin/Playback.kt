@@ -116,9 +116,7 @@ abstract class AbstractPlayback protected constructor() : Playback, CoroutineSco
      * Waits for the [done] condition.
      */
     override suspend fun waitForFinish() {
-        withContext(coroutineContext) {
-            done.await()
-        }
+        done.await()
     }
 
     /**
