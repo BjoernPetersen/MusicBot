@@ -1,6 +1,7 @@
 package net.bjoernpetersen.musicbot.api.module
 
 import com.google.inject.AbstractModule
+import com.google.inject.Injector
 import com.google.inject.Provides
 import com.google.inject.Scopes
 import net.bjoernpetersen.musicbot.internal.auth.DefaultDatabase
@@ -19,10 +20,16 @@ import net.bjoernpetersen.musicbot.spi.plugin.Suggester
 import javax.inject.Singleton
 
 class DefaultPlayerModule(suggester: Suggester?) : PlayerModule(suggester) {
+    @Provides
+    @Singleton
+    fun provideFeedbackChannel(injector: Injector): PlaybackFeedbackChannel {
+        return injector.getInstance(ActorPlaybackFeedbackChannel::class.java)
+    }
+
+
     override fun configure() {
         super.configure()
         bind(Player::class.java).to(ActorPlayer::class.java).`in`(Scopes.SINGLETON)
-        bind(PlaybackFeedbackChannel::class.java).to(ActorPlaybackFeedbackChannel::class.java)
     }
 }
 
