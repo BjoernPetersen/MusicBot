@@ -321,10 +321,18 @@ internal class ActorPlayer @Inject private constructor(
 
         addListener { old, new ->
             launch {
+                if (!old.hasSong() && new.hasSong()) {
+                    progressTracker.startSong()
+                }
+
+                if (new.hasSong() && new.entry?.song != old.entry?.song) {
+                    progressTracker.reset()
+                    progressTracker.startSong()
+                }
+
                 when (new) {
                     is PauseState -> progressTracker.startPause()
-                    is PlayState -> if (old.hasSong()) progressTracker.stopPause()
-                    else progressTracker.startSong()
+                    is PlayState -> progressTracker.stopPause()
                     ErrorState, StopState -> progressTracker.reset()
                 }
             }
