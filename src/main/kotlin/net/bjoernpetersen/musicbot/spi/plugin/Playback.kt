@@ -119,7 +119,7 @@ abstract class AbstractPlayback protected constructor() : Playback, CoroutineSco
     protected lateinit var feedbackChannel: PlaybackFeedbackChannel
         private set
 
-    @Deprecated("Use feedbackChannel instead", ReplaceWith("feedbackChannel.updateState(state)"))
+    @Deprecated("Use feedbackChannel instead", ReplaceWith("feedbackChannel.updateState"))
     protected val playbackListener: (state: PlaybackState) -> Unit
         get() = { feedbackChannel.updateState(it) }
 
