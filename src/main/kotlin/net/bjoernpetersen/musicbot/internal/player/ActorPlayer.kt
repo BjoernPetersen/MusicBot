@@ -93,10 +93,11 @@ private class SyncPlayer @Inject private constructor(
      */
     override var state: PlayerState = StopState
         private set(value) {
+            val old = field
             field = value
             logger.debug { "Now playing ${value.entry}" }
             for (listener in stateListeners) {
-                listener(value)
+                listener(old, value)
             }
         }
     private var playback: Playback = CompletablePlayback()
@@ -325,7 +326,7 @@ internal class ActorPlayer @Inject private constructor(
         })
 
         if (suggester != null) {
-            addListener { preloadSuggestion(suggester) }
+            addListener { _, _ -> preloadSuggestion(suggester) }
         }
     }
 
