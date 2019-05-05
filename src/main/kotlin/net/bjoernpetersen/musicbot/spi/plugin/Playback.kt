@@ -5,26 +5,41 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.withContext
+import java.time.Duration
 import kotlin.coroutines.CoroutineContext
 
 /**
  * A feedback channel back to the player to send signals about playback state changes
  * outside of the bot's control.
  *
- * For example, if the user paused the official Spotify client directly, the Spotify Playback may
- * detect this and signal the new [PlaybackState.PAUSE] state.
- *
- * The listener may be called with the current state even if it is unchanged. The player won't react
- * if the state hasn't actually changed.
- *
- * This listener does **not** have to be called when one of the [Playback.play], [Playback.pause]
- * or [Playback.close] methods were called.
- *
- * ### Note
- * If the playback has finished, don't call this listener, but rather release all waiting threads
- * from the [Playback.waitForFinish] method instead.
+ * All feedback options are entirely optional, i.e. [Playback] implementations are not required to
+ * provide any feedback.
  */
-typealias PlaybackStateListener = suspend (PlaybackState) -> Unit
+interface PlaybackFeedbackChannel {
+
+    /**
+     * Notify the listener of a playback [state] change.
+     *
+     * For example, if the user paused the official Spotify client directly, the Spotify Playback may
+     * detect this and signal the new [PlaybackState.PAUSE] state.
+     *
+     * This method may be called with the current state even if it is unchanged.
+     * The listener won't react if the state hasn't actually changed.
+     *
+     * This method does **not** have to be called when one of the [Playback.play], [Playback.pause]
+     * or [Playback.close] methods were called.
+     *
+     * ### Note
+     * If the playback has finished, don't call this method, but rather release all waiting threads
+     * from the [Playback.waitForFinish] method instead.
+     */
+    fun updateState(state: PlaybackState)
+
+    /**
+     * Update the current playback progress.
+     */
+    fun updateProgress(progress: Duration)
+}
 
 /**
  * A kind of Playback state.
@@ -65,10 +80,10 @@ interface PlaybackFactory : Plugin
 interface Playback {
 
     /**
-     * Provides the playback with a PlaybackStateListener.
-     * The listener can be used to tell the player about external pause/resume events.
+     * Provides the playback with a feedback channel.
+     * Using the channel is entirely optional.
      */
-    fun setPlaybackStateListener(listener: PlaybackStateListener) = Unit
+    fun setFeedbackChannel(channel: PlaybackFeedbackChannel) = Unit
 
     /**
      * Resumes the playback. This might be called if the playback is already playing.
@@ -89,11 +104,8 @@ interface Playback {
 }
 
 /**
- * Abstract Playback implementation providing a [lock] and an associated [done] condition,
+ * Abstract Playback implementation providing a [done] condition,
  * as well as an implementation for the [waitForFinish] method and a [markDone] method.
- *
- * @param lock A lock which will be used for critical code
- * @param done A condition which will come true when this Playback finishes
  */
 abstract class AbstractPlayback protected constructor() : Playback, CoroutineScope {
 
@@ -101,13 +113,18 @@ abstract class AbstractPlayback protected constructor() : Playback, CoroutineSco
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.IO + job
 
+    @Deprecated("Don't use this directly, use isDone() or markDone() instead.")
     protected val done = CompletableDeferred<Unit>()
 
-    protected var playbackListener: PlaybackStateListener? = null
+    protected lateinit var feedbackChannel: PlaybackFeedbackChannel
         private set
 
-    override fun setPlaybackStateListener(listener: PlaybackStateListener) {
-        playbackListener = listener
+    @Deprecated("Use feedbackChannel instead", ReplaceWith("feedbackChannel.updateState(state)"))
+    protected val playbackListener: (state: PlaybackState) -> Unit
+        get() = { feedbackChannel.updateState(it) }
+
+    override fun setFeedbackChannel(channel: PlaybackFeedbackChannel) {
+        feedbackChannel = channel
     }
 
     protected fun isDone(): Boolean = done.isCompleted
