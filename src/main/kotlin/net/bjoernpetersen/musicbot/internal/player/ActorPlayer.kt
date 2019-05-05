@@ -8,6 +8,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.actor
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import mu.KotlinLogging
 import net.bjoernpetersen.musicbot.api.player.DefaultSuggester
@@ -15,6 +16,7 @@ import net.bjoernpetersen.musicbot.api.player.ErrorState
 import net.bjoernpetersen.musicbot.api.player.PauseState
 import net.bjoernpetersen.musicbot.api.player.PlayState
 import net.bjoernpetersen.musicbot.api.player.PlayerState
+import net.bjoernpetersen.musicbot.api.player.ProgressTracker
 import net.bjoernpetersen.musicbot.api.player.QueueEntry
 import net.bjoernpetersen.musicbot.api.player.Song
 import net.bjoernpetersen.musicbot.api.player.SongEntry
@@ -35,6 +37,7 @@ import net.bjoernpetersen.musicbot.spi.plugin.PluginLookup
 import net.bjoernpetersen.musicbot.spi.plugin.Suggester
 import java.time.Duration
 import javax.inject.Inject
+import javax.inject.Singleton
 import kotlin.coroutines.CoroutineContext
 
 private sealed class PlayerMessage
@@ -233,7 +236,8 @@ internal class ActorPlayer @Inject private constructor(
     private val queue: SongQueue,
     defaultSuggester: DefaultSuggester,
     private val resourceCache: ResourceCache,
-    private val feedbackChannel: ActorPlaybackFeedbackChannel
+    feedbackChannel: ActorPlaybackFeedbackChannel,
+    progressTracker: ProgressTracker
 ) : Player, CoroutineScope {
 
     private val logger = KotlinLogging.logger {}
@@ -312,6 +316,17 @@ internal class ActorPlayer @Inject private constructor(
                 launch { actor.send(StateChange(state, feedback)) }
             } catch (e: CancellationException) {
                 logger.warn(e) { "Could not send playback feedback to actor" }
+            }
+        }
+
+        addListener { old, new ->
+            launch {
+                when (new) {
+                    is PauseState -> progressTracker.startPause()
+                    is PlayState -> if (old.hasSong()) progressTracker.stopPause()
+                    else progressTracker.startSong()
+                    ErrorState, StopState -> progressTracker.reset()
+                }
             }
         }
 
@@ -423,7 +438,11 @@ internal class ActorPlayer @Inject private constructor(
     }
 }
 
-private class ActorPlaybackFeedbackChannel @Inject private constructor() : PlaybackFeedbackChannel {
+@Singleton
+internal class ActorPlaybackFeedbackChannel @Inject private constructor(
+    private val progressTracker: ProgressTracker
+) : PlaybackFeedbackChannel {
+
     var onStateChange: ((PlaybackState) -> Unit)? = null
         set(value) {
             if (field != null) throw IllegalStateException("Already initialized")
@@ -435,6 +454,8 @@ private class ActorPlaybackFeedbackChannel @Inject private constructor() : Playb
     }
 
     override fun updateProgress(progress: Duration) {
-        // TODO implement
+        runBlocking {
+            progressTracker.updateProgress(progress)
+        }
     }
 }
