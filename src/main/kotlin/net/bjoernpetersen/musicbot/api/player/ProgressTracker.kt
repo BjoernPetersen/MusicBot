@@ -18,18 +18,26 @@ class ProgressTracker @Inject private constructor() {
     private var currentStart: Instant? = null
     private var pausedSince: Instant? = null
 
-    suspend fun getCurrentProgress(): Progress {
+    /**
+     * Gets the progress of the current song.
+     *
+     * If no song is currently playing, a paused "zero"-progress will be returned.
+     */
+    suspend fun getCurrentProgress(): SongProgress {
         mutex.withLock {
             logger.debug { "Get progress" }
-            val currentStart = currentStart ?: return Progress(Duration.ZERO, true)
+            val currentStart = currentStart ?: return SongProgress(Duration.ZERO, true)
             val pausedSince = pausedSince
             return if (pausedSince == null)
-                Progress(Duration.between(currentStart, Instant.now()), false)
+                SongProgress(Duration.between(currentStart, Instant.now()), false)
             else
-                Progress(Duration.between(currentStart, pausedSince), true)
+                SongProgress(Duration.between(currentStart, pausedSince), true)
         }
     }
 
+    /**
+     * Resets the tracker, indicating that there is no song currently playing.
+     */
     suspend fun reset() {
         mutex.withLock {
             logger.debug { "Reset" }
@@ -38,6 +46,9 @@ class ProgressTracker @Inject private constructor() {
         }
     }
 
+    /**
+     * Indicates that a new song has been started.
+     */
     suspend fun startSong() {
         mutex.withLock {
             logger.debug { "Start" }
@@ -46,6 +57,13 @@ class ProgressTracker @Inject private constructor() {
         }
     }
 
+    /**
+     * Indicates that a pause has been started.
+     *
+     * If no song is currently playing (indicated by [startSong]), this does nothing.
+     *
+     * If this method is called again without calling [stopPause] before, this does nothing.
+     */
     suspend fun startPause() {
         mutex.withLock {
             logger.debug { "Pause" }
@@ -55,6 +73,12 @@ class ProgressTracker @Inject private constructor() {
         }
     }
 
+    /**
+     * Stops the current pause, indicating that the current song playback has been resumed.
+     *
+     * If [startPause] hasn't been called before and/or there is no current song playing, this does
+     * nothing.
+     */
     suspend fun stopPause() {
         mutex.withLock {
             logger.debug { "Unpause" }
@@ -69,13 +93,28 @@ class ProgressTracker @Inject private constructor() {
         }
     }
 
+    /**
+     * Manually updates the progress, potentially improving accuracy.
+     *
+     * If the [progress] is negative, a zero-duration-progress will be used instead.
+     */
     suspend fun updateProgress(progress: Duration) {
         mutex.withLock {
-            currentStart = Instant.now().minus(progress)
+            val corrected = if (progress.isNegative) {
+                logger.warn { "Got negative updated progress. Defaulting to 0." }
+                Duration.ZERO
+            } else progress
+            val pausedSince = pausedSince
+            val now = pausedSince ?: Instant.now()
+            currentStart = now.minus(corrected)
         }
     }
 }
 
-data class Progress(val duration: Duration, val isPaused: Boolean) {
-
-}
+/**
+ * Progress of a song.
+ *
+ * @param duration the duration the song has played
+ * @param isPaused whether the song is paused. Important for extrapolation.
+ */
+data class SongProgress(val duration: Duration, val isPaused: Boolean)
