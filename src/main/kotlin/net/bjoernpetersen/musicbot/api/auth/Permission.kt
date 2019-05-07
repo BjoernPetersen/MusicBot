@@ -48,7 +48,12 @@ enum class Permission(val label: String) {
     /**
      * Change the bot volume.
      */
-    CHANGE_VOLUME("change_volume");
+    CHANGE_VOLUME("change_volume"),
+
+    /**
+     * Shut down the bot.
+     */
+    EXIT("exit");
 
     companion object {
         private val defaultPermissions: Set<Permission> by lazy {
