@@ -5,10 +5,10 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.channels.actor
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import mu.KotlinLogging
 import net.bjoernpetersen.musicbot.api.player.DefaultSuggester
@@ -16,6 +16,7 @@ import net.bjoernpetersen.musicbot.api.player.ErrorState
 import net.bjoernpetersen.musicbot.api.player.PauseState
 import net.bjoernpetersen.musicbot.api.player.PlayState
 import net.bjoernpetersen.musicbot.api.player.PlayerState
+import net.bjoernpetersen.musicbot.api.player.ProgressTracker
 import net.bjoernpetersen.musicbot.api.player.QueueEntry
 import net.bjoernpetersen.musicbot.api.player.Song
 import net.bjoernpetersen.musicbot.api.player.SongEntry
@@ -30,10 +31,13 @@ import net.bjoernpetersen.musicbot.spi.player.SongQueue
 import net.bjoernpetersen.musicbot.spi.plugin.AbstractPlayback
 import net.bjoernpetersen.musicbot.spi.plugin.BrokenSuggesterException
 import net.bjoernpetersen.musicbot.spi.plugin.Playback
+import net.bjoernpetersen.musicbot.spi.plugin.PlaybackFeedbackChannel
 import net.bjoernpetersen.musicbot.spi.plugin.PlaybackState
 import net.bjoernpetersen.musicbot.spi.plugin.PluginLookup
 import net.bjoernpetersen.musicbot.spi.plugin.Suggester
+import java.time.Duration
 import javax.inject.Inject
+import javax.inject.Singleton
 import kotlin.coroutines.CoroutineContext
 
 private sealed class PlayerMessage
@@ -44,7 +48,7 @@ private class Start(response: CompletableDeferred<Unit>) : FeedbackPlayerMessage
 
 private data class StateChange(
     val oldState: PlayerState,
-    val changeState: suspend () -> Unit
+    val feedback: PlaybackState
 ) : PlayerMessage()
 
 private data class AddListener(val listener: PlayerStateListener) : PlayerMessage()
@@ -72,15 +76,15 @@ private class CompletablePlayback : AbstractPlayback() {
 /**
  * A player implementation that performs no synchronization at all, so it is not thread safe.
  *
- * This player should be used by a "synchronizing" player like [ActorPlayer], note that the actor
- * needs to be passed via [setActor] before using an instance of this class.
+ * This player should be used by a "synchronizing" player like [ActorPlayer].
  */
 private class SyncPlayer @Inject private constructor(
     private val queue: SongQueue,
     defaultSuggester: DefaultSuggester,
     private val resourceCache: ResourceCache,
     private val pluginLookup: PluginLookup,
-    private val songPlayedNotifier: SongPlayedNotifier
+    private val songPlayedNotifier: SongPlayedNotifier,
+    private val playbackFeedbackChannel: PlaybackFeedbackChannel
 ) : Player {
 
     private val logger = KotlinLogging.logger {}
@@ -92,22 +96,18 @@ private class SyncPlayer @Inject private constructor(
      */
     override var state: PlayerState = StopState
         private set(value) {
+            val old = field
             field = value
             logger.debug { "Now playing ${value.entry}" }
             for (listener in stateListeners) {
-                listener(value)
+                listener(old, value)
             }
         }
     private var playback: Playback = CompletablePlayback()
-    private lateinit var actor: SendChannel<PlayerMessage>
 
     private val suggester: Suggester? = defaultSuggester.suggester
 
-    fun setActor(actor: SendChannel<PlayerMessage>) {
-        this.actor = actor
-    }
-
-    private suspend fun applyFeedback(feedback: PlaybackState) {
+    suspend fun applyStateFeedback(feedback: PlaybackState) {
         val oldState = state
         when (feedback) {
             PlaybackState.PLAY -> if (oldState is PauseState) {
@@ -145,8 +145,7 @@ private class SyncPlayer @Inject private constructor(
 
     override suspend fun play() {
         logger.debug("Playing...")
-        val oldState = state
-        when (oldState) {
+        when (val oldState = state) {
             is PlayState -> logger.debug { "Already playing." }
             !is PauseState -> {
                 logger.debug { "Calling next because of play call in state ${oldState.name}" }
@@ -161,8 +160,7 @@ private class SyncPlayer @Inject private constructor(
 
     override suspend fun pause() {
         logger.debug("Pausing...")
-        val oldState = state
-        when (oldState) {
+        when (val oldState = state) {
             is PauseState -> logger.debug { "Already paused." }
             !is PlayState -> logger.info { "Tried to pause player in state $oldState" }
             else -> {
@@ -216,16 +214,7 @@ private class SyncPlayer @Inject private constructor(
             return
         }
 
-        playback.setPlaybackStateListener { feedback ->
-            logger.trace { "Playback state update: $feedback" }
-            // This runs on an arbitrary thread, so we need to send it to
-            // our actor before acting on it
-            try {
-                actor.send(StateChange(state) { applyFeedback(feedback) })
-            } catch (e: CancellationException) {
-                logger.warn(e) { "Could not send playback feedback to actor" }
-            }
-        }
+        playback.setFeedbackChannel(playbackFeedbackChannel)
         state = PauseState(nextEntry)
         play()
     }
@@ -246,7 +235,9 @@ internal class ActorPlayer @Inject private constructor(
     private val syncPlayer: SyncPlayer,
     private val queue: SongQueue,
     defaultSuggester: DefaultSuggester,
-    private val resourceCache: ResourceCache
+    private val resourceCache: ResourceCache,
+    feedbackChannel: ActorPlaybackFeedbackChannel,
+    progressTracker: ProgressTracker
 ) : Player, CoroutineScope {
 
     private val logger = KotlinLogging.logger {}
@@ -293,7 +284,9 @@ internal class ActorPlayer @Inject private constructor(
                     is StateChange -> {
                         if (syncPlayer.state !== msg.oldState) {
                             logger.debug { "Ignoring playback state due to state change" }
-                        } else msg.changeState()
+                        } else {
+                            syncPlayer.applyStateFeedback(msg.feedback)
+                        }
                     }
                     is Await -> {
                         launch {
@@ -317,7 +310,34 @@ internal class ActorPlayer @Inject private constructor(
     }
 
     init {
-        syncPlayer.setActor(actor)
+        feedbackChannel.onStateChange = { feedback ->
+            logger.trace { "Playback state update: $feedback" }
+            try {
+                launch { actor.send(StateChange(state, feedback)) }
+            } catch (e: CancellationException) {
+                logger.warn(e) { "Could not send playback feedback to actor" }
+            }
+        }
+
+        addListener { old, new ->
+            launch {
+                if (!old.hasSong() && new.hasSong()) {
+                    progressTracker.startSong()
+                }
+
+                if (new.hasSong() && new.entry?.song != old.entry?.song) {
+                    progressTracker.reset()
+                    progressTracker.startSong()
+                }
+
+                when (new) {
+                    is PauseState -> progressTracker.startPause()
+                    is PlayState -> progressTracker.stopPause()
+                    ErrorState, StopState -> progressTracker.reset()
+                }
+            }
+        }
+
         queue.addListener(object : QueueChangeListener {
             override fun onAdd(entry: QueueEntry) {
                 launch { resourceCache.get(entry.song) }
@@ -329,9 +349,10 @@ internal class ActorPlayer @Inject private constructor(
         })
 
         if (suggester != null) {
-            addListener { preloadSuggestion(suggester) }
+            addListener { _, _ -> preloadSuggestion(suggester) }
         }
     }
+
 
     override fun start() {
         launch {
@@ -422,5 +443,27 @@ internal class ActorPlayer @Inject private constructor(
             result.await()
         }
         job.cancel()
+    }
+}
+
+@Singleton
+internal class ActorPlaybackFeedbackChannel @Inject private constructor(
+    private val progressTracker: ProgressTracker
+) : PlaybackFeedbackChannel {
+
+    var onStateChange: ((PlaybackState) -> Unit)? = null
+        set(value) {
+            if (field != null) throw IllegalStateException("Already initialized")
+            else field = value
+        }
+
+    override fun updateState(state: PlaybackState) {
+        onStateChange?.let { it(state) }
+    }
+
+    override fun updateProgress(progress: Duration) {
+        runBlocking {
+            progressTracker.updateProgress(progress)
+        }
     }
 }

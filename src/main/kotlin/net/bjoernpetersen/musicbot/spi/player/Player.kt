@@ -3,7 +3,7 @@ package net.bjoernpetersen.musicbot.spi.player
 import net.bjoernpetersen.musicbot.api.player.PlayerState
 import net.bjoernpetersen.musicbot.api.player.StopState
 
-typealias PlayerStateListener = (PlayerState) -> Unit
+typealias PlayerStateListener = (oldState: PlayerState, newState: PlayerState) -> Unit
 
 interface Player {
 

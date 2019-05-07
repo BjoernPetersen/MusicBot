@@ -12,9 +12,9 @@ internal class PlayerHistoryImpl @Inject private constructor(player: Player) : P
     private val history = LinkedList<SongEntry>()
 
     init {
-        player.addListener {
-            if (it is PlayState) {
-                val entry = it.entry
+        player.addListener { _, new ->
+            if (new is PlayState) {
+                val entry = new.entry
                 if (history.lastOrNull() != entry) {
                     if (history.size == MAX_SIZE) history.poll()
                     history.add(entry)

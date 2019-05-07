@@ -1,11 +1,13 @@
 package net.bjoernpetersen.musicbot.api.module
 
 import com.google.inject.AbstractModule
+import com.google.inject.Injector
 import com.google.inject.Provides
 import com.google.inject.Scopes
 import net.bjoernpetersen.musicbot.internal.auth.DefaultDatabase
 import net.bjoernpetersen.musicbot.internal.loader.DefaultResourceCache
 import net.bjoernpetersen.musicbot.internal.loader.DefaultSongLoader
+import net.bjoernpetersen.musicbot.internal.player.ActorPlaybackFeedbackChannel
 import net.bjoernpetersen.musicbot.internal.player.ActorPlayer
 import net.bjoernpetersen.musicbot.internal.player.DefaultQueue
 import net.bjoernpetersen.musicbot.spi.auth.UserDatabase
@@ -13,10 +15,18 @@ import net.bjoernpetersen.musicbot.spi.loader.ResourceCache
 import net.bjoernpetersen.musicbot.spi.loader.SongLoader
 import net.bjoernpetersen.musicbot.spi.player.Player
 import net.bjoernpetersen.musicbot.spi.player.SongQueue
+import net.bjoernpetersen.musicbot.spi.plugin.PlaybackFeedbackChannel
 import net.bjoernpetersen.musicbot.spi.plugin.Suggester
 import javax.inject.Singleton
 
 class DefaultPlayerModule(suggester: Suggester?) : PlayerModule(suggester) {
+    @Provides
+    @Singleton
+    fun provideFeedbackChannel(injector: Injector): PlaybackFeedbackChannel {
+        return injector.getInstance(ActorPlaybackFeedbackChannel::class.java)
+    }
+
+
     override fun configure() {
         super.configure()
         bind(Player::class.java).to(ActorPlayer::class.java).`in`(Scopes.SINGLETON)
