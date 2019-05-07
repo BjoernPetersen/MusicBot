@@ -133,6 +133,11 @@ dependencies {
         name = "junit-jupiter-api",
         version = Lib.JUNIT
     )
+    testImplementation(
+        group = "name.falgout.jeffrey.testing.junit5",
+        name = "guice-extension",
+        version = Lib.JUNIT_GUICE
+    )
     testImplementation(group = "io.mockk", name = "mockk", version = Lib.MOCK_K)
     testImplementation(group = "org.assertj", name = "assertj-core", version = Lib.ASSERT_J)
 }
