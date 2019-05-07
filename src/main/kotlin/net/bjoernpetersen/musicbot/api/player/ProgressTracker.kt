@@ -48,6 +48,8 @@ class ProgressTracker @Inject private constructor() {
 
     /**
      * Indicates that a new song has been started.
+     *
+     * This will overwrite the old state, as if [reset] had been called before.
      */
     suspend fun startSong() {
         mutex.withLock {
@@ -97,9 +99,12 @@ class ProgressTracker @Inject private constructor() {
      * Manually updates the progress, potentially improving accuracy.
      *
      * If the [progress] is negative, a zero-duration-progress will be used instead.
+     *
+     * If no song is playing, this method does nothing.
      */
     suspend fun updateProgress(progress: Duration) {
         mutex.withLock {
+            if (currentStart == null) return
             val corrected = if (progress.isNegative) {
                 logger.warn { "Got negative updated progress. Defaulting to 0." }
                 Duration.ZERO
