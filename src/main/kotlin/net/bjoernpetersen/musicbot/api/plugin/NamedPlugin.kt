@@ -14,7 +14,8 @@ import kotlin.reflect.KClass
  */
 data class NamedPlugin<out T : Plugin>(
     val id: String,
-    val name: String) {
+    val name: String
+) {
 
     constructor(idClass: KClass<out T>, name: String) : this(idClass.java.name, name)
 
@@ -32,7 +33,8 @@ data class NamedPlugin<out T : Plugin>(
 
         val plugin = pluginFinder[base]
             ?: throw IllegalStateException(
-                "Could not find provider for class ${base.qualifiedName}")
+                "Could not find provider for class ${base.qualifiedName}"
+            )
 
         return try {
             @Suppress("UNCHECKED_CAST")
