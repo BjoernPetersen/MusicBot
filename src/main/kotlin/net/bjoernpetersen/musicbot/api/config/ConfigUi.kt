@@ -1,6 +1,7 @@
 package net.bjoernpetersen.musicbot.api.config
 
 import java.io.File
+import java.nio.file.Path
 
 sealed class UiNode<T>
 /**
@@ -66,6 +67,23 @@ data class FileChooser(
     val isDirectory: Boolean = true,
     val isOpen: Boolean = true
 ) : UiNode<File>() {
+
+    init {
+        if (isDirectory && !isOpen)
+            throw IllegalArgumentException("isDirectory requires isOpen")
+    }
+}
+
+/**
+ * A combination of a "choose file/dir" button and a read-only textbox showing the chosen path.
+ *
+ * @param isDirectory whether a directory is chosen (otherwise a file is chosen)
+ * @param isOpen whether to show an open or a save dialog. Must be true if [isDirectory] is true.
+ */
+data class PathChooser(
+    val isDirectory: Boolean = true,
+    val isOpen: Boolean = true
+) : UiNode<Path>() {
 
     init {
         if (isDirectory && !isOpen)
