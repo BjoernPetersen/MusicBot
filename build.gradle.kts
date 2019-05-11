@@ -2,6 +2,8 @@ import org.jetbrains.dokka.gradle.DokkaTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
+    id("com.diffplug.gradle.spotless") version Plugin.SPOTLESS
+
     id("com.github.ben-manes.versions") version Plugin.VERSIONS
 
     kotlin("jvm") version Plugin.KOTLIN
@@ -30,6 +32,15 @@ idea {
 java {
     sourceCompatibility = JavaVersion.VERSION_1_8
     targetCompatibility = JavaVersion.VERSION_1_8
+}
+
+spotless {
+    kotlin {
+        ktlint()
+    }
+    kotlinGradle {
+        ktlint()
+    }
 }
 
 tasks {
