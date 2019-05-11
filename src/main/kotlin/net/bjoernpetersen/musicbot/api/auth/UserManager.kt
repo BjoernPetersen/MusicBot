@@ -11,8 +11,8 @@ import net.bjoernpetersen.musicbot.spi.auth.UserDatabase
 import org.mindrot.jbcrypt.BCrypt
 import java.security.SecureRandom
 import java.sql.SQLException
+import java.time.Duration
 import java.time.Instant
-import java.time.Period
 import java.util.Date
 import java.util.HashMap
 import java.util.Locale
@@ -126,7 +126,7 @@ class UserManager @Inject constructor(
         return JWT.create()
             .withSubject(user.name)
             .withIssuedAt(Date())
-            .withExpiresAt(Date.from(Instant.now().plus(Period.ofDays(7))))
+            .withExpiresAt(Date.from(Instant.now().plus(Duration.ofMinutes(10))))
             .withArrayClaim("permissions", user.permissions.map { it.label }.toTypedArray())
             .sign(Algorithm.HMAC512(signatureKey))
     }
