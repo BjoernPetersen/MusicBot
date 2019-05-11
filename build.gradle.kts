@@ -1,3 +1,4 @@
+
 import org.jetbrains.dokka.gradle.DokkaTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -37,9 +38,11 @@ java {
 spotless {
     kotlin {
         ktlint()
+        endWithNewline()
     }
     kotlinGradle {
         ktlint()
+        endWithNewline()
     }
 }
 
