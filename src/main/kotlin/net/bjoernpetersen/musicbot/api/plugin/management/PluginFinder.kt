@@ -15,7 +15,8 @@ class PluginFinder(
     val genericPlugins: List<GenericPlugin>,
     val playbackFactories: List<PlaybackFactory>,
     val providers: List<Provider>,
-    val suggesters: List<Suggester>) {
+    val suggesters: List<Suggester>
+) {
 
     val defaultBases: Set<KClass<out Plugin>>
         get() = defaultByBase.keys

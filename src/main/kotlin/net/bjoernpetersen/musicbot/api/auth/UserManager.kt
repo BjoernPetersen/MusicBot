@@ -32,7 +32,6 @@ class UserManager @Inject constructor(
     private val guestSignatureKey: String = createSignatureKey()
     private val temporaryUsers: MutableMap<String, GuestUser> = HashMap(32)
 
-
     @Throws(DuplicateUserException::class)
     fun createTemporaryUser(name: String, id: String): User {
         if (BotUser.name.equals(name, ignoreCase = true))
@@ -166,7 +165,7 @@ class UserManager @Inject constructor(
             }
 
             val name = decoded.subject ?: throw InvalidTokenException("subject missing")
-            return GuestUser(name, "");
+            return GuestUser(name, "")
         }
     }
 

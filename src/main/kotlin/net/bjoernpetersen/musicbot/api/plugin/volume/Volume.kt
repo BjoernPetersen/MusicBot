@@ -10,7 +10,8 @@ package net.bjoernpetersen.musicbot.api.plugin.volume
 @Suppress("DataClassPrivateConstructor")
 data class Volume private constructor(
     val volume: Int,
-    val isSupported: Boolean) {
+    val isSupported: Boolean
+) {
 
     constructor(volume: Int) : this(volume, true)
     constructor() : this(100, false)

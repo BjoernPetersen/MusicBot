@@ -26,7 +26,6 @@ class DefaultPlayerModule(suggester: Suggester?) : PlayerModule(suggester) {
         return injector.getInstance(ActorPlaybackFeedbackChannel::class.java)
     }
 
-
     override fun configure() {
         super.configure()
         bind(Player::class.java).to(ActorPlayer::class.java).`in`(Scopes.SINGLETON)

@@ -20,5 +20,3 @@ interface ConfigStorageAdapter {
      */
     fun store(scope: ConfigScope, config: Map<String, String>)
 }
-
-

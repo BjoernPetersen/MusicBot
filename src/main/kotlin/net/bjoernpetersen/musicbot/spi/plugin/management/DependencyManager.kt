@@ -87,7 +87,8 @@ interface DependencyManager {
 
     private fun isRequired(
         plugin: Plugin,
-        visited: MutableMap<Plugin, Boolean?> = HashMap()): Boolean {
+        visited: MutableMap<Plugin, Boolean?> = HashMap()
+    ): Boolean {
         if (plugin::class.hasActiveBase && isDefault(plugin, plugin.id)) return true
         if (plugin in visited) return visited[plugin]
             ?: throw IllegalStateException("Cyclic dependency: $plugin $visited")

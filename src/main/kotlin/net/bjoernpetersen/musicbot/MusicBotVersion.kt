@@ -3,7 +3,7 @@ package net.bjoernpetersen.musicbot
 import com.github.zafarkhaja.semver.ParseException
 import com.github.zafarkhaja.semver.Version
 import java.io.IOException
-import java.util.*
+import java.util.Properties
 
 object MusicBotVersion {
     /**

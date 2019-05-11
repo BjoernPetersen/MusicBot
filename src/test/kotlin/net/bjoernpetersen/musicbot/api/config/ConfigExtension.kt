@@ -10,16 +10,19 @@ import org.junit.jupiter.api.extension.ParameterResolver
  */
 class ConfigExtension : ParameterResolver {
 
-    override fun supportsParameter(parameterContext: ParameterContext,
-        extensionContext: ExtensionContext): Boolean {
+    override fun supportsParameter(
+        parameterContext: ParameterContext,
+        extensionContext: ExtensionContext
+    ): Boolean {
         return parameterContext.parameter.type == Config::class.java
     }
 
-    override fun resolveParameter(parameterContext: ParameterContext,
-        extensionContext: ExtensionContext): Any {
+    override fun resolveParameter(
+        parameterContext: ParameterContext,
+        extensionContext: ExtensionContext
+    ): Any {
         return Config(MemoryConfigAdapter(), MainConfigScope)
     }
-
 }
 
 private class MemoryConfigAdapter : ConfigStorageAdapter {

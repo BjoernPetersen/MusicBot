@@ -26,7 +26,8 @@ class DefaultDependencyManager(
     override val genericPlugins: List<GenericPlugin>,
     override val playbackFactories: List<PlaybackFactory>,
     override val providers: List<Provider>,
-    override val suggesters: List<Suggester>) : DependencyManager {
+    override val suggesters: List<Suggester>
+) : DependencyManager {
 
     private val logger = KotlinLogging.logger { }
 
@@ -145,4 +146,5 @@ data class Plugins(
     val generic: List<GenericPlugin>,
     val playbackFactories: List<PlaybackFactory>,
     val providers: List<Provider>,
-    val suggesters: List<Suggester>)
+    val suggesters: List<Suggester>
+)

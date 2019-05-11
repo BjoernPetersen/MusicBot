@@ -73,5 +73,4 @@ private class TestProvider : TestProviderBase {
     override suspend fun search(query: String, offset: Int): List<Song> {
         TODO("not implemented")
     }
-
 }

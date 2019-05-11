@@ -353,7 +353,6 @@ internal class ActorPlayer @Inject private constructor(
         }
     }
 
-
     override fun start() {
         launch {
             val response = CompletableDeferred<Unit>()

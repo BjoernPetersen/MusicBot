@@ -5,7 +5,8 @@ import net.bjoernpetersen.musicbot.spi.config.ConfigStorageAdapter
 class ConfigManager(
     private val plainStorageAdapter: ConfigStorageAdapter,
     private val secretStorageAdapter: ConfigStorageAdapter,
-    private val stateStorageAdapter: ConfigStorageAdapter) {
+    private val stateStorageAdapter: ConfigStorageAdapter
+) {
 
     private val configs: MutableMap<ConfigScope, Configs> = HashMap()
 
@@ -21,4 +22,5 @@ class ConfigManager(
 data class Configs(
     val plain: Config,
     val secrets: Config,
-    val state: Config)
+    val state: Config
+)

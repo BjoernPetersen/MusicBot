@@ -5,7 +5,6 @@ import net.bjoernpetersen.musicbot.spi.plugin.Plugin
 import net.bjoernpetersen.musicbot.spi.plugin.UserFacing
 import kotlin.reflect.KClass
 
-
 /**
  * Static, serializable representation of a plugin.
  *

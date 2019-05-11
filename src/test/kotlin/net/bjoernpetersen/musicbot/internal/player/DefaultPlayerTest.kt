@@ -11,7 +11,6 @@ class DefaultPlayerTest {
     @Test
     fun test() {
         Guice.createInjector(Mod()).getInstance(IThing::class.java).print()
-
     }
 }
 
@@ -19,7 +18,7 @@ interface IThing {
     fun print()
 }
 
-class Mod :AbstractModule(){
+class Mod : AbstractModule() {
     override fun configure() {
         bind(IThing::class.java).to(Thing::class.java)
     }
@@ -29,5 +28,4 @@ class Thing @Inject constructor(@Nullable val string: String?) : IThing {
     override fun print() {
         println("string: ${string == null}")
     }
-
 }

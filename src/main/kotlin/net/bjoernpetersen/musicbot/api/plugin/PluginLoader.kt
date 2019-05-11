@@ -1,12 +1,14 @@
 package net.bjoernpetersen.musicbot.api.plugin
 
-import net.bjoernpetersen.musicbot.spi.plugin.Plugin
 import mu.KotlinLogging
+import net.bjoernpetersen.musicbot.spi.plugin.Plugin
 import java.io.File
 import java.net.MalformedURLException
 import java.net.URL
 import java.net.URLClassLoader
-import java.util.*
+import java.util.LinkedList
+import java.util.ServiceConfigurationError
+import java.util.ServiceLoader
 import kotlin.reflect.KClass
 
 class PluginLoader(private val pluginFolder: File) {
@@ -19,7 +21,8 @@ class PluginLoader(private val pluginFolder: File) {
         if (!pluginFolder.isDirectory) {
             if (!pluginFolder.mkdirs()) {
                 throw PluginLoadingException(
-                    "Could not create plugin folder '${pluginFolder.path}'")
+                    "Could not create plugin folder '${pluginFolder.path}'"
+                )
             }
         }
 

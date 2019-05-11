@@ -11,7 +11,8 @@ sealed class User {
 
 data class GuestUser(
     override val name: String,
-    val id: String) : User() {
+    val id: String
+) : User() {
 
     override fun hasPassword(password: String): Boolean {
         if (id.isBlank()) throw IllegalStateException()
@@ -46,7 +47,8 @@ data class GuestUser(
 data class FullUser(
     override val name: String,
     override val permissions: Set<Permission>,
-    private val hash: String) : User() {
+    private val hash: String
+) : User() {
 
     override fun hasPassword(password: String): Boolean {
         if (hash.isBlank()) {

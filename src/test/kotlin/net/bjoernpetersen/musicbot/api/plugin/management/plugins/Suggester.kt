@@ -14,7 +14,6 @@ class AuthMySuggester : Suggester by TodoSuggester("AuthMy") {
     private lateinit var provider: MyProvider
 }
 
-
 private class TodoSuggester(override val name: String) : Suggester {
     override suspend fun suggestNext(): Song {
         TODO("not implemented")

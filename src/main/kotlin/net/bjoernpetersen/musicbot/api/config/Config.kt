@@ -18,7 +18,8 @@ import net.bjoernpetersen.musicbot.spi.config.ConfigStorageAdapter
  */
 class Config internal constructor(
     private val adapter: ConfigStorageAdapter,
-    private val scope: ConfigScope) {
+    private val scope: ConfigScope
+) {
 
     private val logger = KotlinLogging.logger {}
     private val entries: MutableMap<String, String> = adapter.load(scope).toMutableMap()
@@ -55,7 +56,8 @@ class Config internal constructor(
     abstract inner class Entry<T> internal constructor(
         val key: String,
         val description: String,
-        val uiNode: UiNode<in T>?) {
+        val uiNode: UiNode<in T>?
+    ) {
 
         abstract fun getWithoutDefault(): T?
         abstract fun get(): T?
@@ -77,7 +79,8 @@ class Config internal constructor(
         description: String,
         private val configChecker: ConfigChecker<in String>,
         uiNode: UiNode<in String>? = null,
-        val default: String? = null) : Entry<String>(key, description, uiNode) {
+        val default: String? = null
+    ) : Entry<String>(key, description, uiNode) {
 
         override fun getWithoutDefault(): String? {
             return getValue(key)
@@ -116,7 +119,8 @@ class Config internal constructor(
         private val serializer: ConfigSerializer<T>,
         private val configChecker: ConfigChecker<in T>,
         uiNode: UiNode<in T>? = null,
-        val default: T? = null) : Entry<T>(key, description, uiNode) {
+        val default: T? = null
+    ) : Entry<T>(key, description, uiNode) {
 
         override fun getWithoutDefault(): T? = try {
             getValue(key)?.let { serializer.deserialize(it) }
@@ -145,7 +149,8 @@ class Config internal constructor(
     inner class BooleanEntry(
         key: String,
         description: String,
-        default: Boolean) :
+        default: Boolean
+    ) :
         SerializedEntry<Boolean>(key, description, BooleanSerializer, { null }, CheckBox, default) {
 
         override fun get(): Boolean = super.get()!!

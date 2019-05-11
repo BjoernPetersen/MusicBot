@@ -30,6 +30,4 @@ interface VolumeHandler : GenericPlugin {
      * @throws IllegalArgumentException if [value] is not between 0 and 100
      */
     suspend fun setVolume(value: Int)
-
-
 }

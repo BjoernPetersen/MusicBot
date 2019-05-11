@@ -10,7 +10,8 @@ data class Song internal constructor(
     val title: String,
     val description: String,
     val duration: Int? = null,
-    val albumArtUrl: String? = null) {
+    val albumArtUrl: String? = null
+) {
 
     @JvmOverloads
     constructor(
@@ -19,7 +20,8 @@ data class Song internal constructor(
         title: String,
         description: String,
         duration: Int? = null,
-        albumArtUrl: String? = null) : this(
+        albumArtUrl: String? = null
+    ) : this(
         id = id,
         provider = NamedPlugin(
             provider.id.qualifiedName!!,

@@ -22,6 +22,4 @@ interface FileStorage {
      * @param clean whether the directory should be cleaned/emptied
      */
     fun forPlugin(plugin: Plugin, clean: Boolean = false): File
-
-
 }

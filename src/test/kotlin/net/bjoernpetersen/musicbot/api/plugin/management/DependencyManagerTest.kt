@@ -47,7 +47,6 @@ class DependencyManagerTest {
         return this to manager(config, genericPlugins = listOf(this))
     }
 
-
     private fun PlaybackFactory.managed(config: Config): Pair<PlaybackFactory, DependencyManager> {
         return this to manager(config, playbackFactories = listOf(this))
     }

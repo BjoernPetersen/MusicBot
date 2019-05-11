@@ -23,4 +23,3 @@ fun Plugin.findDependencies(): Set<KClass<out Plugin>> {
         }
         .toSet()
 }
-

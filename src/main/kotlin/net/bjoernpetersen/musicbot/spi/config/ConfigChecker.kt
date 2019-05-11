@@ -13,5 +13,3 @@ import net.bjoernpetersen.musicbot.api.config.NonnullConfigChecker
  * @return a warning message, or null
  */
 typealias ConfigChecker<T> = (configValue: T?) -> String?
-
-

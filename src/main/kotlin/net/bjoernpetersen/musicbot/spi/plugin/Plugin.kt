@@ -182,8 +182,8 @@ class DeclarationException : RuntimeException {
 }
 
 private val KClass<*>.isBase: Boolean
-    get() = findAnnotation<Base>() != null
-        || annotations.any { it.annotationClass.isBase }
+    get() = findAnnotation<Base>() != null ||
+        annotations.any { it.annotationClass.isBase }
 
 val KClass<*>.isActiveBase: Boolean
     get() = findAnnotation<ActiveBase>() != null
@@ -192,8 +192,8 @@ val KClass<*>.isIdBase: Boolean
     get() = findAnnotation<IdBase>() != null
 
 val KClass<*>.hasActiveBase: Boolean
-    get() = findAnnotation<ActiveBase>() != null
-        || superclasses.any { it.hasActiveBase }
+    get() = findAnnotation<ActiveBase>() != null ||
+        superclasses.any { it.hasActiveBase }
 
 val KClass<*>.idName: String
     get() = findAnnotation<IdBase>()?.displayName ?: throw DeclarationException()
@@ -265,4 +265,3 @@ val KClass<*>.pluginCategory: KClass<out Plugin>
         return if (specs.size == 1) specs.first()
         else throw ConfigurationException()
     }
-
