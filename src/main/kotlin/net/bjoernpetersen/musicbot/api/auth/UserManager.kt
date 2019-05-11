@@ -22,7 +22,8 @@ import javax.inject.Singleton
 @Singleton
 class UserManager @Inject constructor(
     private val userDatabase: UserDatabase,
-    configManager: ConfigManager) {
+    configManager: ConfigManager
+) {
 
     private val logger = KotlinLogging.logger { }
 
@@ -40,7 +41,7 @@ class UserManager @Inject constructor(
         try {
             // TODO create "hasUser" method in Database
             getUser(name)
-            throw DuplicateUserException(                "User already exists: $name")
+            throw DuplicateUserException("User already exists: $name")
         } catch (expected: UserNotFoundException) {
             val user = GuestUser(name, id)
             temporaryUsers[user.name.toLowerCase(Locale.US)] = user
@@ -56,7 +57,8 @@ class UserManager @Inject constructor(
         return temporaryUsers[name.toLowerCase(Locale.US)]
             ?: userDatabase.findUser(name)
             ?: throw UserNotFoundException(
-                "Could not find user: $name")
+                "Could not find user: $name"
+            )
     }
 
     /**
