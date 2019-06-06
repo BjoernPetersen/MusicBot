@@ -1,4 +1,4 @@
-
+import com.diffplug.spotless.LineEnding
 import org.jetbrains.dokka.gradle.DokkaTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -38,10 +38,17 @@ java {
 spotless {
     kotlin {
         ktlint()
+        lineEndings = LineEnding.UNIX
         endWithNewline()
     }
     kotlinGradle {
         ktlint()
+        lineEndings = LineEnding.UNIX
+        endWithNewline()
+    }
+    format("markdown") {
+        target("**/*.md")
+        lineEndings = LineEnding.UNIX
         endWithNewline()
     }
 }
@@ -79,19 +86,15 @@ tasks {
         }
     }
 
-    "compileKotlin"(KotlinCompile::class) {
+    withType<KotlinCompile> {
         kotlinOptions.jvmTarget = "1.8"
     }
 
-    "compileTestKotlin"(KotlinCompile::class) {
-        kotlinOptions.jvmTarget = "1.8"
-    }
-
-    "test"(Test::class) {
+    withType<Test> {
         useJUnitPlatform()
     }
 
-    withType(Jar::class) {
+    withType<Jar> {
         from(project.projectDir) {
             include("LICENSE")
         }
