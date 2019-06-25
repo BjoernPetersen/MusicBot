@@ -87,13 +87,13 @@ internal class DefaultQueue @Inject private constructor() : SongQueue {
     }
 
     private companion object {
-        const val PASS = "a2VubmluZw=="
-        val pass: String by lazy {
-            String(Base64.getDecoder().decode(PASS.toByteArray()), Charsets.UTF_8)
-        }
+        val PASS = String(
+            Base64.getDecoder().decode("a2VubmluZw==".toByteArray()),
+            Charsets.UTF_8
+        )
 
         fun QueueEntry.passes(): Boolean {
-            return song.title.contains(pass, true)
+            return song.title.contains(PASS, true)
         }
     }
 }
