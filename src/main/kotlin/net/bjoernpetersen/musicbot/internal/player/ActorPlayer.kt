@@ -121,7 +121,6 @@ private class SyncPlayer @Inject private constructor(
             PlaybackState.BROKEN -> if (state !is ErrorState) {
                 logger.error { "Playback broke: ${playback::class.qualifiedName}" }
                 state = ErrorState
-                next()
             }
         }
     }
@@ -193,7 +192,7 @@ private class SyncPlayer @Inject private constructor(
         } catch (e: BrokenSuggesterException) {
             logger.warn("Default suggester could not suggest anything. Stopping.")
             playback = CompletablePlayback()
-            state = StopState
+            state = ErrorState
             return
         }
 
@@ -423,12 +422,16 @@ internal class ActorPlayer @Inject private constructor(
                 await.await()
                 logger.trace("Waiting done")
 
-                // Prevent auto next calls if next was manually called
-                if (state !== previousState) {
-                    logger.debug("Skipping auto call to next()")
-                } else {
-                    logger.debug("Auto call to next()")
-                    next()
+                // Prevent auto next calls if next was manually called or an error occurred
+                when {
+                    state !== previousState ->
+                        logger.debug("Skipping auto call to next() due to state change")
+                    state is ErrorState || state is StopState ->
+                        logger.debug("Skipping auto call to next() because player is in $state")
+                    else -> {
+                        logger.debug("Auto call to next()")
+                        next()
+                    }
                 }
             }
         }
