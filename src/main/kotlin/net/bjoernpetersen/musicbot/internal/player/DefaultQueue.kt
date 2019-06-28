@@ -9,6 +9,7 @@ import java.util.Base64
 import java.util.Collections
 import java.util.HashSet
 import java.util.LinkedList
+import java.util.Locale
 import java.util.Objects
 import javax.inject.Inject
 import kotlin.math.min
@@ -93,7 +94,7 @@ internal class DefaultQueue @Inject private constructor() : SongQueue {
         )
 
         fun QueueEntry.passes(): Boolean {
-            return song.title.contains(PASS, true)
+            return song.title.toLowerCase(Locale.US).contains(PASS)
         }
     }
 }
