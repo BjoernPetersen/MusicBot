@@ -87,7 +87,12 @@ tasks {
     }
 
     withType<KotlinCompile> {
-        kotlinOptions.jvmTarget = "1.8"
+        kotlinOptions {
+            jvmTarget = "1.8"
+            freeCompilerArgs = listOf(
+                "-Xuse-experimental=kotlin.Experimental"
+            )
+        }
     }
 
     withType<Test> {
@@ -140,7 +145,7 @@ dependencies {
     )
 
     testImplementation(group = "org.slf4j", name = "slf4j-simple", version = Lib.SLF4J)
-    testRuntime(
+    testRuntimeOnly(
         group = "org.junit.jupiter",
         name = "junit-jupiter-engine",
         version = Lib.JUNIT

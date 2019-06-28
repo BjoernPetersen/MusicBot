@@ -1,18 +1,22 @@
 package net.bjoernpetersen.musicbot.api.player
 
 import net.bjoernpetersen.musicbot.api.plugin.NamedPlugin
+import net.bjoernpetersen.musicbot.spi.image.ImageServerConstraints
 import net.bjoernpetersen.musicbot.spi.plugin.Provider
 import net.bjoernpetersen.musicbot.spi.plugin.id
+import java.util.Base64
 
-data class Song internal constructor(
+data class Song @Deprecated("Use Dsl instead") internal constructor(
     val id: String,
     val provider: NamedPlugin<Provider>,
     val title: String,
     val description: String,
     val duration: Int? = null,
-    val albumArtUrl: String? = null
+    val albumArtUrl: String? = null,
+    val albumArtPath: String? = null
 ) {
 
+    @Deprecated("Use Dsl instead")
     @JvmOverloads
     constructor(
         id: String,
@@ -23,14 +27,29 @@ data class Song internal constructor(
         albumArtUrl: String? = null
     ) : this(
         id = id,
-        provider = NamedPlugin(
-            provider.id.qualifiedName!!,
-            provider.subject
-        ),
+        provider = provider.toNamedPlugin(),
         title = title,
         description = description,
         duration = duration,
         albumArtUrl = albumArtUrl
+    )
+
+    @Suppress("DEPRECATION")
+    internal constructor(
+        id: String,
+        provider: NamedPlugin<Provider>,
+        title: String,
+        description: String,
+        duration: Int? = null,
+        albumArtPath: String? = null
+    ) : this(
+        id = id,
+        provider = provider,
+        title = title,
+        description = description,
+        duration = duration,
+        albumArtUrl = null,
+        albumArtPath = albumArtPath
     )
 
     override fun equals(other: Any?): Boolean {
@@ -49,3 +68,50 @@ data class Song internal constructor(
         return result
     }
 }
+
+@ExperimentalSongDsl
+class MutableSong internal constructor(val id: String, val provider: Provider) {
+    private val namedPlugin = provider.toNamedPlugin()
+    lateinit var title: String
+    lateinit var description: String
+    var duration: Int? = null
+    private var albumArtPath: String? = null
+
+    fun serveLocalImage() {
+        albumArtPath =
+            "${ImageServerConstraints.LOCAL_PATH}/${namedPlugin.id.encode()}/${id.encode()}"
+    }
+
+    fun serveRemoteImage(url: String) {
+        albumArtPath =
+            "${ImageServerConstraints.REMOTE_PATH}/${url.encode()}"
+    }
+
+    internal fun toSong(): Song {
+        if (!this::title.isInitialized)
+            throw IllegalStateException("Title not set")
+        if (!this::description.isInitialized)
+            throw IllegalStateException("Description not set")
+        return Song(id, namedPlugin, title, description, duration, albumArtPath)
+    }
+
+    private companion object {
+        private val encoder = Base64.getEncoder()
+
+        fun String.encode(): String {
+            return String(encoder.encode(toByteArray()), Charsets.UTF_8)
+        }
+    }
+}
+
+fun Provider.toNamedPlugin(): NamedPlugin<Provider> = NamedPlugin(id.qualifiedName!!, subject)
+
+@ExperimentalSongDsl
+fun Provider.song(id: String, configure: MutableSong.() -> Unit): Song {
+    val mutable = MutableSong(id, this)
+    mutable.configure()
+    return mutable.toSong()
+}
+
+@Experimental
+annotation class ExperimentalSongDsl

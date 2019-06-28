@@ -16,7 +16,9 @@ import kotlinx.coroutines.time.withTimeout
 import kotlinx.coroutines.withContext
 import net.bjoernpetersen.musicbot.api.config.Config
 import net.bjoernpetersen.musicbot.api.module.DefaultSongLoaderModule
+import net.bjoernpetersen.musicbot.api.player.ExperimentalSongDsl
 import net.bjoernpetersen.musicbot.api.player.Song
+import net.bjoernpetersen.musicbot.api.player.song
 import net.bjoernpetersen.musicbot.api.plugin.IdBase
 import net.bjoernpetersen.musicbot.api.plugin.management.LogInitStateWriter
 import net.bjoernpetersen.musicbot.spi.loader.Resource
@@ -193,12 +195,11 @@ private object DummyProvider : Provider, CoroutineScope {
         TODO("not implemented")
     }
 
-    override suspend fun lookup(id: String) = Song(
-        id = id,
-        provider = this,
-        title = id,
+    @UseExperimental(ExperimentalSongDsl::class)
+    override suspend fun lookup(id: String) = song(id) {
+        title = id
         description = ""
-    )
+    }
 
     override suspend fun supplyPlayback(song: Song, resource: Resource): Playback {
         TODO("not implemented")
