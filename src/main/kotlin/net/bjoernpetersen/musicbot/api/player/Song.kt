@@ -25,11 +25,13 @@ data class Song internal constructor(
         id = id,
         provider = NamedPlugin(
             provider.id.qualifiedName!!,
-            provider.subject),
+            provider.subject
+        ),
         title = title,
         description = description,
         duration = duration,
-        albumArtUrl = albumArtUrl)
+        albumArtUrl = albumArtUrl
+    )
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
