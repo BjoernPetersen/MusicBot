@@ -5,12 +5,14 @@ import com.google.inject.Injector
 import com.google.inject.Provides
 import com.google.inject.Scopes
 import net.bjoernpetersen.musicbot.internal.auth.DefaultDatabase
+import net.bjoernpetersen.musicbot.internal.image.DefaultImageCache
 import net.bjoernpetersen.musicbot.internal.loader.DefaultResourceCache
 import net.bjoernpetersen.musicbot.internal.loader.DefaultSongLoader
 import net.bjoernpetersen.musicbot.internal.player.ActorPlaybackFeedbackChannel
 import net.bjoernpetersen.musicbot.internal.player.ActorPlayer
 import net.bjoernpetersen.musicbot.internal.player.DefaultQueue
 import net.bjoernpetersen.musicbot.spi.auth.UserDatabase
+import net.bjoernpetersen.musicbot.spi.image.ImageCache
 import net.bjoernpetersen.musicbot.spi.loader.ResourceCache
 import net.bjoernpetersen.musicbot.spi.loader.SongLoader
 import net.bjoernpetersen.musicbot.spi.player.Player
@@ -53,5 +55,11 @@ class DefaultUserDatabaseModule(private val databaseUrl: String) : AbstractModul
 class DefaultResourceCacheModule : AbstractModule() {
     override fun configure() {
         bind(ResourceCache::class.java).to(DefaultResourceCache::class.java).`in`(Scopes.SINGLETON)
+    }
+}
+
+class DefaultImageCacheModule : AbstractModule() {
+    override fun configure() {
+        bind(ImageCache::class.java).to(DefaultImageCache::class.java).`in`(Scopes.SINGLETON)
     }
 }
