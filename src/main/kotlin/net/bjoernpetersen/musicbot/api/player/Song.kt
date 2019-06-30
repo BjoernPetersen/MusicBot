@@ -1,7 +1,8 @@
 package net.bjoernpetersen.musicbot.api.player
 
+import net.bjoernpetersen.musicbot.api.image.ImageServerConstraints
 import net.bjoernpetersen.musicbot.api.plugin.NamedPlugin
-import net.bjoernpetersen.musicbot.spi.image.ImageServerConstraints
+import net.bjoernpetersen.musicbot.spi.image.AlbumArtSupplier
 import net.bjoernpetersen.musicbot.spi.plugin.Provider
 import net.bjoernpetersen.musicbot.spi.plugin.id
 import java.util.Base64
@@ -32,7 +33,8 @@ data class Song @Deprecated("Use Dsl instead") internal constructor(
         title = title,
         description = description,
         duration = duration,
-        albumArtUrl = albumArtUrl
+        albumArtUrl = albumArtUrl,
+        albumArtPath = albumArtUrl?.let(::remoteToLocalPath)
     )
 
     @Suppress("DEPRECATION")
@@ -70,6 +72,16 @@ data class Song @Deprecated("Use Dsl instead") internal constructor(
     }
 }
 
+private val encoder = Base64.getEncoder()
+
+private fun String.encode(): String {
+    return String(encoder.encode(toByteArray()), Charsets.UTF_8)
+}
+
+private fun remoteToLocalPath(remoteUrl: String): String {
+    return "${ImageServerConstraints.REMOTE_PATH}/${remoteUrl.encode()}"
+}
+
 @ExperimentalSongDsl
 class MutableSong internal constructor(val id: String, val provider: Provider) {
     private val namedPlugin = provider.toNamedPlugin()
@@ -84,8 +96,7 @@ class MutableSong internal constructor(val id: String, val provider: Provider) {
     }
 
     fun serveRemoteImage(url: String) {
-        albumArtPath =
-            "${ImageServerConstraints.REMOTE_PATH}/${url.encode()}"
+        albumArtPath = remoteToLocalPath(url)
     }
 
     internal fun toSong(): Song {
@@ -95,17 +106,17 @@ class MutableSong internal constructor(val id: String, val provider: Provider) {
             throw IllegalStateException("Description not set")
         return Song(id, namedPlugin, title, description, duration, albumArtPath)
     }
-
-    private companion object {
-        private val encoder = Base64.getEncoder()
-
-        fun String.encode(): String {
-            return String(encoder.encode(toByteArray()), Charsets.UTF_8)
-        }
-    }
 }
 
 fun Provider.toNamedPlugin(): NamedPlugin<Provider> = NamedPlugin(id.qualifiedName!!, subject)
+
+@ExperimentalSongDsl
+fun AlbumArtSupplier.song(id: String, configure: MutableSong.() -> Unit): Song {
+    val mutable = MutableSong(id, this)
+    mutable.serveLocalImage()
+    mutable.configure()
+    return mutable.toSong()
+}
 
 @ExperimentalSongDsl
 fun Provider.song(id: String, configure: MutableSong.() -> Unit): Song {
