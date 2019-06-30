@@ -127,11 +127,13 @@ abstract class AbstractPlayback protected constructor() : Playback, CoroutineSco
         feedbackChannel = channel
     }
 
+    @Suppress("DEPRECATION")
     protected fun isDone(): Boolean = done.isCompleted
 
     /**
      * Waits for the [done] condition.
      */
+    @Suppress("DEPRECATION")
     override suspend fun waitForFinish() {
         done.await()
     }
@@ -139,6 +141,7 @@ abstract class AbstractPlayback protected constructor() : Playback, CoroutineSco
     /**
      * Signals all threads waiting for the [done] condition.
      */
+    @Suppress("DEPRECATION")
     protected fun markDone() {
         done.complete(Unit)
     }
