@@ -12,6 +12,7 @@ data class Song @Deprecated("Use Dsl instead") internal constructor(
     val title: String,
     val description: String,
     val duration: Int? = null,
+    @Deprecated("Use albumArtPath instead")
     val albumArtUrl: String? = null,
     val albumArtPath: String? = null
 ) {
