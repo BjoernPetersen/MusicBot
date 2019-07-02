@@ -50,7 +50,7 @@ dependencies {
 
 ### Implementations
 
-This is only the core library for the MusicBot, it needs to be wrapped an implementation
+This is only the core library for the MusicBot, it needs to be wrapped by an implementation
 to actually work.
 
 The only known implementation can be found in the
@@ -60,6 +60,8 @@ The only known implementation can be found in the
 
 For documentation on how to implement plugins, have a look at the JavaDocs or
 at the [docs hosted on github.io](https://bjoernpetersen.github.io/MusicBot/).
+
+For several "official" plugins, have a look at the [MusicBot-plugins](https://github.com/BjoernPetersen/MusicBot-plugins) project.
 
 ## License
 
