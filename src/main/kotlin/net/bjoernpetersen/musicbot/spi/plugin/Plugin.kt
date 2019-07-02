@@ -180,10 +180,15 @@ class DeclarationException : RuntimeException {
     constructor(message: String, cause: Throwable) : super(message, cause)
     constructor(cause: Throwable) : super(cause)
 }
-
+g
 private val KClass<*>.isBase: Boolean
-    get() = findAnnotation<Base>() != null ||
-        annotations.any { it.annotationClass.isBase }
+    get() = isBase()
+
+private fun KClass<*>.isBase(visited: MutableSet<KClass<*>> = HashSet(20)): Boolean {
+    if (!visited.add(this)) return false
+    return findAnnotation<Base>() != null ||
+        annotations.any { it.annotationClass.isBase(visited) }
+}
 
 val KClass<*>.isActiveBase: Boolean
     get() = findAnnotation<ActiveBase>() != null
