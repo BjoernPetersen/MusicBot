@@ -180,7 +180,7 @@ class DeclarationException : RuntimeException {
     constructor(message: String, cause: Throwable) : super(message, cause)
     constructor(cause: Throwable) : super(cause)
 }
-g
+
 private val KClass<*>.isBase: Boolean
     get() = isBase()
 
