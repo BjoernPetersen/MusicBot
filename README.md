@@ -60,3 +60,9 @@ The only known implementation can be found in the
 
 For documentation on how to implement plugins, have a look at the JavaDocs or
 at the [docs hosted on github.io](https://bjoernpetersen.github.io/MusicBot/).
+
+## License
+
+This project is released under the MIT License. That includes every file in this repository,
+unless explicitly stated otherwise at the top of a file.
+A copy of the license text can be found in the [LICENSE file](LICENSE).
