@@ -19,6 +19,7 @@ data class Song @Deprecated("Use Dsl instead") internal constructor(
 ) {
 
     @Deprecated("Use Dsl instead")
+    @Suppress("DEPRECATION")
     @JvmOverloads
     constructor(
         id: String,
@@ -38,6 +39,7 @@ data class Song @Deprecated("Use Dsl instead") internal constructor(
     )
 
     @Suppress("DEPRECATION")
+    @JvmOverloads
     internal constructor(
         id: String,
         provider: NamedPlugin<Provider>,
@@ -82,8 +84,7 @@ private fun remoteToLocalPath(remoteUrl: String): String {
     return "${ImageServerConstraints.REMOTE_PATH}/${remoteUrl.encode()}"
 }
 
-@ExperimentalSongDsl
-class MutableSong internal constructor(val id: String, val provider: Provider) {
+class SongConfiguration internal constructor(val id: String, val provider: Provider) {
     private val namedPlugin = provider.toNamedPlugin()
     lateinit var title: String
     lateinit var description: String
@@ -110,20 +111,19 @@ class MutableSong internal constructor(val id: String, val provider: Provider) {
 
 fun Provider.toNamedPlugin(): NamedPlugin<Provider> = NamedPlugin(id.qualifiedName!!, subject)
 
-@ExperimentalSongDsl
-fun AlbumArtSupplier.song(id: String, configure: MutableSong.() -> Unit): Song {
-    val mutable = MutableSong(id, this)
+fun AlbumArtSupplier.song(id: String, configure: SongConfiguration.() -> Unit): Song {
+    val mutable = SongConfiguration(id, this)
     mutable.serveLocalImage()
     mutable.configure()
     return mutable.toSong()
 }
 
-@ExperimentalSongDsl
-fun Provider.song(id: String, configure: MutableSong.() -> Unit): Song {
-    val mutable = MutableSong(id, this)
+fun Provider.song(id: String, configure: SongConfiguration.() -> Unit): Song {
+    val mutable = SongConfiguration(id, this)
     mutable.configure()
     return mutable.toSong()
 }
 
-@Experimental
+@Deprecated("DSL is not experimental anymore", level = DeprecationLevel.ERROR)
+@Experimental(Experimental.Level.WARNING)
 annotation class ExperimentalSongDsl
