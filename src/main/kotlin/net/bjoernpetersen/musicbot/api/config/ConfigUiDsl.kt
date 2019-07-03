@@ -70,6 +70,18 @@ fun <T> SerializedConfiguration<T>.actionButton(
     uiNode = config.toNode()
 }
 
+/**
+ * Create and use an [ActionButton].
+ */
+@ExperimentalConfigDsl
+fun <T> StringConfiguration.actionButton(
+    configure: ActionButtonConfiguration<String>.() -> Unit
+) {
+    val config = ActionButtonConfiguration<String>()
+    config.configure()
+    uiNode = config.toNode()
+}
+
 @ExperimentalConfigDsl
 class PathChooserConfiguration(private val isOpen: Boolean) {
     private var isDirectorySet = false
