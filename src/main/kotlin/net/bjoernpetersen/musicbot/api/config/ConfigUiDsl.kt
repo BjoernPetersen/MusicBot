@@ -74,7 +74,7 @@ fun <T> SerializedConfiguration<T>.actionButton(
  * Create and use an [ActionButton].
  */
 @ExperimentalConfigDsl
-fun <T> StringConfiguration.actionButton(
+fun StringConfiguration.actionButton(
     configure: ActionButtonConfiguration<String>.() -> Unit
 ) {
     val config = ActionButtonConfiguration<String>()
