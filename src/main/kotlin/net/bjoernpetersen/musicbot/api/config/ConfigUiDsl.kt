@@ -83,13 +83,16 @@ fun <T> StringConfiguration.actionButton(
 }
 
 @ExperimentalConfigDsl
-class PathChooserConfiguration(private val isOpen: Boolean) {
+class PathChooserConfiguration {
     private var isDirectorySet = false
     private var isDirectory: Boolean = false
         set(value) {
             isDirectorySet = true
             field = value
         }
+    private var isOpen: Boolean = false
+    private var initialDir: Path? = null
+    private var initialFilename: String? = null
 
     /**
      * Let the user select a directory instead of files.
@@ -108,12 +111,69 @@ class PathChooserConfiguration(private val isOpen: Boolean) {
         isDirectory = false
     }
 
+    inner class SaveConfiguration {
+        init {
+            isOpen = false
+        }
+
+        inner class FileConfiguration {
+
+            /**
+             * @see PathChooser.initialFilename
+             */
+            var initialFilename: String?
+                get() = this@PathChooserConfiguration.initialFilename
+                set(value) {
+                    this@PathChooserConfiguration.initialFilename = value
+                }
+        }
+
+        /**
+         * @see PathChooser.initialDir
+         */
+        fun initialDir(path: Path) {
+            initialDir = path
+        }
+
+        fun file(configure: FileConfiguration.() -> Unit) {
+            isDirectory = false
+            FileConfiguration().configure()
+        }
+
+        fun directory() {
+            isDirectory = true
+        }
+    }
+
+    inner class OpenConfiguration {
+        init {
+            isOpen = true
+        }
+
+        /**
+         * @see PathChooser.initialDir
+         */
+        fun initialDir(path: Path) {
+            initialDir = path
+        }
+
+        fun file() {
+            isDirectory = false
+        }
+
+        fun directory() {
+            isDirectory = true
+        }
+    }
+
     internal fun toNode(): PathChooser {
         if (!isDirectorySet)
             throw IllegalStateException("")
         return PathChooser(
             isDirectory = isDirectory,
-            isOpen = isOpen
+            isOpen = isOpen,
+            initialDir = initialDir,
+            initialFilename = initialFilename
         )
     }
 }
@@ -122,9 +182,9 @@ class PathChooserConfiguration(private val isOpen: Boolean) {
  * Create a [PathChooser] for opening files/directories.
  */
 @ExperimentalConfigDsl
-fun openPath(configure: PathChooserConfiguration.() -> Unit): PathChooser {
-    val config = PathChooserConfiguration(true)
-    config.configure()
+fun openPath(configure: PathChooserConfiguration.OpenConfiguration.() -> Unit): PathChooser {
+    val config = PathChooserConfiguration()
+    config.OpenConfiguration().configure()
     return config.toNode()
 }
 
@@ -132,9 +192,11 @@ fun openPath(configure: PathChooserConfiguration.() -> Unit): PathChooser {
  * Use a [PathChooser] for opening files/directories.
  */
 @ExperimentalConfigDsl
-fun SerializedConfiguration<Path>.openPath(configure: PathChooserConfiguration.() -> Unit) {
-    val config = PathChooserConfiguration(true)
-    config.configure()
+fun SerializedConfiguration<Path>.openPath(
+    configure: PathChooserConfiguration.OpenConfiguration.() -> Unit
+) {
+    val config = PathChooserConfiguration()
+    config.OpenConfiguration().configure()
     uiNode = config.toNode()
 }
 
@@ -142,9 +204,9 @@ fun SerializedConfiguration<Path>.openPath(configure: PathChooserConfiguration.(
  * Create a [PathChooser] for saving files.
  */
 @ExperimentalConfigDsl
-fun savePath(configure: PathChooserConfiguration.() -> Unit): PathChooser {
-    val config = PathChooserConfiguration(false)
-    config.configure()
+fun savePath(configure: PathChooserConfiguration.SaveConfiguration.() -> Unit): PathChooser {
+    val config = PathChooserConfiguration()
+    config.SaveConfiguration().configure()
     return config.toNode()
 }
 
@@ -152,23 +214,29 @@ fun savePath(configure: PathChooserConfiguration.() -> Unit): PathChooser {
  * Use a [PathChooser] for saving files.
  */
 @ExperimentalConfigDsl
-fun SerializedConfiguration<Path>.savePath(configure: PathChooserConfiguration.() -> Unit) {
-    val config = PathChooserConfiguration(false)
-    config.configure()
+fun SerializedConfiguration<Path>.savePath(
+    configure: PathChooserConfiguration.SaveConfiguration.() -> Unit
+) {
+    val config = PathChooserConfiguration()
+    config.SaveConfiguration().configure()
     uiNode = config.toNode()
 }
 
 @ExperimentalConfigDsl
-class FileChooserConfiguration(internal val isOpen: Boolean) {
+class FileChooserConfiguration {
     private var isDirectorySet = false
     private var isDirectory: Boolean = false
         set(value) {
             isDirectorySet = true
             field = value
         }
+    private var isOpen: Boolean = false
+    private var initialDir: File? = null
+    private var initialFilename: String? = null
 
     /**
      * Let the user select a directory instead of files.
+     * @see FileChooser.isDirectory
      */
     fun directory() {
         if (!isOpen) throw IllegalStateException("Can't create save dialog for directory")
@@ -177,9 +245,64 @@ class FileChooserConfiguration(internal val isOpen: Boolean) {
 
     /**
      * Let the user select a files instead of directories.
+     * @see FileChooser.isDirectory
      */
     fun file() {
         isDirectory = false
+    }
+
+    inner class SaveConfiguration {
+        init {
+            isOpen = false
+        }
+
+        inner class FileConfiguration {
+            /**
+             * @see FileChooser.initialFilename
+             */
+            var initialFilename: String?
+                get() = this@FileChooserConfiguration.initialFilename
+                set(value) {
+                    this@FileChooserConfiguration.initialFilename = value
+                }
+        }
+
+        /**
+         * @see FileChooser.initialDir
+         */
+        fun initialDir(path: File) {
+            initialDir = path
+        }
+
+        fun file(configure: FileConfiguration.() -> Unit) {
+            isDirectory = false
+            FileConfiguration().configure()
+        }
+
+        fun directory() {
+            isDirectory = true
+        }
+    }
+
+    inner class OpenConfiguration {
+        init {
+            isOpen = true
+        }
+
+        /**
+         * @see FileChooser.initialDir
+         */
+        fun initialDir(path: File) {
+            initialDir = path
+        }
+
+        fun file() {
+            isDirectory = false
+        }
+
+        fun directory() {
+            isDirectory = true
+        }
     }
 
     internal fun toNode(): FileChooser {
@@ -187,7 +310,9 @@ class FileChooserConfiguration(internal val isOpen: Boolean) {
             throw IllegalStateException("")
         return FileChooser(
             isDirectory = isDirectory,
-            isOpen = isOpen
+            isOpen = isOpen,
+            initialDir = initialDir,
+            initialFilename = initialFilename
         )
     }
 }
@@ -196,9 +321,9 @@ class FileChooserConfiguration(internal val isOpen: Boolean) {
  * Create a [FileChooser] for opening files/directories.
  */
 @ExperimentalConfigDsl
-fun openFile(configure: FileChooserConfiguration.() -> Unit): FileChooser {
-    val config = FileChooserConfiguration(true)
-    config.configure()
+fun openFile(configure: FileChooserConfiguration.OpenConfiguration.() -> Unit): FileChooser {
+    val config = FileChooserConfiguration()
+    config.OpenConfiguration().configure()
     return config.toNode()
 }
 
@@ -206,9 +331,11 @@ fun openFile(configure: FileChooserConfiguration.() -> Unit): FileChooser {
  * Use a [FileChooser] for opening files/directories.
  */
 @ExperimentalConfigDsl
-fun SerializedConfiguration<File>.openFile(configure: FileChooserConfiguration.() -> Unit) {
-    val config = FileChooserConfiguration(true)
-    config.configure()
+fun SerializedConfiguration<File>.openFile(
+    configure: FileChooserConfiguration.OpenConfiguration.() -> Unit
+) {
+    val config = FileChooserConfiguration()
+    config.OpenConfiguration().configure()
     uiNode = config.toNode()
 }
 
@@ -216,9 +343,9 @@ fun SerializedConfiguration<File>.openFile(configure: FileChooserConfiguration.(
  * Create a [FileChooser] for saving files.
  */
 @ExperimentalConfigDsl
-fun saveFile(configure: FileChooserConfiguration.() -> Unit): FileChooser {
-    val config = FileChooserConfiguration(false)
-    config.configure()
+fun saveFile(configure: FileChooserConfiguration.SaveConfiguration.() -> Unit): FileChooser {
+    val config = FileChooserConfiguration()
+    config.SaveConfiguration().configure()
     return config.toNode()
 }
 
@@ -226,9 +353,11 @@ fun saveFile(configure: FileChooserConfiguration.() -> Unit): FileChooser {
  * Use a [FileChooser] for saving files.
  */
 @ExperimentalConfigDsl
-fun SerializedConfiguration<File>.saveFile(configure: FileChooserConfiguration.() -> Unit) {
-    val config = FileChooserConfiguration(false)
-    config.configure()
+fun SerializedConfiguration<File>.saveFile(
+    configure: FileChooserConfiguration.SaveConfiguration.() -> Unit
+) {
+    val config = FileChooserConfiguration()
+    config.SaveConfiguration().configure()
     uiNode = config.toNode()
 }
 

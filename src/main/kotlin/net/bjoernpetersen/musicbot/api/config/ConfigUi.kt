@@ -62,10 +62,14 @@ data class NumberBox @JvmOverloads constructor(val min: Int = 0, val max: Int = 
  *
  * @param isDirectory whether a directory is chosen (otherwise a file is chosen)
  * @param isOpen whether to show an open or a save dialog. Must be true if [isDirectory] is true.
+ * @param initialDir the initial directory to show
+ * @param initialFilename the initial file name, only applicable to saving files
  */
 data class FileChooser(
     val isDirectory: Boolean = true,
-    val isOpen: Boolean = true
+    val isOpen: Boolean = true,
+    val initialDir: File? = null,
+    val initialFilename: String? = null
 ) : UiNode<File>() {
 
     init {
@@ -79,10 +83,14 @@ data class FileChooser(
  *
  * @param isDirectory whether a directory is chosen (otherwise a file is chosen)
  * @param isOpen whether to show an open or a save dialog. Must be true if [isDirectory] is true.
+ * @param initialDir the initial directory to show
+ * @param initialFilename the initial file name, only applicable to saving files
  */
 data class PathChooser(
     val isDirectory: Boolean = true,
-    val isOpen: Boolean = true
+    val isOpen: Boolean = true,
+    val initialDir: Path? = null,
+    val initialFilename: String? = null
 ) : UiNode<Path>() {
 
     init {
