@@ -20,10 +20,15 @@ class StringConfiguration(val key: String) {
      * A visual representation of the config entry, not needed for state entries.
      */
     var uiNode: UiNode<in String>? = null
+
+    private var default: String? = null
+
     /**
-     * A default value.
+     * Set a default value, optional.
      */
-    var default: String? = null
+    fun default(default: String) {
+        this.default = default
+    }
 
     /**
      * Set a validator for entry values.
@@ -199,10 +204,14 @@ class SerializedConfiguration<T>(val key: String) {
      * A visual representation of the config entry, not needed for state.
      */
     var uiNode: UiNode<in T>? = null
+    private var default: T? = null
+
     /**
-     * A default value.
+     * Set a default value, optional.
      */
-    var default: T? = null
+    fun default(default: T) {
+        this.default = default
+    }
 
     /**
      * Set a validator for entry values.

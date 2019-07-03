@@ -58,6 +58,19 @@ fun <T> actionButton(configure: ActionButtonConfiguration<T>.() -> Unit): Action
     return config.toNode()
 }
 
+/**
+ * Create and use an [ActionButton].
+ */
+@ExperimentalConfigDsl
+fun <T> SerializedConfiguration<T>.actionButton(
+    configure: ActionButtonConfiguration<T>.() -> Unit
+) {
+    val config = ActionButtonConfiguration<T>()
+    config.configure()
+    uiNode = config.toNode()
+}
+
+
 @ExperimentalConfigDsl
 class PathChooserConfiguration(private val isOpen: Boolean) {
     private var isDirectorySet = false
@@ -264,4 +277,16 @@ fun <T> choiceBox(configure: ChoiceBoxConfiguration<T>.() -> Unit): ChoiceBox<T>
     val config = ChoiceBoxConfiguration<T>()
     config.configure()
     return config.toNode()
+}
+
+/**
+ * Create and use a [ChoiceBox].
+ */
+@ExperimentalConfigDsl
+fun <T> SerializedConfiguration<T>.choiceBox(
+    configure: ChoiceBoxConfiguration<T>.() -> Unit
+) {
+    val config = ChoiceBoxConfiguration<T>()
+    config.configure()
+    uiNode = config.toNode()
 }
