@@ -1,4 +1,9 @@
+@file:Suppress("unused")
+
 package net.bjoernpetersen.musicbot.api.config
+
+import java.io.File
+import java.nio.file.Path
 
 @ExperimentalConfigDsl
 class ActionButtonConfiguration<T> {
@@ -100,6 +105,16 @@ fun openPath(configure: PathChooserConfiguration.() -> Unit): PathChooser {
 }
 
 /**
+ * Use a [PathChooser] for opening files/directories.
+ */
+@ExperimentalConfigDsl
+fun SerializedConfiguration<Path>.openPath(configure: PathChooserConfiguration.() -> Unit) {
+    val config = PathChooserConfiguration(true)
+    config.configure()
+    uiNode = config.toNode()
+}
+
+/**
  * Create a [PathChooser] for saving files.
  */
 @ExperimentalConfigDsl
@@ -107,6 +122,16 @@ fun savePath(configure: PathChooserConfiguration.() -> Unit): PathChooser {
     val config = PathChooserConfiguration(false)
     config.configure()
     return config.toNode()
+}
+
+/**
+ * Use a [PathChooser] for saving files.
+ */
+@ExperimentalConfigDsl
+fun SerializedConfiguration<Path>.savePath(configure: PathChooserConfiguration.() -> Unit) {
+    val config = PathChooserConfiguration(false)
+    config.configure()
+    uiNode = config.toNode()
 }
 
 @ExperimentalConfigDsl
@@ -154,6 +179,16 @@ fun openFile(configure: FileChooserConfiguration.() -> Unit): FileChooser {
 }
 
 /**
+ * Use a [FileChooser] for opening files/directories.
+ */
+@ExperimentalConfigDsl
+fun SerializedConfiguration<File>.openFile(configure: FileChooserConfiguration.() -> Unit) {
+    val config = FileChooserConfiguration(true)
+    config.configure()
+    uiNode = config.toNode()
+}
+
+/**
  * Create a [FileChooser] for saving files.
  */
 @ExperimentalConfigDsl
@@ -161,6 +196,16 @@ fun saveFile(configure: FileChooserConfiguration.() -> Unit): FileChooser {
     val config = FileChooserConfiguration(false)
     config.configure()
     return config.toNode()
+}
+
+/**
+ * Use a [FileChooser] for saving files.
+ */
+@ExperimentalConfigDsl
+fun SerializedConfiguration<File>.saveFile(configure: FileChooserConfiguration.() -> Unit) {
+    val config = FileChooserConfiguration(false)
+    config.configure()
+    uiNode = config.toNode()
 }
 
 @ExperimentalConfigDsl
