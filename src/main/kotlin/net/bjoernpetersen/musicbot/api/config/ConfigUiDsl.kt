@@ -91,53 +91,14 @@ class PathChooserConfiguration {
             field = value
         }
     private var isOpen: Boolean = false
-    private var initialDir: Path? = null
-    private var initialFilename: String? = null
-
-    /**
-     * Let the user select a directory instead of files.
-     * @see PathChooser.isDirectory
-     */
-    fun directory() {
-        if (!isOpen) throw IllegalStateException("Can't create save dialog for directory")
-        isDirectory = true
-    }
-
-    /**
-     * Let the user select a files instead of directories.
-     * @see PathChooser.isDirectory
-     */
-    fun file() {
-        isDirectory = false
-    }
 
     inner class SaveConfiguration {
         init {
             isOpen = false
         }
 
-        inner class FileConfiguration {
-
-            /**
-             * @see PathChooser.initialFilename
-             */
-            var initialFilename: String?
-                get() = this@PathChooserConfiguration.initialFilename
-                set(value) {
-                    this@PathChooserConfiguration.initialFilename = value
-                }
-        }
-
-        /**
-         * @see PathChooser.initialDir
-         */
-        fun initialDir(path: Path) {
-            initialDir = path
-        }
-
-        fun file(configure: FileConfiguration.() -> Unit) {
+        fun file() {
             isDirectory = false
-            FileConfiguration().configure()
         }
 
         fun directory() {
@@ -148,13 +109,6 @@ class PathChooserConfiguration {
     inner class OpenConfiguration {
         init {
             isOpen = true
-        }
-
-        /**
-         * @see PathChooser.initialDir
-         */
-        fun initialDir(path: Path) {
-            initialDir = path
         }
 
         fun file() {
@@ -171,9 +125,7 @@ class PathChooserConfiguration {
             throw IllegalStateException("")
         return PathChooser(
             isDirectory = isDirectory,
-            isOpen = isOpen,
-            initialDir = initialDir,
-            initialFilename = initialFilename
+            isOpen = isOpen
         )
     }
 }
@@ -231,69 +183,15 @@ class FileChooserConfiguration {
             field = value
         }
     private var isOpen: Boolean = false
-    private var initialDir: File? = null
-    private var initialFilename: String? = null
 
-    /**
-     * Let the user select a directory instead of files.
-     * @see FileChooser.isDirectory
-     */
-    fun directory() {
-        if (!isOpen) throw IllegalStateException("Can't create save dialog for directory")
-        isDirectory = true
-    }
-
-    /**
-     * Let the user select a files instead of directories.
-     * @see FileChooser.isDirectory
-     */
-    fun file() {
+    internal fun saveFile() {
+        isOpen = false
         isDirectory = false
-    }
-
-    inner class SaveConfiguration {
-        init {
-            isOpen = false
-        }
-
-        inner class FileConfiguration {
-            /**
-             * @see FileChooser.initialFilename
-             */
-            var initialFilename: String?
-                get() = this@FileChooserConfiguration.initialFilename
-                set(value) {
-                    this@FileChooserConfiguration.initialFilename = value
-                }
-        }
-
-        /**
-         * @see FileChooser.initialDir
-         */
-        fun initialDir(path: File) {
-            initialDir = path
-        }
-
-        fun file(configure: FileConfiguration.() -> Unit) {
-            isDirectory = false
-            FileConfiguration().configure()
-        }
-
-        fun directory() {
-            isDirectory = true
-        }
     }
 
     inner class OpenConfiguration {
         init {
             isOpen = true
-        }
-
-        /**
-         * @see FileChooser.initialDir
-         */
-        fun initialDir(path: File) {
-            initialDir = path
         }
 
         fun file() {
@@ -310,9 +208,7 @@ class FileChooserConfiguration {
             throw IllegalStateException("")
         return FileChooser(
             isDirectory = isDirectory,
-            isOpen = isOpen,
-            initialDir = initialDir,
-            initialFilename = initialFilename
+            isOpen = isOpen
         )
     }
 }
@@ -343,9 +239,9 @@ fun SerializedConfiguration<File>.openFile(
  * Create a [FileChooser] for saving files.
  */
 @ExperimentalConfigDsl
-fun saveFile(configure: FileChooserConfiguration.SaveConfiguration.() -> Unit): FileChooser {
+fun saveFile(): FileChooser {
     val config = FileChooserConfiguration()
-    config.SaveConfiguration().configure()
+    config.saveFile()
     return config.toNode()
 }
 
@@ -353,11 +249,9 @@ fun saveFile(configure: FileChooserConfiguration.SaveConfiguration.() -> Unit): 
  * Use a [FileChooser] for saving files.
  */
 @ExperimentalConfigDsl
-fun SerializedConfiguration<File>.saveFile(
-    configure: FileChooserConfiguration.SaveConfiguration.() -> Unit
-) {
+fun SerializedConfiguration<File>.saveFile() {
     val config = FileChooserConfiguration()
-    config.SaveConfiguration().configure()
+    config.saveFile()
     uiNode = config.toNode()
 }
 
