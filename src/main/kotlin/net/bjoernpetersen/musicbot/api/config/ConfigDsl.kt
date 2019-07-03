@@ -59,7 +59,6 @@ fun Config.string(key: String, configure: StringConfiguration.() -> Unit): Confi
     return config.toEntry(this)
 }
 
-
 @ExperimentalConfigDsl
 class StringDelegate(
     private val config: Config,
