@@ -70,7 +70,6 @@ fun <T> SerializedConfiguration<T>.actionButton(
     uiNode = config.toNode()
 }
 
-
 @ExperimentalConfigDsl
 class PathChooserConfiguration(private val isOpen: Boolean) {
     private var isDirectorySet = false
@@ -266,7 +265,6 @@ class ChoiceBoxConfiguration<T> {
             lazy = lazy
         )
     }
-
 }
 
 /**
