@@ -4,7 +4,7 @@ object Lib {
     const val KOTLIN_LOGGING = "1.6.26"
     const val KOTLIN_COROUTINES = "1.2.2"
 
-    const val GUAVA = "27.1-android"
+    const val GUAVA = "28.0-android"
     const val GUICE = "4.2.2"
     const val SQLITE = "3.28.0"
 
