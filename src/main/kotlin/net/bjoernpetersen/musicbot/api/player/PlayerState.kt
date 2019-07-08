@@ -63,6 +63,8 @@ data class PauseState(override val entry: SongEntry) : PlayerState() {
 
 /**
  * The player is currently inactive and does not have a song to resume.
+ *
+ * The player may automatically resume playback as soon as a next song is available.
  */
 object StopState : PlayerState() {
 
@@ -73,6 +75,9 @@ object StopState : PlayerState() {
 
 /**
  * The player is currently inactive because of an error.
+ *
+ * The only way to leave this state is by explicit user intervention. The player should not try to
+ * play a next song automatically.
  */
 object ErrorState : PlayerState() {
 
