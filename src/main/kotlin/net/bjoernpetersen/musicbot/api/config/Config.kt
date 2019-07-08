@@ -125,8 +125,7 @@ class Config internal constructor(
         override fun getWithoutDefault(): T? = try {
             getValue(key)?.let { serializer.deserialize(it) }
         } catch (e: SerializationException) {
-            logger.error(e) { "Deserialization failure" }
-            setValue(key, null)
+            logger.warn(e) { "Deserialization failure" }
             null
         }
 
