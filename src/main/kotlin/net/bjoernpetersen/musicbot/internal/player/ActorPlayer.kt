@@ -426,7 +426,7 @@ internal class ActorPlayer @Inject private constructor(
                 when {
                     state !== previousState ->
                         logger.debug("Skipping auto call to next() due to state change")
-                    state is ErrorState || state is StopState ->
+                    state is ErrorState ->
                         logger.debug("Skipping auto call to next() because player is in $state")
                     else -> {
                         logger.debug("Auto call to next()")
