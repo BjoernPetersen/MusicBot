@@ -189,6 +189,18 @@ fun <T> serialization(configure: SerializationConfiguration<T>.() -> Unit): Conf
     return config.toSerializer()
 }
 
+/**
+ * Configure and use config serialization using a DSL.
+ */
+@ExperimentalConfigDsl
+fun <T> SerializedConfiguration<T>.serialization(
+    configure: SerializationConfiguration<T>.() -> Unit
+) {
+    val config = SerializationConfiguration<T>()
+    config.configure()
+    serializer = config.toSerializer()
+}
+
 @ExperimentalConfigDsl
 class SerializedConfiguration<T>(val key: String) {
     /**

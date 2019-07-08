@@ -1,6 +1,8 @@
 package net.bjoernpetersen.musicbot.api.config
 
 import net.bjoernpetersen.musicbot.spi.config.ConfigChecker
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -13,11 +15,12 @@ class ConfigTest {
         val entry: Config.SerializedEntry<Impl> = config.SerializedEntry(
             "key",
             "description",
-            ImplSerializer,
+            Impl,
             { null },
             ActionButton(
                 "Label",
-                ::baseDescriptor) {
+                ::baseDescriptor
+            ) {
                 true
             })
     }
@@ -30,32 +33,47 @@ class ConfigTest {
         val entry: Config.SerializedEntry<Impl> = config.SerializedEntry(
             "key",
             "description",
-            ImplSerializer,
+            Impl,
             checker,
             ActionButton(
                 "Label",
-                ::baseDescriptor) {
+                ::baseDescriptor
+            ) {
                 true
             })
+    }
+
+    @Test
+    fun serializeNull(config: Config) {
+        val entry = config.implEntry()
+        entry.set(null)
+    }
+
+    @Test
+    fun serialize(config: Config) {
+        val entry = config.implEntry()
+        val impl = Impl("test")
+        entry.set(impl)
+        assertEquals(impl, entry.get())
+    }
+
+    @Test
+    fun deserializeNull(config: Config) {
+        val entry = config.implEntry()
+        assertNull(entry.get())
+    }
+
+    @Test
+    @ExperimentalConfigDsl
+    fun deserializeError(config: Config) {
+        val entry = config.implEntry {
+            serializer = Impl.FaultySerializer
+        }
+        entry.set(Impl("test"))
+        assertNull(entry.get())
     }
 
     private fun baseDescriptor(base: Base): String {
         return base.name
     }
 }
-
-private object ImplSerializer : ConfigSerializer<Impl> {
-    override fun serialize(obj: Impl): String {
-        return obj.name
-    }
-
-    override fun deserialize(string: String): Impl {
-        return Impl(string)
-    }
-}
-
-private interface Base {
-    val name: String
-}
-
-data class Impl(override val name: String = "TestName") : Base
