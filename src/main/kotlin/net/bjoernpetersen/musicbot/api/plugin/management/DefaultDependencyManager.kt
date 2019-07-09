@@ -63,7 +63,8 @@ class DefaultDependencyManager(
         plugins.generic,
         plugins.playbackFactories,
         plugins.providers,
-        plugins.suggesters)
+        plugins.suggesters
+    )
 
     override fun getDefaults(plugin: Plugin): Sequence<KClass<out Plugin>> {
         return basesByPlugin[plugin]?.asSequence()?.filter { defaultByBase[it]?.get() == plugin }
@@ -128,7 +129,8 @@ class DefaultDependencyManager(
             "",
             pluginSerializer,
             NonnullConfigChecker,
-            defaultEntryUi())
+            defaultEntryUi()
+        )
     }
 
     private companion object {
@@ -137,7 +139,8 @@ class DefaultDependencyManager(
                 generic = loader.load(GenericPlugin::class).toList(),
                 playbackFactories = loader.load(PlaybackFactory::class).toList(),
                 providers = loader.load(Provider::class).toList(),
-                suggesters = loader.load(Suggester::class).toList())
+                suggesters = loader.load(Suggester::class).toList()
+            )
         }
     }
 }
