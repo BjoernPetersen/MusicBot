@@ -1,4 +1,4 @@
-@file:Suppress("unused")
+@file:Suppress("unused", "TooManyFunctions")
 
 package net.bjoernpetersen.musicbot.api.config
 
@@ -33,12 +33,13 @@ class ActionButtonConfiguration<T> {
     }
 
     internal fun toNode(): ActionButton<T> {
-        if (!::label.isInitialized)
-            throw IllegalStateException("label not set")
-        if (!::descriptor.isInitialized)
-            throw IllegalStateException("descriptor not set")
-        if (!::onAction.isInitialized)
-            throw IllegalStateException("action not set")
+        val exceptionMessage = when {
+            !::label.isInitialized -> "label not set"
+            !::descriptor.isInitialized -> "descriptor not set"
+            !::onAction.isInitialized -> "action not set"
+            else -> null
+        }
+        if (exceptionMessage != null) throw IllegalStateException(exceptionMessage)
 
         return ActionButton(
             label = label,
@@ -289,10 +290,12 @@ class ChoiceBoxConfiguration<T> {
     }
 
     internal fun toNode(): ChoiceBox<T> {
-        if (!::descriptor.isInitialized)
-            throw IllegalStateException("descriptor not set")
-        if (!::onRefresh.isInitialized)
-            throw IllegalStateException("action not set")
+        val exceptionMessage = when {
+            !::descriptor.isInitialized -> "descriptor not set"
+            !::onRefresh.isInitialized -> "action not set"
+            else -> null
+        }
+        if (exceptionMessage != null) throw IllegalStateException(exceptionMessage)
 
         return ChoiceBox(
             descriptor = descriptor,

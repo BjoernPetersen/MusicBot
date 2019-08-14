@@ -10,9 +10,13 @@ import net.bjoernpetersen.musicbot.spi.image.ImageData
 import net.bjoernpetersen.musicbot.spi.image.ImageLoader
 import net.bjoernpetersen.musicbot.spi.plugin.PluginLookup
 import net.bjoernpetersen.musicbot.spi.plugin.Provider
+import java.io.IOException
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
+
+private const val CACHE_EXPIRATION_MINUTES = 10L
+private const val CACHE_SIZE = 256L
 
 internal class DefaultImageCache @Inject private constructor(
     private val pluginLookup: PluginLookup,
@@ -21,8 +25,8 @@ internal class DefaultImageCache @Inject private constructor(
     private val logger = KotlinLogging.logger { }
 
     private val cache: LoadingCache<String, ImageData> = CacheBuilder.newBuilder()
-        .expireAfterAccess(10, TimeUnit.MINUTES)
-        .maximumSize(256)
+        .expireAfterAccess(CACHE_EXPIRATION_MINUTES, TimeUnit.MINUTES)
+        .maximumSize(CACHE_SIZE)
         .build(imageCacheLoader)
 
     override fun getLocal(providerId: String, songId: String): ImageData? {
@@ -50,6 +54,6 @@ private class ImageCacheLoader @Inject private constructor(
     private val imageLoader: ImageLoader
 ) : CacheLoader<String, ImageData>() {
     override fun load(key: String): ImageData {
-        return imageLoader[key] ?: throw Exception("Album art not found")
+        return imageLoader[key] ?: throw IOException("Album art not found")
     }
 }

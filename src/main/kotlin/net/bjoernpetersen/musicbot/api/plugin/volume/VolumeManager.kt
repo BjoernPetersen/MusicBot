@@ -38,7 +38,7 @@ class VolumeManager @Inject private constructor(injector: Injector) {
      * @throws IllegalArgumentException if [volume] is less than 0 or greater than 100
      */
     suspend fun setVolume(volume: Int) {
-        if (volume < 0 || volume > 100)
+        if (volume < Volume.MIN || volume > Volume.MAX)
             throw IllegalArgumentException("Volume is not between 0 and 100")
         handler?.setVolume(volume)
     }

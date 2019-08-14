@@ -21,19 +21,24 @@ internal class DefaultDatabase(databaseUrl: String) : UserDatabase {
                     id TEXT PRIMARY KEY UNIQUE NOT NULL,
                     name TEXT NOT NULL,
                     password TEXT NOT NULL,
-                    permissions TEXT NOT NULL)""".trimMargin())
+                    permissions TEXT NOT NULL)""".trimMargin()
+            )
         }
     }
 
     private val getUser = connection.prepareStatement(
-        "SELECT name, password, permissions FROM users WHERE id=?")
+        "SELECT name, password, permissions FROM users WHERE id=?"
+    )
     private val getUsers = connection.prepareStatement("SELECT * FROM users")
     private val createUser = connection.prepareStatement(
-        "INSERT OR ABORT INTO users(id, name, password, permissions) VALUES(?, ?, ?, ?)")
+        "INSERT OR ABORT INTO users(id, name, password, permissions) VALUES(?, ?, ?, ?)"
+    )
     private val updatePassword = connection.prepareStatement(
-        "UPDATE users SET password=? WHERE id=?")
+        "UPDATE users SET password=? WHERE id=?"
+    )
     private val updatePermissions = connection.prepareStatement(
-        "UPDATE users SET permissions=? WHERE id=?")
+        "UPDATE users SET permissions=? WHERE id=?"
+    )
     private val deleteUser = connection.prepareStatement("DELETE FROM users WHERE id=?")
 
     private fun getPermissions(permissionString: String): Set<Permission> = Splitter.on(',')
@@ -53,7 +58,8 @@ internal class DefaultDatabase(databaseUrl: String) : UserDatabase {
                 getUser.executeQuery().use { resultSet ->
                     if (!resultSet.next()) {
                         throw UserNotFoundException(
-                            "No such user: $id")
+                            "No such user: $id"
+                        )
                     }
                     dbName = resultSet.getString("name")
                     hash = resultSet.getString("password")
@@ -84,6 +90,7 @@ internal class DefaultDatabase(databaseUrl: String) : UserDatabase {
         }
     }
 
+    @Suppress("MagicNumber")
     override fun insertUser(user: FullUser, hash: String) {
         val id = user.name.toLowerCase(Locale.US)
         val permissionString = user.permissions.joinToString(",") { it.label }
@@ -101,6 +108,7 @@ internal class DefaultDatabase(databaseUrl: String) : UserDatabase {
         }
     }
 
+    @Suppress("MagicNumber")
     override fun updatePassword(user: FullUser, hash: String) {
         val id = user.name.toLowerCase(Locale.US)
         synchronized(updatePassword) {

@@ -38,6 +38,7 @@ class PluginLoader(private val pluginFolder: File) {
         return URLClassLoader(urls, javaClass.classLoader)
     }
 
+    @Suppress("TooGenericExceptionCaught")
     fun <T : Plugin> load(type: KClass<T>): Collection<T> {
         val result = LinkedList<T>()
         try {

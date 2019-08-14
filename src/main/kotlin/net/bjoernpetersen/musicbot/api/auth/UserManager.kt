@@ -19,6 +19,10 @@ import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
 
+private const val TEMPORARY_USER_CAPACITY = 32
+private const val TOKEN_TTL_MINUTES = 10L
+private const val SIGNATURE_KEY_SIZE = 4096
+
 @Singleton
 class UserManager @Inject constructor(
     private val userDatabase: UserDatabase,
@@ -30,7 +34,7 @@ class UserManager @Inject constructor(
     private val secrets = configManager[GenericConfigScope(UserManager::class)].state
     private val signatureKey: Config.StringEntry = secrets.StringEntry("signatureKey", "", { null })
     private val guestSignatureKey: String = createSignatureKey()
-    private val temporaryUsers: MutableMap<String, GuestUser> = HashMap(32)
+    private val temporaryUsers: MutableMap<String, GuestUser> = HashMap(TEMPORARY_USER_CAPACITY)
 
     @Throws(DuplicateUserException::class)
     fun createTemporaryUser(name: String, id: String): User {
@@ -125,11 +129,12 @@ class UserManager @Inject constructor(
         return JWT.create()
             .withSubject(user.name)
             .withIssuedAt(Date())
-            .withExpiresAt(Date.from(Instant.now().plus(Duration.ofMinutes(10))))
+            .withExpiresAt(Date.from(Instant.now().plus(Duration.ofMinutes(TOKEN_TTL_MINUTES))))
             .withArrayClaim("permissions", user.permissions.map { it.label }.toTypedArray())
             .sign(Algorithm.HMAC512(signatureKey))
     }
 
+    @Suppress("ThrowsCount")
     @Throws(InvalidTokenException::class)
     fun fromToken(token: String): User {
         try {
@@ -169,18 +174,18 @@ class UserManager @Inject constructor(
         }
     }
 
-    private fun hash(password: String): String {
-        return BCrypt.hashpw(password, BCrypt.gensalt())
-    }
-
     private fun getSignatureKey(): String {
         return signatureKey.get() ?: createSignatureKey().also { signatureKey.set(it) }
     }
+}
 
-    private fun createSignatureKey(): String {
-        val rand = SecureRandom()
-        val bytes = ByteArray(4096)
-        rand.nextBytes(bytes)
-        return String(bytes, Charsets.UTF_8)
-    }
+private fun hash(password: String): String {
+    return BCrypt.hashpw(password, BCrypt.gensalt())
+}
+
+private fun createSignatureKey(): String {
+    val rand = SecureRandom()
+    val bytes = ByteArray(SIGNATURE_KEY_SIZE)
+    rand.nextBytes(bytes)
+    return String(bytes, Charsets.UTF_8)
 }

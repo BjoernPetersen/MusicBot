@@ -184,7 +184,11 @@ class DeclarationException : RuntimeException {
 private val KClass<*>.isBase: Boolean
     get() = isBase()
 
-private fun KClass<*>.isBase(visited: MutableSet<KClass<*>> = HashSet(20)): Boolean {
+private const val BASE_SEARCH_DEPTH_CAPACITY = 20
+
+private fun KClass<*>.isBase(
+    visited: MutableSet<KClass<*>> = HashSet(BASE_SEARCH_DEPTH_CAPACITY)
+): Boolean {
     if (!visited.add(this)) return false
     return findAnnotation<Base>() != null ||
         annotations.any { it.annotationClass.isBase(visited) }

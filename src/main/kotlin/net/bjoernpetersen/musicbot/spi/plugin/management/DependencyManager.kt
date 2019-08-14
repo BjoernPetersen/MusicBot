@@ -17,6 +17,7 @@ import kotlin.reflect.KClass
 /**
  * Manages dependency configuration before injection.
  */
+@Suppress("TooManyFunctions")
 interface DependencyManager {
 
     /**
@@ -47,7 +48,8 @@ interface DependencyManager {
             genericPlugins,
             playbackFactories,
             providers,
-            suggesters)
+            suggesters
+        )
             .flatMap { it.asSequence() }
 
     /**
@@ -85,6 +87,7 @@ interface DependencyManager {
      */
     fun setDefault(plugin: Plugin?, base: KClass<*>)
 
+    @Suppress("ReturnCount")
     private fun isRequired(
         plugin: Plugin,
         visited: MutableMap<Plugin, Boolean?> = HashMap()

@@ -162,10 +162,12 @@ class SerializationConfiguration<T> {
     }
 
     internal fun toSerializer(): ConfigSerializer<T> {
-        if (!::serializer.isInitialized)
-            throw IllegalStateException("serialize not set")
-        if (!::deserializer.isInitialized)
-            throw IllegalStateException("deserialize not set")
+        val exceptionMessage = when {
+            !::serializer.isInitialized -> "serializer is not set"
+            !::deserializer.isInitialized -> "deserializer not set"
+            else -> null
+        }
+        if (exceptionMessage != null) throw IllegalStateException(exceptionMessage)
 
         return object : ConfigSerializer<T> {
             override fun serialize(obj: T): String {
@@ -233,12 +235,13 @@ class SerializedConfiguration<T>(val key: String) {
     }
 
     internal fun toEntry(config: Config): Config.SerializedEntry<T> {
-        if (!::description.isInitialized)
-            throw IllegalStateException("description is not set")
-        if (!::serializer.isInitialized)
-            throw IllegalStateException("serializer is not set")
-        if (!::configChecker.isInitialized)
-            throw IllegalStateException("configChecker is not set")
+        val exceptionMessage = when {
+            !::description.isInitialized -> "description is not set"
+            !::serializer.isInitialized -> "serializer is not set"
+            !::configChecker.isInitialized -> "configChecker is not set"
+            else -> null
+        }
+        if (exceptionMessage != null) throw IllegalStateException(exceptionMessage)
 
         return config.SerializedEntry(
             key = this.key,

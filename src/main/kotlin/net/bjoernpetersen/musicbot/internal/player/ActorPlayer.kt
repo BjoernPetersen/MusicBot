@@ -69,8 +69,8 @@ private class Await(response: CompletableDeferred<Unit>) : FeedbackPlayerMessage
  */
 private class CompletablePlayback : AbstractPlayback() {
 
-    override suspend fun play() {}
-    override suspend fun pause() {}
+    override suspend fun play() = Unit
+    override suspend fun pause() = Unit
 }
 
 /**
@@ -172,6 +172,7 @@ private class SyncPlayer @Inject private constructor(
     override suspend fun next() {
         logger.debug("Next...")
 
+        @Suppress("TooGenericExceptionCaught")
         try {
             logger.debug { "Closing playback $playback" }
             playback.close()
@@ -199,11 +200,12 @@ private class SyncPlayer @Inject private constructor(
         val nextSong = nextEntry.song
         songPlayedNotifier.notifyPlayed(nextEntry)
         logger.debug { "Next song is: $nextSong" }
+        @Suppress("TooGenericExceptionCaught")
         try {
             val resource = resourceCache.get(nextSong)
             val provider = pluginLookup
                 .lookup(nextSong.provider)
-                ?: throw Exception("No such provider: ${nextSong.provider}")
+                ?: throw IllegalArgumentException("No such provider: ${nextSong.provider}")
             playback = provider.supplyPlayback(nextSong, resource)
         } catch (e: Exception) {
             logger.warn(e) { "Error creating playback" }
@@ -218,6 +220,7 @@ private class SyncPlayer @Inject private constructor(
         play()
     }
 
+    @Suppress("TooGenericExceptionCaught")
     override suspend fun close() {
         try {
             playback.close()
@@ -252,6 +255,7 @@ internal class ActorPlayer @Inject private constructor(
 
     private val actor = actor<PlayerMessage> {
         for (msg in channel) {
+            @Suppress("TooGenericExceptionCaught")
             try {
                 when (msg) {
                     is Start -> {
@@ -342,9 +346,9 @@ internal class ActorPlayer @Inject private constructor(
                 launch { resourceCache.get(entry.song) }
             }
 
-            override fun onRemove(entry: QueueEntry) {}
+            override fun onRemove(entry: QueueEntry) = Unit
 
-            override fun onMove(entry: QueueEntry, fromIndex: Int, toIndex: Int) {}
+            override fun onMove(entry: QueueEntry, fromIndex: Int, toIndex: Int) = Unit
         })
 
         if (suggester != null) {

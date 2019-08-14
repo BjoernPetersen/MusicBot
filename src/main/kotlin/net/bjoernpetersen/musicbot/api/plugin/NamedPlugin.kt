@@ -18,6 +18,7 @@ data class NamedPlugin<out T : Plugin>(
 
     constructor(idClass: KClass<out T>, name: String) : this(idClass.java.name, name)
 
+    @Suppress("ThrowsCount")
     @Deprecated("Use PluginLookup", ReplaceWith("PluginLookup.lookup(this)"))
     @Throws(IllegalStateException::class)
     fun findPlugin(classLoader: ClassLoader, pluginFinder: PluginFinder): T {

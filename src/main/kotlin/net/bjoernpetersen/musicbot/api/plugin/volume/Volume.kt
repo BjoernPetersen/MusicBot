@@ -14,5 +14,18 @@ data class Volume private constructor(
 ) {
 
     constructor(volume: Int) : this(volume, true)
-    constructor() : this(100, false)
+    constructor() : this(MAX, false)
+
+    companion object {
+        /**
+         * Minimum volume.
+         */
+        const val MIN = 0
+        /**
+         * Maximum volume.
+         *
+         * This value is also used if volume control is unsupported.
+         */
+        const val MAX = 100
+    }
 }

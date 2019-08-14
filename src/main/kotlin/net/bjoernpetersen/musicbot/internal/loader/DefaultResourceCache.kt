@@ -26,6 +26,10 @@ import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
 
+private const val CACHE_SIZE = 128L
+private const val CACHE_EXPIRATION_HOURS = 1L
+private const val CLEANUP_TIMEOUT_MINUTES = 1L
+
 internal class DefaultResourceCache @Inject private constructor(
     loader: CacheSongLoader
 ) : ResourceCache, CoroutineScope {
@@ -45,8 +49,8 @@ internal class DefaultResourceCache @Inject private constructor(
 
     @Suppress("EXPERIMENTAL_API_USAGE")
     private val cache = CacheBuilder.newBuilder()
-        .maximumSize(128)
-        .expireAfterAccess(1, TimeUnit.HOURS)
+        .maximumSize(CACHE_SIZE)
+        .expireAfterAccess(CACHE_EXPIRATION_HOURS, TimeUnit.HOURS)
         .removalListener<Song, Deferred<Resource>> {
             cleanupScope.launch {
                 val deferred = it.value
@@ -86,7 +90,7 @@ internal class DefaultResourceCache @Inject private constructor(
         coroutineScope {
             withContext(coroutineContext) {
                 logger.info { "Waiting for resource cache to clean up. This may take up to a minute." }
-                withTimeout(Duration.ofMinutes(1).toMillis()) {
+                withTimeout(Duration.ofMinutes(CLEANUP_TIMEOUT_MINUTES).toMillis()) {
                     try {
                         cleanupJob.children.forEach { it.join() }
                     } catch (e: TimeoutCancellationException) {

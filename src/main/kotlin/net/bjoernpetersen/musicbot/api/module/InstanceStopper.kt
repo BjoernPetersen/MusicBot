@@ -1,6 +1,8 @@
 package net.bjoernpetersen.musicbot.api.module
 
+import com.google.inject.ConfigurationException
 import com.google.inject.Injector
+import com.google.inject.ProvisionException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
@@ -11,6 +13,8 @@ import net.bjoernpetersen.musicbot.spi.loader.SongLoader
 import net.bjoernpetersen.musicbot.spi.player.Player
 import java.io.Closeable
 import kotlin.reflect.KClass
+
+private const val CUSTOM_STOPPER_CAPACITY = 32
 
 /**
  * Can be used to gracefully shut down an instance of the bot.
@@ -26,8 +30,8 @@ class InstanceStopper(private val injector: Injector) {
     private val logger = KotlinLogging.logger { }
 
     private var stopped = false
-    private val additionalBefore: MutableSet<Stopper<*>> = HashSet(32)
-    private val additionalAfter: MutableSet<Stopper<*>> = HashSet(32)
+    private val additionalBefore: MutableSet<Stopper<*>> = HashSet(CUSTOM_STOPPER_CAPACITY)
+    private val additionalAfter: MutableSet<Stopper<*>> = HashSet(CUSTOM_STOPPER_CAPACITY)
 
     private suspend fun <T> unstopped(action: suspend () -> T): T {
         if (stopped) throw IllegalStateException("stop() has already been called")
@@ -36,16 +40,19 @@ class InstanceStopper(private val injector: Injector) {
 
     private fun <T : Any> KClass<T>.lookup(): T = try {
         injector.getInstance(this.java)
-    } catch (e: RuntimeException) {
+    } catch (e: ConfigurationException) {
         logger.error(e) { "Could not find ${this.qualifiedName}" }
+        throw IllegalStateException(e)
+    } catch (e: ProvisionException) {
+        logger.error(e) { "Could not provide instance of ${this.qualifiedName}" }
         throw IllegalStateException(e)
     }
 
     private suspend fun <T : Any> KClass<T>.withLookup(action: suspend (T) -> Unit) {
         val instance = try {
-            injector.getInstance(this.java)
-        } catch (e: RuntimeException) {
-            logger.error(e) { "Could not find ${this.qualifiedName}" }
+            this.lookup()
+        } catch (e: IllegalStateException) {
+            // The lookup method already logged the exception
             return
         }
         action(instance)
@@ -76,6 +83,7 @@ class InstanceStopper(private val injector: Injector) {
         close: suspend (T) -> Unit
     ) = runBlocking<Unit> {
         unstopped {
+            @Suppress("TooGenericExceptionCaught")
             val instance = try {
                 injector.getInstance(type)
             } catch (e: RuntimeException) {
@@ -91,6 +99,7 @@ class InstanceStopper(private val injector: Injector) {
         close(stopper) { it() }
     }
 
+    @Suppress("TooGenericExceptionCaught")
     private suspend fun <T : Any> close(instance: T, closer: suspend (T) -> Unit) {
         try {
             closer(instance)

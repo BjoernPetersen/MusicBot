@@ -11,6 +11,7 @@ object MusicBotVersion {
      *
      * @return a version
      */
+    @Suppress("ThrowsCount")
     fun get(): Version {
         try {
             val properties = Properties()

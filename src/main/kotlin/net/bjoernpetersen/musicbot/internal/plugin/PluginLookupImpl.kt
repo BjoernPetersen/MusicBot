@@ -27,10 +27,10 @@ internal class PluginLookupImpl @Inject private constructor(
             @Suppress("UNCHECKED_CAST")
             classLoader.loadClass(id).kotlin as KClass<T>
         } catch (e: ClassNotFoundException) {
-            return null
+            null
         } catch (e: ClassCastException) {
-            return null
+            null
         }
-        return lookup(base)
+        return base?.let(::lookup)
     }
 }
