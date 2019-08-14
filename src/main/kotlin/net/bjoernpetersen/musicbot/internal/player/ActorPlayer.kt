@@ -207,7 +207,7 @@ private class SyncPlayer @Inject private constructor(
                 .lookup(nextSong.provider)
                 ?: throw IllegalArgumentException("No such provider: ${nextSong.provider}")
             playback = provider.supplyPlayback(nextSong, resource)
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             logger.warn(e) { "Error creating playback" }
 
             playback = CompletablePlayback()
