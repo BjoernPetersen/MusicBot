@@ -1,5 +1,6 @@
 object Plugin {
     const val SPOTLESS = "3.24.1"
+    const val DETEKT = "1.0.0"
 
     const val VERSIONS = "0.22.0"
 

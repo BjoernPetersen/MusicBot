@@ -4,6 +4,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("com.diffplug.gradle.spotless") version Plugin.SPOTLESS
+    id("io.gitlab.arturbosch.detekt") version Plugin.DETEKT
 
     id("com.github.ben-manes.versions") version Plugin.VERSIONS
 
@@ -51,6 +52,10 @@ spotless {
         lineEndings = LineEnding.UNIX
         endWithNewline()
     }
+}
+
+detekt {
+    toolVersion = Plugin.DETEKT
 }
 
 tasks {
