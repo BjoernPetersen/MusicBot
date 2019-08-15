@@ -1,4 +1,4 @@
-package net.bjoernpetersen.musicbot.api.volume
+package net.bjoernpetersen.musicbot.api.plugin.volume
 
 import com.google.inject.AbstractModule
 import com.google.inject.Guice
@@ -6,8 +6,6 @@ import com.google.inject.Injector
 import com.google.inject.Provides
 import kotlinx.coroutines.runBlocking
 import net.bjoernpetersen.musicbot.api.config.Config
-import net.bjoernpetersen.musicbot.api.plugin.volume.Volume
-import net.bjoernpetersen.musicbot.api.plugin.volume.VolumeManager
 import net.bjoernpetersen.musicbot.spi.plugin.management.InitStateWriter
 import net.bjoernpetersen.musicbot.spi.plugin.volume.VolumeHandler
 import org.junit.jupiter.api.Assertions.assertDoesNotThrow
