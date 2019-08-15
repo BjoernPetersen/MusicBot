@@ -94,11 +94,13 @@ jobs:
 workflows:
   full_workflow:
     jobs:
-      - fossa_build
+      - compile
+      - fossa_build:
+          requires:
+            - compile
       - fossa_test:
           requires:
             - fossa_build
-      - compile
       - check:
           requires:
             - compile
