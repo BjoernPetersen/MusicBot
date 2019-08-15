@@ -5,6 +5,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     id("com.diffplug.gradle.spotless") version Plugin.SPOTLESS
     id("io.gitlab.arturbosch.detekt") version Plugin.DETEKT
+    jacoco
 
     id("com.github.ben-manes.versions") version Plugin.VERSIONS
 
@@ -60,6 +61,10 @@ detekt {
     buildUponDefaultConfig = true
 }
 
+jacoco {
+    toolVersion = Plugin.JACOCO
+}
+
 tasks {
     "dokka"(DokkaTask::class) {
         outputFormat = "html"
@@ -104,6 +109,17 @@ tasks {
 
     withType<Test> {
         useJUnitPlatform()
+    }
+
+    jacocoTestReport {
+        reports {
+            xml.isEnabled = true
+            csv.isEnabled = false
+        }
+    }
+
+    check {
+        finalizedBy("jacocoTestReport")
     }
 
     withType<Jar> {
