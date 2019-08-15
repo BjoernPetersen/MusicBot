@@ -89,7 +89,7 @@ jobs:
                 command: |
                   curl -H 'Cache-Control: no-cache' https://raw.githubusercontent.com/fossas/fossa-cli/master/install.sh | bash
                 name: Installing fossa-cli
-            - run: fossa test --timeout 60
+            - run: fossa test
 
 workflows:
   full_workflow:
