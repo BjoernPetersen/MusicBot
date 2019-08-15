@@ -90,6 +90,8 @@ class SongConfiguration internal constructor(val id: String, val provider: Provi
     lateinit var description: String
     var duration: Int? = null
     private var albumArtPath: String? = null
+    // TODO remove when albumArtUrl property is removed
+    private var remoteUrl: String? = null
 
     fun serveLocalImage() {
         albumArtPath =
@@ -97,6 +99,7 @@ class SongConfiguration internal constructor(val id: String, val provider: Provi
     }
 
     fun serveRemoteImage(url: String) {
+        remoteUrl = url
         albumArtPath = remoteToLocalPath(url)
     }
 
@@ -106,6 +109,7 @@ class SongConfiguration internal constructor(val id: String, val provider: Provi
         if (!this::description.isInitialized)
             throw IllegalStateException("Description not set")
         return Song(id, namedPlugin, title, description, duration, albumArtPath)
+            .copy(albumArtUrl = remoteUrl)
     }
 }
 
