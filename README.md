@@ -1,4 +1,6 @@
-# MusicBot [![GitHub (pre-)release](https://img.shields.io/github/release/BjoernPetersen/MusicBot/all.svg)](https://github.com/BjoernPetersen/MusicBot/releases) [![GitHub license](https://img.shields.io/github/license/BjoernPetersen/MusicBot.svg)](https://github.com/BjoernPetersen/MusicBot/blob/master/LICENSE) [![CircleCI branch](https://img.shields.io/circleci/project/github/BjoernPetersen/MusicBot/master.svg)](https://circleci.com/gh/BjoernPetersen/MusicBot/tree/master) [![codebeat badge](https://codebeat.co/badges/b5ac2bc9-3ea3-4e10-bfc7-c5c935e32a17)](https://codebeat.co/projects/github-com-bjoernpetersen-musicbot-develop)
+# MusicBot
+
+[![GitHub (pre-)release](https://img.shields.io/github/release/BjoernPetersen/MusicBot/all.svg)](https://github.com/BjoernPetersen/MusicBot/releases) [![GitHub license](https://img.shields.io/github/license/BjoernPetersen/MusicBot.svg)](https://github.com/BjoernPetersen/MusicBot/blob/master/LICENSE) [![CircleCI branch](https://img.shields.io/circleci/project/github/BjoernPetersen/MusicBot/master.svg)](https://circleci.com/gh/BjoernPetersen/MusicBot/tree/master) [![codebeat badge](https://codebeat.co/badges/b5ac2bc9-3ea3-4e10-bfc7-c5c935e32a17)](https://codebeat.co/projects/github-com-bjoernpetersen-musicbot-develop) [![codecov](https://codecov.io/gh/BjoernPetersen/MusicBot/branch/develop/graph/badge.svg)](https://codecov.io/gh/BjoernPetersen/MusicBot)
 
 This is the core library of the MusicBot project.
 APIs should not be considered stable until version 1.0.0.
