@@ -8,6 +8,7 @@ import kotlinx.coroutines.runBlocking
 import net.bjoernpetersen.musicbot.api.config.Config
 import net.bjoernpetersen.musicbot.spi.plugin.management.InitStateWriter
 import net.bjoernpetersen.musicbot.spi.plugin.volume.VolumeHandler
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertDoesNotThrow
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotEquals
@@ -31,9 +32,11 @@ class VolumeManagerTest {
     }
 
     @Test
-    fun unboundGet() = runBlocking {
+    fun unboundGet() = runBlocking<Unit> {
         val manager = injector(false).manager
-        assertEquals(Volume(), manager.getVolume())
+        assertThat(manager.getVolume())
+            .isEqualTo(Volume())
+            .returns(false, Volume::isSupported)
     }
 
     @TestFactory
@@ -70,8 +73,9 @@ class VolumeManagerTest {
         val injector = injector(true)
         val handler = injector.handler
         val manager = injector.manager
-        val expectedVolume = Volume(handler.getVolume())
-        assertEquals(expectedVolume, manager.getVolume())
+        assertThat(manager.getVolume())
+            .isEqualTo(Volume(handler.getVolume()))
+            .returns(true, Volume::isSupported)
     }
 
     @Test
