@@ -7,7 +7,20 @@ import net.bjoernpetersen.musicbot.spi.plugin.Provider
 import net.bjoernpetersen.musicbot.spi.plugin.id
 import java.util.Base64
 
-data class Song @Deprecated("Use Dsl instead") internal constructor(
+/**
+ * Information about a song, usually created by a [Provider].
+ *
+ * Equality is determined by the [id] in combination with the [provider].
+ *
+ * @param id an ID, unique for the associated [provider]
+ * @param provider the provider this song originated from
+ * @param title the song's title, which is the most important representation for humans
+ * @param description further information about the song, usually the song's artist
+ * @param duration the song duration in seconds
+ * @param albumArtUrl the URL to the song's album art image
+ * @param albumArtPath the URL path to the song's album relative to the bot's base URL
+ */
+data class Song @Deprecated("Use DSL instead") internal constructor(
     val id: String,
     val provider: NamedPlugin<Provider>,
     val title: String,
@@ -93,11 +106,16 @@ class SongConfiguration internal constructor(val id: String, val provider: Provi
     // TODO remove when albumArtUrl property is removed
     private var remoteUrl: String? = null
 
+    @Deprecated(
+        "This is called automatically for implementations of AlbumArtSupplier",
+        level = DeprecationLevel.WARNING
+    )
     fun serveLocalImage() {
         albumArtPath =
             "${ImageServerConstraints.LOCAL_PATH}/${namedPlugin.id.encode()}/${id.encode()}"
     }
 
+    @Suppress("unused")
     fun serveRemoteImage(url: String) {
         remoteUrl = url
         albumArtPath = remoteToLocalPath(url)
@@ -115,6 +133,7 @@ class SongConfiguration internal constructor(val id: String, val provider: Provi
 
 fun Provider.toNamedPlugin(): NamedPlugin<Provider> = NamedPlugin(id.qualifiedName!!, subject)
 
+@Suppress("DEPRECATION")
 fun AlbumArtSupplier.song(id: String, configure: SongConfiguration.() -> Unit): Song {
     val mutable = SongConfiguration(id, this)
     mutable.serveLocalImage()
