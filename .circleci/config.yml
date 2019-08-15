@@ -9,6 +9,11 @@ executors:
       - image: openjdk:8-jdk-slim
     environment:
       GRADLE_OPTS: -Dorg.gradle.daemon=false
+  jdk-full:
+    docker:
+      - image: openjdk:8-jdk
+    environment:
+      GRADLE_OPTS: -Dorg.gradle.daemon=false
 
 commands:
   with_cache:
@@ -45,7 +50,7 @@ jobs:
                   - buildSrc/build
 
   check:
-    executor: jdk
+    executor: jdk-full
     steps:
       - checkout
       - with_cache:
