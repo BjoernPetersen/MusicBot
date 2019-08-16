@@ -37,7 +37,6 @@ import net.bjoernpetersen.musicbot.spi.plugin.PluginLookup
 import net.bjoernpetersen.musicbot.spi.plugin.Suggester
 import java.time.Duration
 import javax.inject.Inject
-import javax.inject.Singleton
 import kotlin.coroutines.CoroutineContext
 
 private sealed class PlayerMessage
@@ -452,7 +451,6 @@ internal class ActorPlayer @Inject private constructor(
     }
 }
 
-@Singleton
 internal class ActorPlaybackFeedbackChannel @Inject private constructor(
     private val progressTracker: ProgressTracker
 ) : PlaybackFeedbackChannel {
