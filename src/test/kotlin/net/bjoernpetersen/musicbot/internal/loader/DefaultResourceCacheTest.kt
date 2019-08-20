@@ -2,6 +2,7 @@ package net.bjoernpetersen.musicbot.internal.loader
 
 import com.google.inject.AbstractModule
 import com.google.inject.Guice
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -9,6 +10,7 @@ import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -122,6 +124,45 @@ class DefaultResourceCacheTest {
             val refreshed = cache.get(song)
             assertNotSame(resource, refreshed)
             assertTrue(refreshed.isValid)
+        }
+    }
+
+    @Test
+    fun `get on closed cache`() {
+        val cache = createCache()
+        runBlocking {
+            val song = DummyProvider.lookup("test")
+            cache.close()
+            assertThrows<IllegalStateException> {
+                runBlocking {
+                    cache.get(song)
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `get while closing`() {
+        val cache = createCache()
+        runBlocking {
+            DummyProvider.freeTime = Duration.ofSeconds(1).toMillis()
+            val song = DummyProvider.lookup("test")
+            withContext(Dispatchers.Default) {
+                cache.get(song)
+                val closing = CompletableDeferred<Unit>()
+                launch {
+                    closing.complete(Unit)
+                    cache.close()
+                }
+
+                closing.await()
+                delay(50)
+                assertThrows<IllegalStateException> {
+                    runBlocking {
+                        cache.get(song)
+                    }
+                }
+            }
         }
     }
 
