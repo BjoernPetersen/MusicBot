@@ -1,7 +1,7 @@
 package net.bjoernpetersen.musicbot.api.plugin.management
 
 import net.bjoernpetersen.musicbot.api.config.Config
-import net.bjoernpetersen.musicbot.api.config.ConfigExtension
+import net.bjoernpetersen.musicbot.test.api.config.ConfigExtension
 import net.bjoernpetersen.musicbot.api.plugin.management.plugins.AuthMyProvider
 import net.bjoernpetersen.musicbot.api.plugin.management.plugins.AuthMySuggester
 import net.bjoernpetersen.musicbot.api.plugin.management.plugins.DumbAuth

@@ -24,23 +24,22 @@ import net.bjoernpetersen.musicbot.api.player.Song
 import net.bjoernpetersen.musicbot.api.player.StopState
 import net.bjoernpetersen.musicbot.api.player.song
 import net.bjoernpetersen.musicbot.api.plugin.IdBase
-import net.bjoernpetersen.musicbot.test.spi.loader.DummyResourceCache
 import net.bjoernpetersen.musicbot.spi.loader.Resource
-import net.bjoernpetersen.musicbot.test.spi.player.DummySongPlayedNotifier
 import net.bjoernpetersen.musicbot.spi.player.Player
 import net.bjoernpetersen.musicbot.spi.player.SongQueue
-import net.bjoernpetersen.musicbot.test.spi.player.songNotifierCallback
 import net.bjoernpetersen.musicbot.spi.plugin.AbstractPlayback
 import net.bjoernpetersen.musicbot.spi.plugin.BrokenSuggesterException
-import net.bjoernpetersen.musicbot.test.spi.plugin.DummyPluginLookup
 import net.bjoernpetersen.musicbot.spi.plugin.NoSuchSongException
 import net.bjoernpetersen.musicbot.spi.plugin.Playback
 import net.bjoernpetersen.musicbot.spi.plugin.Provider
 import net.bjoernpetersen.musicbot.spi.plugin.Suggester
 import net.bjoernpetersen.musicbot.spi.plugin.management.InitStateWriter
+import net.bjoernpetersen.musicbot.test.asInstanceOf
+import net.bjoernpetersen.musicbot.test.spi.loader.DummyResourceCache
+import net.bjoernpetersen.musicbot.test.spi.player.DummySongPlayedNotifier
+import net.bjoernpetersen.musicbot.test.spi.player.songNotifierCallback
+import net.bjoernpetersen.musicbot.test.spi.plugin.DummyPluginLookup
 import org.assertj.core.api.Assertions.assertThat
-import org.assertj.core.api.InstanceOfAssertFactories
-import org.assertj.core.api.ObjectAssert
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotEquals
@@ -315,10 +314,6 @@ class ActorPlayerTest {
         }
     }
     // TODO test feedback channel handling
-}
-
-private inline fun <reified U> ObjectAssert<*>.asInstanceOf(): ObjectAssert<U> {
-    return asInstanceOf(InstanceOfAssertFactories.type(U::class.java))
 }
 
 @IdBase("Alternating")
