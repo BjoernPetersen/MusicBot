@@ -1,10 +1,11 @@
-package net.bjoernpetersen.musicbot.spi.player
+package net.bjoernpetersen.musicbot.test.spi.player
 
 import com.google.inject.AbstractModule
 import com.google.inject.Inject
 import com.google.inject.Module
 import mu.KotlinLogging
 import net.bjoernpetersen.musicbot.api.player.SongEntry
+import net.bjoernpetersen.musicbot.spi.player.SongPlayedNotifier
 
 class DummySongPlayedNotifier @Inject private constructor(
     @Inject(optional = true) private val callback: Callback?

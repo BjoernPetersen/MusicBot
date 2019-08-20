@@ -1,8 +1,12 @@
-package net.bjoernpetersen.musicbot.spi.plugin
+package net.bjoernpetersen.musicbot.test.spi.plugin
 
 import com.google.inject.AbstractModule
 import com.google.inject.Module
 import mu.KotlinLogging
+import net.bjoernpetersen.musicbot.spi.plugin.Plugin
+import net.bjoernpetersen.musicbot.spi.plugin.PluginLookup
+import net.bjoernpetersen.musicbot.spi.plugin.Provider
+import net.bjoernpetersen.musicbot.spi.plugin.id
 import javax.inject.Inject
 import kotlin.reflect.KClass
 import kotlin.reflect.full.cast

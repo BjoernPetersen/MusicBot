@@ -1,9 +1,11 @@
-package net.bjoernpetersen.musicbot.spi.loader
+package net.bjoernpetersen.musicbot.test.spi.loader
 
 import com.google.inject.AbstractModule
 import mu.KotlinLogging
 import net.bjoernpetersen.musicbot.api.loader.NoResource
 import net.bjoernpetersen.musicbot.api.player.Song
+import net.bjoernpetersen.musicbot.spi.loader.Resource
+import net.bjoernpetersen.musicbot.spi.loader.ResourceCache
 
 class DummyResourceCache : ResourceCache {
     private val logger = KotlinLogging.logger {}
