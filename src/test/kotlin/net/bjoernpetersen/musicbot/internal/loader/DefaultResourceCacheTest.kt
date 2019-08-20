@@ -14,6 +14,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.time.delay
 import kotlinx.coroutines.time.withTimeout
 import kotlinx.coroutines.withContext
 import net.bjoernpetersen.musicbot.api.config.Config
@@ -49,8 +50,8 @@ private fun createCache(): ResourceCache = Guice
 class DefaultResourceCacheTest {
     @AfterEach
     fun resetProvider() {
-        DummyProvider.loadTime = 50
-        DummyProvider.freeTime = 50
+        DummyProvider.loadDuration = Duration.ofMillis(50)
+        DummyProvider.freeDuration = Duration.ofMillis(50)
     }
 
     @Test
@@ -87,7 +88,7 @@ class DefaultResourceCacheTest {
     fun `clean up aborts with timeout`() {
         val cache = createCache()
         val resource = runBlocking {
-            DummyProvider.freeTime = Duration.ofMinutes(2).toMillis()
+            DummyProvider.freeDuration = Duration.ofMinutes(2)
             val song = DummyProvider.lookup("longFreeResource")
             cache.get(song)
         }
@@ -145,7 +146,7 @@ class DefaultResourceCacheTest {
     fun `get while closing`() {
         val cache = createCache()
         runBlocking {
-            DummyProvider.freeTime = Duration.ofSeconds(1).toMillis()
+            DummyProvider.freeDuration = Duration.ofSeconds(1)
             val song = DummyProvider.lookup("test")
             withContext(Dispatchers.Default) {
                 cache.get(song)
@@ -185,14 +186,14 @@ class DefaultResourceCacheTest {
     }
 }
 
-private class DummyResource(private val freeTime: Long) : Resource {
+private class DummyResource(private val freeDuration: Duration) : Resource {
     private val mutex = Mutex()
     override var isValid: Boolean = true
 
     override suspend fun free() {
         mutex.withLock {
             if (!isValid) return
-            delay(freeTime)
+            delay(freeDuration)
             isValid = false
         }
     }
@@ -228,8 +229,8 @@ private object DummyProvider : Provider, CoroutineScope {
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.IO + job
 
-    var loadTime: Long = 50
-    var freeTime: Long = 50
+    var loadDuration: Duration = Duration.ofMillis(50)
+    var freeDuration: Duration = Duration.ofMillis(50)
 
     override suspend fun search(query: String, offset: Int): List<Song> {
         TODO("not implemented")
@@ -247,8 +248,8 @@ private object DummyProvider : Provider, CoroutineScope {
     override suspend fun loadSong(song: Song): Resource {
         return coroutineScope {
             withContext(coroutineContext) {
-                delay(loadTime)
-                DummyResource(freeTime)
+                delay(loadDuration)
+                DummyResource(freeDuration)
             }
         }
     }
