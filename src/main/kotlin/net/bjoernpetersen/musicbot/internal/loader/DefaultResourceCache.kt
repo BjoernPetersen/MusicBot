@@ -7,6 +7,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.TimeoutCancellationException
@@ -47,7 +48,7 @@ internal class DefaultResourceCache @Inject private constructor(
             logger.error(throwable) { "Exception during cleanup" }
         })
 
-    @Suppress("EXPERIMENTAL_API_USAGE")
+    @UseExperimental(ExperimentalCoroutinesApi::class)
     private val cache = CacheBuilder.newBuilder()
         .maximumSize(CACHE_SIZE)
         .expireAfterAccess(CACHE_EXPIRATION_HOURS, TimeUnit.HOURS)
