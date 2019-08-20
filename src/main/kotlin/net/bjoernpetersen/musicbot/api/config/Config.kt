@@ -58,10 +58,37 @@ class Config internal constructor(
         val description: String,
         val uiNode: UiNode<in T>?
     ) {
+        init {
+            if (key.isBlank()) throw IllegalArgumentException("key must not be blank")
+        }
 
+        /**
+         * Get the current entry value, ignoring any default value.
+         *
+         * @return the current value
+         */
         abstract fun getWithoutDefault(): T?
+
+        /**
+         * Get the current entry value.
+         *
+         * If there is a default value, that will be returned.
+         *
+         * @return the current value
+         */
         abstract fun get(): T?
+
+        /**
+         * Sets the new entry value.
+         * @param value the new value
+         */
         abstract fun set(value: T?)
+
+        /**
+         * Checks the current value returned by [get] for errors.
+         *
+         * @return an error message, or null
+         */
         abstract fun checkError(): String?
     }
 
@@ -86,9 +113,6 @@ class Config internal constructor(
             return getValue(key)
         }
 
-        /**
-         * Gets the value of this entry, or the default value if there is none.
-         */
         override fun get(): String? {
             return getWithoutDefault() ?: default
         }

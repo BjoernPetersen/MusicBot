@@ -10,6 +10,10 @@ annotation class ExperimentalConfigDsl
 @ExperimentalConfigDsl
 class StringConfiguration(val key: String) {
 
+    init {
+        if (key.isBlank()) throw IllegalArgumentException("Key must not be blank")
+    }
+
     /**
      * A description of what the entry does.
      */

@@ -1,5 +1,6 @@
 package net.bjoernpetersen.musicbot.api.config
 
+import net.bjoernpetersen.musicbot.test.api.config.ConfigExtension
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
