@@ -5,8 +5,14 @@ import net.bjoernpetersen.musicbot.api.player.StopState
 
 typealias PlayerStateListener = (oldState: PlayerState, newState: PlayerState) -> Unit
 
+/**
+ * A player which handles the current playback and takes songs from the queue.
+ */
 interface Player {
 
+    /**
+     * The current state of the player.
+     */
     val state: PlayerState
 
     /**
@@ -53,5 +59,8 @@ interface Player {
      */
     suspend fun next()
 
+    /**
+     * Stop auto-playing and close all resources. Calling this method renders the object unusable.
+     */
     suspend fun close()
 }
