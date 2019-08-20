@@ -6,7 +6,10 @@ import kotlin.reflect.KClass
 import kotlin.reflect.full.isSubclassOf
 
 /**
- * Find the immediate dependencies of a plugin.
+ * Find the immediate plugin dependencies of a plugin.
+ *
+ * This does not include any dependencies that do not extend [Plugin] since those don't need to be
+ * enabled or disabled.
  */
 fun Plugin.findDependencies(): Set<KClass<out Plugin>> {
     return InjectionPoint.forInstanceMethodsAndFields(this::class.java)
