@@ -121,7 +121,7 @@ data class FullUser(
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other !is GuestUser) return false
+        if (other !is FullUser) return false
 
         if (name != other.name) return false
 
