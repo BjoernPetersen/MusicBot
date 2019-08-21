@@ -104,27 +104,25 @@ class DefaultDatabaseTest {
 
         @TestFactory
         fun findUser(): List<DynamicTest> {
-            return listOf(KNOWN_USER, KNOWN_USER.toUpperCase(), "  $KNOWN_USER  ")
-                .map {
-                    dynamicTest("\"$it\"") {
-                        val user = assertDoesNotThrow { database.findUser(it) }
-                        val expected = users.first()
-                        assertEquals(expected.name, user.name)
-                        assertEquals(expected.permissions, user.permissions)
-                    }
+            return KNOWN_USER_VARIATIONS.map {
+                dynamicTest("\"$it\"") {
+                    val user = assertDoesNotThrow { database.findUser(it) }
+                    val expected = users.first()
+                    assertEquals(expected.name, user.name)
+                    assertEquals(expected.permissions, user.permissions)
                 }
+            }
         }
 
         @TestFactory
         fun insertDuplicate(): List<DynamicTest> {
-            return listOf(KNOWN_USER, KNOWN_USER.toUpperCase(), "  $KNOWN_USER  ")
-                .map {
-                    dynamicTest("\"$it\"") {
-                        assertThrows<DuplicateUserException> {
-                            database.insertUser(FullUser(KNOWN_USER, emptySet(), HASH2), HASH2)
-                        }
+            return KNOWN_USER_VARIATIONS.map {
+                dynamicTest("\"$it\"") {
+                    assertThrows<DuplicateUserException> {
+                        database.insertUser(FullUser(KNOWN_USER, emptySet(), HASH2), HASH2)
                     }
                 }
+            }
         }
 
         @Test
@@ -157,6 +155,7 @@ class DefaultDatabaseTest {
         const val FILE_EXTENSION = "db"
 
         const val KNOWN_USER = "known"
+        val KNOWN_USER_VARIATIONS = listOf(KNOWN_USER, KNOWN_USER.toUpperCase(), "  $KNOWN_USER  ")
         const val KNOWN_USER2 = "known2"
         const val PASS = ";jkl345;ljkdfg"
         val HASH = BCrypt.hashpw(PASS, BCrypt.gensalt())!!
