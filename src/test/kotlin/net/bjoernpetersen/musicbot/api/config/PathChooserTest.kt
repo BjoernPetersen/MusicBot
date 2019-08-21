@@ -1,31 +1,28 @@
 package net.bjoernpetersen.musicbot.api.config
 
-import net.bjoernpetersen.musicbot.test.api.config.ConfigExtension
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import org.junit.jupiter.api.extension.ExtendWith
 
-@ExtendWith(ConfigExtension::class)
 class PathChooserTest {
     @Test
-    fun `isDirectory and isFile`(config: Config) {
-        PathChooser(true, true)
+    fun `isDirectory and isFile`() {
+        PathChooser(isDirectory = true, isOpen = true)
     }
 
     @Test
-    fun `not isDirectory and isFile`(config: Config) {
-        PathChooser(false, true)
+    fun `not isDirectory and isFile`() {
+        PathChooser(isDirectory = false, isOpen = true)
     }
 
     @Test
-    fun `isDirectory and not isFile`(config: Config) {
+    fun `isDirectory and not isFile`() {
         assertThrows<IllegalArgumentException> {
-            PathChooser(true, false)
+            PathChooser(isDirectory = true, isOpen = false)
         }
     }
 
     @Test
-    fun `not isDirectory and not isFile`(config: Config) {
-        PathChooser(false, false)
+    fun `not isDirectory and not isFile`() {
+        PathChooser(isDirectory = false, isOpen = false)
     }
 }
