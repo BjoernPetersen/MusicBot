@@ -5,11 +5,11 @@ import net.bjoernpetersen.musicbot.api.auth.DuplicateUserException
 import net.bjoernpetersen.musicbot.api.auth.FullUser
 import net.bjoernpetersen.musicbot.api.auth.Permission
 import net.bjoernpetersen.musicbot.api.auth.UserNotFoundException
+import net.bjoernpetersen.musicbot.api.auth.toId
 import net.bjoernpetersen.musicbot.spi.auth.UserDatabase
 import java.sql.DriverManager
 import java.sql.SQLException
 import java.util.HashSet
-import java.util.Locale
 
 internal class DefaultDatabase(databaseUrl: String) : UserDatabase {
     private val connection = DriverManager.getConnection(databaseUrl)
@@ -46,8 +46,8 @@ internal class DefaultDatabase(databaseUrl: String) : UserDatabase {
         .split(permissionString)
         .mapTo(HashSet()) { Permission.matchByLabel(it) }
 
-    override fun findUser(name: String): FullUser? {
-        val id = name.toLowerCase(Locale.US)
+    override fun findUser(name: String): FullUser {
+        val id = name.toId()
         synchronized(getUser) {
             try {
                 getUser.clearParameters()
@@ -57,9 +57,7 @@ internal class DefaultDatabase(databaseUrl: String) : UserDatabase {
                 var permissionString: String
                 getUser.executeQuery().use { resultSet ->
                     if (!resultSet.next()) {
-                        throw UserNotFoundException(
-                            "No such user: $id"
-                        )
+                        throw UserNotFoundException("No such user: $id")
                     }
                     dbName = resultSet.getString("name")
                     hash = resultSet.getString("password")
@@ -92,7 +90,7 @@ internal class DefaultDatabase(databaseUrl: String) : UserDatabase {
 
     @Suppress("MagicNumber")
     override fun insertUser(user: FullUser, hash: String) {
-        val id = user.name.toLowerCase(Locale.US)
+        val id = user.name.toId()
         val permissionString = user.permissions.joinToString(",") { it.label }
         synchronized(createUser) {
             try {
@@ -109,8 +107,8 @@ internal class DefaultDatabase(databaseUrl: String) : UserDatabase {
     }
 
     @Suppress("MagicNumber")
-    override fun updatePassword(user: FullUser, hash: String) {
-        val id = user.name.toLowerCase(Locale.US)
+    override fun updatePassword(name: String, hash: String) {
+        val id = name.toId()
         synchronized(updatePassword) {
             updatePassword.clearParameters()
             updatePassword.setString(1, hash)
@@ -119,8 +117,9 @@ internal class DefaultDatabase(databaseUrl: String) : UserDatabase {
         }
     }
 
+    @Suppress("MagicNumber")
     override fun updatePermissions(name: String, permissions: Set<Permission>) {
-        val id = name.toLowerCase(Locale.US)
+        val id = name.toId()
         synchronized(updatePermissions) {
             updatePermissions.clearParameters()
             val permissionString = permissions.joinToString(",") { it.label }
@@ -131,7 +130,7 @@ internal class DefaultDatabase(databaseUrl: String) : UserDatabase {
     }
 
     override fun deleteUser(name: String) {
-        val id = name.toLowerCase(Locale.US)
+        val id = name.toId()
         synchronized(deleteUser) {
             deleteUser.clearParameters()
             deleteUser.setString(1, id)

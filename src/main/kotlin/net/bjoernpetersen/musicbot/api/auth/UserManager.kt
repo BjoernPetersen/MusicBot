@@ -15,7 +15,6 @@ import java.time.Duration
 import java.time.Instant
 import java.util.Date
 import java.util.HashMap
-import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -47,7 +46,7 @@ class UserManager @Inject constructor(
             throw DuplicateUserException("User already exists: $name")
         } catch (expected: UserNotFoundException) {
             val user = GuestUser(name, id)
-            temporaryUsers[user.name.toLowerCase(Locale.US)] = user
+            temporaryUsers[user.name.toId()] = user
             return user
         }
     }
@@ -57,7 +56,7 @@ class UserManager @Inject constructor(
         if (BotUser.name == name) {
             return BotUser
         }
-        return temporaryUsers[name.toLowerCase(Locale.US)]
+        return temporaryUsers[name.toId()]
             ?: userDatabase.findUser(name)
             ?: throw UserNotFoundException(
                 "Could not find user: $name"
@@ -86,7 +85,7 @@ class UserManager @Inject constructor(
         return FullUser(user.name, user.permissions, hash).also {
             if (user is GuestUser) {
                 userDatabase.insertUser(it, hash)
-                temporaryUsers.remove(user.name.toLowerCase(Locale.US))
+                temporaryUsers.remove(user.name.toId())
             } else {
                 userDatabase.updatePassword(it, hash)
             }
