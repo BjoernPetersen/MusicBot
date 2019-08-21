@@ -28,7 +28,7 @@ internal class PlayerHistoryImpl @Inject private constructor(player: Player) : P
         else history
     }
 
-    private companion object {
+    companion object {
         const val MAX_SIZE = 40
     }
 }

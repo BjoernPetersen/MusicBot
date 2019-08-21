@@ -7,12 +7,9 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
-import mu.KotlinLogging
 import name.falgout.jeffrey.testing.junit.guice.GuiceExtension
 import name.falgout.jeffrey.testing.junit.guice.IncludeModule
 import net.bjoernpetersen.musicbot.api.auth.BotUser
-import net.bjoernpetersen.musicbot.api.config.Config
-import net.bjoernpetersen.musicbot.api.loader.NoResource
 import net.bjoernpetersen.musicbot.api.module.DefaultPlayerModule
 import net.bjoernpetersen.musicbot.api.module.DefaultQueueModule
 import net.bjoernpetersen.musicbot.api.player.ErrorState
@@ -20,21 +17,13 @@ import net.bjoernpetersen.musicbot.api.player.PauseState
 import net.bjoernpetersen.musicbot.api.player.PlayState
 import net.bjoernpetersen.musicbot.api.player.PlayerState
 import net.bjoernpetersen.musicbot.api.player.QueueEntry
-import net.bjoernpetersen.musicbot.api.player.Song
 import net.bjoernpetersen.musicbot.api.player.StopState
-import net.bjoernpetersen.musicbot.api.player.song
-import net.bjoernpetersen.musicbot.api.plugin.IdBase
-import net.bjoernpetersen.musicbot.spi.loader.Resource
 import net.bjoernpetersen.musicbot.spi.player.Player
 import net.bjoernpetersen.musicbot.spi.player.SongQueue
-import net.bjoernpetersen.musicbot.spi.plugin.AbstractPlayback
-import net.bjoernpetersen.musicbot.spi.plugin.BrokenSuggesterException
-import net.bjoernpetersen.musicbot.spi.plugin.NoSuchSongException
-import net.bjoernpetersen.musicbot.spi.plugin.Playback
-import net.bjoernpetersen.musicbot.spi.plugin.Provider
 import net.bjoernpetersen.musicbot.spi.plugin.Suggester
-import net.bjoernpetersen.musicbot.spi.plugin.management.InitStateWriter
 import net.bjoernpetersen.musicbot.test.asInstanceOf
+import net.bjoernpetersen.musicbot.test.internal.player.AlternatingSuggester
+import net.bjoernpetersen.musicbot.test.internal.player.DummyProvider
 import net.bjoernpetersen.musicbot.test.spi.loader.DummyResourceCache
 import net.bjoernpetersen.musicbot.test.spi.player.DummySongPlayedNotifier
 import net.bjoernpetersen.musicbot.test.spi.player.songNotifierCallback
@@ -49,7 +38,6 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestFactory
 import org.junit.jupiter.api.extension.ExtendWith
-import java.time.Duration
 
 @ExtendWith(GuiceExtension::class)
 @IncludeModule(DefaultQueueModule::class, DummyResourceCache.Companion::class)
@@ -72,7 +60,11 @@ class ActorPlayerTest {
 
     @Test
     fun pause(injector: Injector) {
-        val player = injector.createPlayer(AlternatingSuggester(provider))
+        val player = injector.createPlayer(
+            AlternatingSuggester(
+                provider
+            )
+        )
         runBlocking {
             player.start()
             player.next()
@@ -91,7 +83,11 @@ class ActorPlayerTest {
 
     @Test
     fun unpause(injector: Injector) {
-        val player = injector.createPlayer(AlternatingSuggester(provider))
+        val player = injector.createPlayer(
+            AlternatingSuggester(
+                provider
+            )
+        )
         runBlocking {
             player.start()
             player.next()
@@ -138,7 +134,8 @@ class ActorPlayerTest {
             }
         ).map { (name, configure) ->
             dynamicTest(name) {
-                val suggester = AlternatingSuggester(provider)
+                val suggester =
+                    AlternatingSuggester(provider)
                 val player = injector.createPlayer(suggester)
                 runBlocking {
                     player.configure(suggester)
@@ -191,7 +188,8 @@ class ActorPlayerTest {
 
         @Test
         fun `in StopState`(injector: Injector) {
-            val suggester = AlternatingSuggester(provider)
+            val suggester =
+                AlternatingSuggester(provider)
             val player = injector.createPlayer(suggester)
             runBlocking {
                 player.start()
@@ -204,7 +202,8 @@ class ActorPlayerTest {
 
         @Test
         fun `in PlayState`(injector: Injector) {
-            val suggester = AlternatingSuggester(provider)
+            val suggester =
+                AlternatingSuggester(provider)
             val player = injector.createPlayer(suggester)
             runBlocking {
                 player.next()
@@ -224,7 +223,11 @@ class ActorPlayerTest {
     inner class Listener {
         @Test
         fun pause(injector: Injector) {
-            val player = injector.createPlayer(AlternatingSuggester(provider))
+            val player = injector.createPlayer(
+                AlternatingSuggester(
+                    provider
+                )
+            )
             runBlocking {
                 player.start()
                 player.next()
@@ -253,7 +256,11 @@ class ActorPlayerTest {
 
         @Test
         fun unpause(injector: Injector) {
-            val player = injector.createPlayer(AlternatingSuggester(provider))
+            val player = injector.createPlayer(
+                AlternatingSuggester(
+                    provider
+                )
+            )
             runBlocking {
                 player.start()
                 player.next()
@@ -283,7 +290,8 @@ class ActorPlayerTest {
 
         @Test
         fun next(injector: Injector) {
-            val suggester: Suggester = AlternatingSuggester(provider)
+            val suggester: Suggester =
+                AlternatingSuggester(provider)
             val player = injector.createPlayer(suggester)
             runBlocking {
                 player.start()
@@ -314,114 +322,4 @@ class ActorPlayerTest {
         }
     }
     // TODO test feedback channel handling
-}
-
-@IdBase("Alternating")
-private class AlternatingSuggester(private val provider: DummyProvider) : Suggester {
-    private val logger = KotlinLogging.logger { }
-
-    override val name: String = "Alternating"
-    override val subject: String
-        get() = name
-    override val description: String
-        get() = name
-
-    var isBroken = false
-    private var currentIndex: Int = 0
-
-    private fun nextIndex(currentIndex: Int): Int = (currentIndex + 1) % provider.songs.size
-
-    override suspend fun getNextSuggestions(maxLength: Int): List<Song> {
-        if (isBroken) throw BrokenSuggesterException()
-        return generateSequence(currentIndex, ::nextIndex)
-            .take(provider.songs.size)
-            .take(maxLength)
-            .map { provider[it] }
-            .toList()
-    }
-
-    override suspend fun suggestNext(): Song {
-        if (isBroken) throw BrokenSuggesterException()
-        return provider[currentIndex]
-    }
-
-    override suspend fun removeSuggestion(song: Song) {
-        if (song == provider[currentIndex]) {
-            currentIndex = nextIndex(currentIndex)
-        }
-    }
-
-    override fun createConfigEntries(config: Config): List<Config.Entry<*>> = emptyList()
-    override fun createSecretEntries(secrets: Config): List<Config.Entry<*>> = emptyList()
-    override fun createStateEntries(state: Config) = Unit
-    override suspend fun initialize(initStateWriter: InitStateWriter) = Unit
-    override suspend fun close() {
-        isBroken = true
-    }
-}
-
-@IdBase("Dummy")
-private class DummyProvider : Provider {
-    override val name: String = "Dummy"
-    override val subject: String
-        get() = name
-    override val description: String
-        get() = name
-
-    val songs = listOf(createSong("one"), createSong("two"))
-
-    operator fun component1(): Song = songs[0]
-    operator fun component2(): Song = songs[1]
-
-    operator fun get(index: Int) = songs[index]
-
-    override suspend fun search(query: String, offset: Int): List<Song> {
-        return songs.filter { it.id in query }
-    }
-
-    override suspend fun lookup(id: String): Song {
-        return songs.firstOrNull { it.id == id } ?: throw NoSuchSongException(id)
-    }
-
-    override suspend fun supplyPlayback(song: Song, resource: Resource): Playback = DummyPlayback()
-
-    override suspend fun loadSong(song: Song): Resource = NoResource
-    override fun createConfigEntries(config: Config): List<Config.Entry<*>> = emptyList()
-    override fun createSecretEntries(secrets: Config): List<Config.Entry<*>> = emptyList()
-    override fun createStateEntries(state: Config) = Unit
-    override suspend fun initialize(initStateWriter: InitStateWriter) = Unit
-    override suspend fun close() = Unit
-
-    private fun createSong(id: String): Song = song(id) {
-        title = "title-$id"
-        description = "description-$id"
-        duration = DURATION.seconds.toInt()
-    }
-
-    private class DummyPlayback : AbstractPlayback() {
-        private var started = false
-        override suspend fun play() {
-            if (!started) {
-                delay(LOADING_TIME.toMillis())
-                launch {
-                    delay(DURATION.toMillis())
-                    markDone()
-                }
-                started = true
-            }
-        }
-
-        override suspend fun pause() = Unit
-
-        override suspend fun close() {
-            delay(CLOSING_TIME.toMillis())
-            super.close()
-        }
-    }
-
-    companion object {
-        val DURATION: Duration = Duration.ofSeconds(10)
-        val LOADING_TIME: Duration = Duration.ofSeconds(1)
-        val CLOSING_TIME: Duration = Duration.ofMillis(500)
-    }
 }
