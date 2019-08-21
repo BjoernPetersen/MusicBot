@@ -114,6 +114,8 @@ internal class DefaultDatabase(databaseUrl: String) : UserDatabase {
             updatePassword.setString(1, hash)
             updatePassword.setString(2, id)
             updatePassword.execute()
+            if (updatePassword.updateCount == 0)
+                throw UserNotFoundException("Can't update user because it does not exist: $name")
         }
     }
 
@@ -126,6 +128,8 @@ internal class DefaultDatabase(databaseUrl: String) : UserDatabase {
             updatePermissions.setString(1, permissionString)
             updatePermissions.setString(2, id)
             updatePermissions.execute()
+            if (updatePermissions.updateCount == 0)
+                throw UserNotFoundException("Can't update user because it does not exist: $name")
         }
     }
 
