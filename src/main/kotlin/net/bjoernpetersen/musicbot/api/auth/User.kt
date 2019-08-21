@@ -147,3 +147,8 @@ object BotUser : User() {
     override val permissions: Set<Permission> = emptySet()
     override fun hasPassword(password: String): Boolean = false
 }
+
+/**
+ * Creates an ID from a user's name.
+ */
+fun String.toId(): String = trim().toLowerCase(Locale.US)
