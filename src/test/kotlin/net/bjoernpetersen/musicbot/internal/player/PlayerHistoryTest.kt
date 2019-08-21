@@ -69,7 +69,7 @@ class PlayerHistoryTest {
     }
 
     @Test
-    fun `negative limit`(injector: Injector, queue: SongQueue) {
+    fun `negative limit`(injector: Injector) {
         val suggester: Suggester = AlternatingSuggester(provider)
         val childInjector = injector.createChild(suggester)
         val player = childInjector.getInstance(Player::class.java)
@@ -86,7 +86,7 @@ class PlayerHistoryTest {
     }
 
     @Test
-    fun `zero limit`(injector: Injector, queue: SongQueue) {
+    fun `zero limit`(injector: Injector) {
         val suggester: Suggester = AlternatingSuggester(provider)
         val childInjector = injector.createChild(suggester)
         val player = childInjector.getInstance(Player::class.java)
@@ -102,7 +102,7 @@ class PlayerHistoryTest {
     }
 
     @Test
-    fun `limit above max size`(injector: Injector, queue: SongQueue) {
+    fun `limit above max size`(injector: Injector) {
         val suggester: Suggester = AlternatingSuggester(provider)
         val childInjector = injector.createChild(suggester)
         val player = childInjector.getInstance(Player::class.java)
@@ -118,7 +118,7 @@ class PlayerHistoryTest {
     }
 
     @Test
-    fun `limit above history size`(injector: Injector, queue: SongQueue) {
+    fun `limit above history size`(injector: Injector) {
         val suggester: Suggester = AlternatingSuggester(provider)
         val childInjector = injector.createChild(suggester)
         val player = childInjector.getInstance(Player::class.java)
