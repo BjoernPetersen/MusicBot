@@ -3,6 +3,7 @@ package net.bjoernpetersen.musicbot.api.auth
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import com.auth0.jwt.exceptions.JWTVerificationException
+import com.auth0.jwt.exceptions.SignatureVerificationException
 import mu.KotlinLogging
 import net.bjoernpetersen.musicbot.api.config.Config
 import net.bjoernpetersen.musicbot.api.config.ConfigManager
@@ -204,41 +205,57 @@ class UserManager @Inject constructor(
     @Suppress("ThrowsCount", "unused")
     @Throws(InvalidTokenException::class)
     fun fromToken(token: String): User {
-        try {
-            val decoded = JWT
+        return try {
+            decodeFullUserToken(token)
+        } catch (e: SignatureVerificationException) {
+            // try again with guest signature key
+            decodeGuestUserToken(token)
+        }
+    }
+
+    @Throws(InvalidTokenException::class, SignatureVerificationException::class)
+    private fun decodeFullUserToken(token: String): FullUser {
+        val decoded = try {
+            JWT
                 .require(Algorithm.HMAC512(getSignatureKey()))
                 .build()
                 .verify(token)
-            val name = decoded.subject ?: throw InvalidTokenException("subject missing")
-            val permissions: Set<Permission> = decoded
-                .getClaim("permissions")
-                .asList(String::class.java)
-                .mapNotNull {
-                    try {
-                        Permission.matchByLabel(it)
-                    } catch (e: IllegalArgumentException) {
-                        logger.error { "Unknown permission in token: $it" }
-                        null
-                    }
-                }
-                .toSet()
-
-            return FullUser(name, permissions, "")
+        } catch (e: SignatureVerificationException) {
+            // This one should be propagated
+            throw e
         } catch (e: JWTVerificationException) {
-            // try again with guest signature key
-            val decoded = try {
-                JWT
-                    .require(Algorithm.HMAC512(guestSignatureKey))
-                    .build()
-                    .verify(token)
-            } catch (e1: JWTVerificationException) {
-                e1.addSuppressed(e)
-                throw InvalidTokenException(e1)
-            }
-
-            val name = decoded.subject ?: throw InvalidTokenException("subject missing")
-            return GuestUser(name, "")
+            throw InvalidTokenException(e)
         }
+        val name = decoded.subject ?: throw InvalidTokenException("subject missing")
+        val permissions: Set<Permission> = decoded
+            .getClaim("permissions")
+            .asList(String::class.java)
+            .mapNotNull {
+                try {
+                    Permission.matchByLabel(it)
+                } catch (e: IllegalArgumentException) {
+                    logger.error { "Unknown permission in token: $it" }
+                    null
+                }
+            }
+            .toSet()
+
+        return FullUser(name, permissions, "")
+    }
+
+    @Throws(InvalidTokenException::class)
+    private fun decodeGuestUserToken(token: String): GuestUser {
+        val decoded = try {
+            JWT
+                .require(Algorithm.HMAC512(guestSignatureKey))
+                .build()
+                .verify(token)
+        } catch (e: JWTVerificationException) {
+            throw InvalidTokenException(e)
+        }
+
+        val name = decoded.subject ?: throw InvalidTokenException("subject missing")
+        return GuestUser(name, "")
     }
 
     private fun getSignatureKey(): String {
