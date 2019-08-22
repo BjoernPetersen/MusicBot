@@ -168,6 +168,7 @@ private class SyncPlayer @Inject private constructor(
         }
     }
 
+    @Suppress("ReturnCount")
     override suspend fun next() {
         logger.debug("Next...")
 
