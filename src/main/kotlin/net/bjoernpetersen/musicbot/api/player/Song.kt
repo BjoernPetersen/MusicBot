@@ -97,15 +97,41 @@ private fun remoteToLocalPath(remoteUrl: String): String {
     return "${ImageServerConstraints.REMOTE_PATH}/${remoteUrl.encode()}"
 }
 
+/**
+ * Configuration object for the Song DSL.
+ *
+ * ### Required
+ *
+ * - [title]
+ * - [description]
+ *
+ * ### Optional
+ *
+ * - [duration]
+ * - [serveRemoteImage] (for local images just implement [AlbumArtSupplier])
+ */
 class SongConfiguration internal constructor(val id: String, val provider: Provider) {
     private val namedPlugin = provider.toNamedPlugin()
+    /**
+     * @see Song.title
+     */
     lateinit var title: String
+    /**
+     * @see Song.description
+     */
     lateinit var description: String
+    /**
+     * @see Song.duration
+     */
     var duration: Int? = null
     private var albumArtPath: String? = null
     // TODO remove when albumArtUrl property is removed
     private var remoteUrl: String? = null
 
+    /**
+     * Configure the song to serve local album art images using the associated [provider] as an
+     * [AlbumArtSupplier].
+     */
     @Deprecated(
         "This is called automatically for implementations of AlbumArtSupplier",
         level = DeprecationLevel.WARNING
@@ -115,6 +141,11 @@ class SongConfiguration internal constructor(val id: String, val provider: Provi
             "${ImageServerConstraints.LOCAL_PATH}/${namedPlugin.id.encode()}/${id.encode()}"
     }
 
+    /**
+     * Serve the song's album art by loading the remote image found at [url].
+     *
+     * @param url a URL pointing to an album art image
+     */
     @Suppress("unused")
     fun serveRemoteImage(url: String) {
         remoteUrl = url
@@ -131,8 +162,17 @@ class SongConfiguration internal constructor(val id: String, val provider: Provi
     }
 }
 
-fun Provider.toNamedPlugin(): NamedPlugin<Provider> = NamedPlugin(id.qualifiedName!!, subject)
+private fun Provider.toNamedPlugin(): NamedPlugin<Provider> =
+    NamedPlugin(id.qualifiedName!!, subject)
 
+/**
+ * Create a song using the Song DSL and configure it to serve the album art using the calling
+ * AlbumArtSupplier.
+ *
+ * @param id the song's [ID][Song.id]
+ * @param configure a block in which to [configure the song][SongConfiguration]
+ * @return the created song
+ */
 @Suppress("DEPRECATION")
 fun AlbumArtSupplier.song(id: String, configure: SongConfiguration.() -> Unit): Song {
     val mutable = SongConfiguration(id, this)
@@ -141,12 +181,15 @@ fun AlbumArtSupplier.song(id: String, configure: SongConfiguration.() -> Unit): 
     return mutable.toSong()
 }
 
+/**
+ * Create a song using the Song DSL.
+ *
+ * @param id the song's [ID][Song.id]
+ * @param configure a block in which to [configure the song][SongConfiguration]
+ * @return the created song
+ */
 fun Provider.song(id: String, configure: SongConfiguration.() -> Unit): Song {
     val mutable = SongConfiguration(id, this)
     mutable.configure()
     return mutable.toSong()
 }
-
-@Deprecated("DSL is not experimental anymore", level = DeprecationLevel.ERROR)
-@Experimental(Experimental.Level.WARNING)
-annotation class ExperimentalSongDsl
