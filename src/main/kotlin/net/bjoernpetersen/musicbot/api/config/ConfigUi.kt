@@ -3,7 +3,13 @@ package net.bjoernpetersen.musicbot.api.config
 import java.io.File
 import java.nio.file.Path
 
+/**
+ * Base class for all UI node implementations.
+ *
+ * @param T the value type the associated config entry should have
+ */
 sealed class UiNode<T>
+
 /**
  * A simple, editable text box. For sensitive data, consider using [PasswordBox].
  */

@@ -1,5 +1,8 @@
 package net.bjoernpetersen.musicbot.api.image
 
+/**
+ * Constraints related to album art image serving.
+ */
 object ImageServerConstraints {
     /**
      * The path to serve (cached) remote images on.

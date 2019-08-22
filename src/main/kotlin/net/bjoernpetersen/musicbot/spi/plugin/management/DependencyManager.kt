@@ -130,15 +130,27 @@ interface DependencyManager {
      */
     fun findAvailable(base: KClass<*>): List<Plugin>
 
+    /**
+     * Find enabled plugins of type [GenericPlugin].
+     */
     @Beta
     fun findEnabledGeneric(): List<GenericPlugin> = genericPlugins.filter(::isEnabled)
 
+    /**
+     * Find enabled plugins of type [PlaybackFactory].
+     */
     @Beta
     fun findEnabledPlaybackFactory(): List<PlaybackFactory> = playbackFactories.filter(::isEnabled)
 
+    /**
+     * Find enabled plugins of type [Provider].
+     */
     @Beta
     fun findEnabledProvider(): List<Provider> = providers.filter(::isEnabled)
 
+    /**
+     * Find enabled plugins of type [Suggester].
+     */
     @Beta
     fun findEnabledSuggester(): List<Suggester> = suggesters.filter(::isEnabled)
 
@@ -173,8 +185,17 @@ interface DependencyManager {
         return result*/
     }
 
+    /**
+     * Create an immutable [PluginFinder] from the current state of this object.
+     *
+     * @return a PluginFinder
+     * @throws DependencyConfigurationException if there are problems with the current configuration
+     */
     @Throws(DependencyConfigurationException::class)
     fun finish(): PluginFinder
 }
 
+/**
+ * Thrown if there is a problem with the current plugin configuration (e.g. missing dependencies).
+ */
 class DependencyConfigurationException(message: String) : Exception(message)
