@@ -39,5 +39,5 @@ interface PluginLookup {
      * @param plugin the plugin specification
      * @return the plugin instance, or null if it can't be found
      */
-    fun <T : Plugin> lookup(plugin: NamedPlugin<T>): T? = lookup(plugin.id)
+    fun <T> lookup(plugin: NamedPlugin<T>): T? where T : Plugin, T : UserFacing = lookup(plugin.id)
 }
