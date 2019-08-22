@@ -7,6 +7,12 @@ import net.bjoernpetersen.musicbot.api.config.ConfigScope
  */
 interface ConfigStorageAdapter {
 
+    /**
+     * Loads the config entries for the specified scope.
+     *
+     * @param scope the scope for which to load the entries
+     * @return a mapping from config keys to values
+     */
     fun load(scope: ConfigScope): Map<String, String>
 
     /**
