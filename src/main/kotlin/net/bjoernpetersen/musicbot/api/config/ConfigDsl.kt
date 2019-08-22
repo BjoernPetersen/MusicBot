@@ -4,9 +4,28 @@ import net.bjoernpetersen.musicbot.spi.config.ConfigChecker
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
 
+/**
+ * Marks all parts of the Config DSL as experimental.
+ *
+ * Although it is unlikely to drastically change, there might be breaking changes without
+ * preceding deprecation.
+ */
 @Experimental
 annotation class ExperimentalConfigDsl
 
+/**
+ * An object used for configuration of a String config entry.
+ *
+ * ### Required
+ *
+ * - [description]
+ * - [check]
+ *
+ * ### Optional
+ *
+ * - [uiNode], required for non-state entries
+ * - [default]
+ */
 @ExperimentalConfigDsl
 class StringConfiguration(val key: String) {
 
@@ -69,7 +88,7 @@ fun Config.string(key: String, configure: StringConfiguration.() -> Unit): Confi
 }
 
 @ExperimentalConfigDsl
-class StringDelegate(
+private class StringDelegate(
     private val config: Config,
     private val configure: StringConfiguration.() -> Unit
 ) : ReadOnlyProperty<Any?, Config.StringEntry> {
@@ -87,8 +106,16 @@ class StringDelegate(
 @ExperimentalConfigDsl
 fun Config.string(
     configure: StringConfiguration.() -> Unit
-): StringDelegate = StringDelegate(this, configure)
+): ReadOnlyProperty<Any?, Config.StringEntry> = StringDelegate(this, configure)
 
+/**
+ * An object used for configuration of a Boolean config entry.
+ *
+ * ### Required
+ *
+ * - [description]
+ * - [default]
+ */
 @ExperimentalConfigDsl
 class BooleanConfiguration(val key: String) {
     /**
@@ -132,7 +159,7 @@ fun Config.boolean(key: String, configure: BooleanConfiguration.() -> Unit): Con
 }
 
 @ExperimentalConfigDsl
-class BooleanDelegate(
+private class BooleanDelegate(
     private val config: Config,
     private val configure: BooleanConfiguration.() -> Unit
 ) : ReadOnlyProperty<Any?, Config.BooleanEntry> {
@@ -150,17 +177,35 @@ class BooleanDelegate(
 @ExperimentalConfigDsl
 fun Config.boolean(
     configure: BooleanConfiguration.() -> Unit
-): BooleanDelegate = BooleanDelegate(this, configure)
+): ReadOnlyProperty<Any?, Config.BooleanEntry> = BooleanDelegate(this, configure)
 
+/**
+ * An object used for configuration of serialization used by [Config.SerializedEntry].
+ *
+ * ### Required
+ *
+ * - [serialize]
+ * - [deserialize]
+ *
+ * @param T the type of config value to serialize and deserialize
+ */
 @ExperimentalConfigDsl
 class SerializationConfiguration<T> {
     private lateinit var serializer: (T) -> String
     private lateinit var deserializer: (String) -> T
 
+    /**
+     * Specify how to serialize a value of type [T].
+     * The function must not throw any exceptions.
+     */
     fun serialize(action: (T) -> String) {
         this.serializer = action
     }
 
+    /**
+     * Specify how to deserialize a string to a value of type [T].
+     * The function may throw a [SerializationException].
+     */
     fun deserialize(action: (String) -> T) {
         this.deserializer = action
     }
@@ -207,6 +252,20 @@ fun <T> SerializedConfiguration<T>.serialization(
     serializer = config.toSerializer()
 }
 
+/**
+ * An object used for configuration of a serialized config entry.
+ *
+ * ### Required
+ *
+ * - [description]
+ * - [serializer]
+ * - [check]
+ *
+ * ### Optional
+ *
+ * - [uiNode], required for non-state entries
+ * - [default]
+ */
 @ExperimentalConfigDsl
 class SerializedConfiguration<T>(val key: String) {
     /**
@@ -274,7 +333,7 @@ fun <T> Config.serialized(
 }
 
 @ExperimentalConfigDsl
-class SerializedDelegate<T>(
+private class SerializedDelegate<T>(
     private val config: Config,
     private val configure: SerializedConfiguration<T>.() -> Unit
 ) : ReadOnlyProperty<Any?, Config.SerializedEntry<T>> {
@@ -292,4 +351,4 @@ class SerializedDelegate<T>(
 @ExperimentalConfigDsl
 fun <T> Config.serialized(
     configure: SerializedConfiguration<T>.() -> Unit
-): SerializedDelegate<T> = SerializedDelegate(this, configure)
+): ReadOnlyProperty<Any?, Config.SerializedEntry<T>> = SerializedDelegate(this, configure)
