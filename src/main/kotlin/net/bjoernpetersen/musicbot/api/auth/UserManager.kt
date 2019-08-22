@@ -26,6 +26,7 @@ private const val SIGNATURE_KEY_SIZE = 4096
  * Manages all users (guest and full) and creates/verifies their tokens.
  */
 @Singleton
+@Suppress("TooManyFunctions")
 class UserManager @Inject constructor(
     private val userDatabase: UserDatabase,
     configManager: ConfigManager
@@ -202,7 +203,7 @@ class UserManager @Inject constructor(
      * @return a user object
      * @throws InvalidTokenException if the structure or signature of the token are invalid
      */
-    @Suppress("ThrowsCount", "unused")
+    @Suppress("unused")
     @Throws(InvalidTokenException::class)
     fun fromToken(token: String): User {
         return try {
@@ -213,6 +214,7 @@ class UserManager @Inject constructor(
         }
     }
 
+    @Suppress("ThrowsCount")
     @Throws(InvalidTokenException::class, SignatureVerificationException::class)
     private fun decodeFullUserToken(token: String): FullUser {
         val decoded = try {
