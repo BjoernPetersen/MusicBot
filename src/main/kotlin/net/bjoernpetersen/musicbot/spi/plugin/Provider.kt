@@ -89,6 +89,9 @@ interface Provider : Plugin, UserFacing {
     }
 }
 
+/**
+ * Thrown if a song could not be found.
+ */
 class NoSuchSongException : Exception {
     /**
      * Specify the ID of the missing song.

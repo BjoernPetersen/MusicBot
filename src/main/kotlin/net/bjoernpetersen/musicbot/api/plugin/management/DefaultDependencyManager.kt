@@ -5,6 +5,7 @@ import mu.KotlinLogging
 import net.bjoernpetersen.musicbot.api.config.ChoiceBox
 import net.bjoernpetersen.musicbot.api.config.Config
 import net.bjoernpetersen.musicbot.api.config.ConfigSerializer
+import net.bjoernpetersen.musicbot.api.config.MainConfigScope
 import net.bjoernpetersen.musicbot.api.config.NonnullConfigChecker
 import net.bjoernpetersen.musicbot.api.config.SerializationException
 import net.bjoernpetersen.musicbot.api.config.UiNode
@@ -21,6 +22,15 @@ import net.bjoernpetersen.musicbot.spi.plugin.management.DependencyConfiguration
 import net.bjoernpetersen.musicbot.spi.plugin.management.DependencyManager
 import kotlin.reflect.KClass
 
+/**
+ * Default implementation of the [DependencyManager] interface.
+ *
+ * @param state a state config (usually from the [main config scope][MainConfigScope])
+ * @param genericPlugins a list of all available generic plugins
+ * @param playbackFactories a list of all available playback factories
+ * @param providers a list of all available providers
+ * @param suggesters a list of all available suggesters
+ */
 class DefaultDependencyManager(
     state: Config,
     override val genericPlugins: List<GenericPlugin>,
@@ -56,10 +66,16 @@ class DefaultDependencyManager(
     private val defaultByBase: Map<KClass<out Plugin>, Config.SerializedEntry<Plugin>> =
         allBases.associateWith { state.defaultEntry(it) }
 
-    constructor(config: Config, loader: PluginLoader) : this(config, loadPlugins(loader))
+    /**
+     * Convenience constructor which loads all plugins using the specified PluginLoader.
+     *
+     * @param state the [MainConfigScope] state config
+     * @param loader a plugin loader
+     */
+    constructor(state: Config, loader: PluginLoader) : this(state, loadPlugins(loader))
 
-    private constructor(config: Config, plugins: Plugins) : this(
-        config,
+    private constructor(state: Config, plugins: Plugins) : this(
+        state,
         plugins.generic,
         plugins.playbackFactories,
         plugins.providers,
@@ -134,6 +150,12 @@ class DefaultDependencyManager(
     }
 
     private companion object {
+        /**
+         * Loads plugins of all types using the specified loader.
+         *
+         * @param loader a plugin loader
+         * @return all loaded plugins
+         */
         fun loadPlugins(loader: PluginLoader): Plugins {
             return Plugins(
                 generic = loader.load(GenericPlugin::class).toList(),
@@ -145,6 +167,14 @@ class DefaultDependencyManager(
     }
 }
 
+/**
+ * A data class containing all plugins which have been loaded.
+ *
+ * @param generic all available generic plugins
+ * @param playbackFactories all available playback factories
+ * @param providers all available providers
+ * @param suggesters all available suggesters
+ */
 data class Plugins(
     val generic: List<GenericPlugin>,
     val playbackFactories: List<PlaybackFactory>,

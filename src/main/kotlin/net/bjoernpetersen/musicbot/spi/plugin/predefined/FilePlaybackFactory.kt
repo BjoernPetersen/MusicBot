@@ -6,7 +6,7 @@ import java.io.File
 import java.io.IOException
 
 /**
- * An extension of the {@link PlaybackFactory} interface which accepts input files.
+ * An extension of the [PlaybackFactory] interface which accepts input files.
  */
 interface FilePlaybackFactory : PlaybackFactory {
 
@@ -22,6 +22,10 @@ interface FilePlaybackFactory : PlaybackFactory {
     suspend fun createPlayback(inputFile: File): Playback
 }
 
+/**
+ * Thrown by [FilePlaybackFactory] if it can't create a Playback object for a specific file
+ * because it doesn't support its format.
+ */
 class UnsupportedAudioFileException : Exception {
     constructor() : super()
     constructor(message: String?) : super(message)

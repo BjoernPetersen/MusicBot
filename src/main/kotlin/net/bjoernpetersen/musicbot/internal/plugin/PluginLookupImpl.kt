@@ -4,6 +4,7 @@ import net.bjoernpetersen.musicbot.api.plugin.NamedPlugin
 import net.bjoernpetersen.musicbot.api.plugin.management.PluginFinder
 import net.bjoernpetersen.musicbot.spi.plugin.Plugin
 import net.bjoernpetersen.musicbot.spi.plugin.PluginLookup
+import net.bjoernpetersen.musicbot.spi.plugin.UserFacing
 import javax.inject.Inject
 import javax.inject.Named
 import kotlin.reflect.KClass
@@ -18,7 +19,7 @@ internal class PluginLookupImpl @Inject private constructor(
         return pluginFinder[base]
     }
 
-    override fun <T : Plugin> lookup(plugin: NamedPlugin<T>): T? {
+    override fun <T> lookup(plugin: NamedPlugin<T>): T? where T : Plugin, T : UserFacing {
         return lookup(plugin.id)
     }
 

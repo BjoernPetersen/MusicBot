@@ -130,6 +130,10 @@ interface Plugin {
     suspend fun close()
 }
 
+/**
+ * Marks plugin interfaces which are displayed to the end-user at some point.
+ * The plugin should be represented by its [subject] in that case.
+ */
 interface UserFacing {
     /**
      * The subject of the content provided by this plugin.

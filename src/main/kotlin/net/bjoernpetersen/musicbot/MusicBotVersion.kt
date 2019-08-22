@@ -5,6 +5,12 @@ import com.github.zafarkhaja.semver.Version
 import java.io.IOException
 import java.util.Properties
 
+/**
+ * Utility object to get the version of the current bot.
+ *
+ * This object only works correctly if a `version.properties` file is present (which it is in Gradle
+ * builds).
+ */
 object MusicBotVersion {
     /**
      * Gets the version of this MusicBot.

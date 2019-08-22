@@ -5,8 +5,17 @@ package net.bjoernpetersen.musicbot.api.config
 import java.io.File
 import java.nio.file.Path
 
+/**
+ * Configuration object for DSL.
+ *
+ * ### Required
+ *
+ * - [label]
+ * - [describe]
+ * - [action]
+ */
 @ExperimentalConfigDsl
-class ActionButtonConfiguration<T> {
+class ActionButtonConfiguration<T> internal constructor() {
     /**
      * @see ActionButton.label
      */
@@ -19,6 +28,7 @@ class ActionButtonConfiguration<T> {
 
     /**
      * Describe the entry value as a string.
+     *
      * @see ActionButton.descriptor
      */
     fun describe(descriptor: (T) -> String) {
@@ -179,8 +189,20 @@ fun SerializedConfiguration<File>.saveLegacyFile() {
     uiNode = FileChooser(isDirectory = false, isOpen = false)
 }
 
+/**
+ * Configuration object for DSL.
+ *
+ * ### Required
+ *
+ * - [describe]
+ * - [refresh]
+ *
+ * ### Optional
+ *
+ * - [lazy]
+ */
 @ExperimentalConfigDsl
-class ChoiceBoxConfiguration<T> {
+class ChoiceBoxConfiguration<T> internal constructor() {
     private lateinit var descriptor: (T) -> String
     private lateinit var onRefresh: suspend () -> List<T>?
     private var lazy: Boolean = false

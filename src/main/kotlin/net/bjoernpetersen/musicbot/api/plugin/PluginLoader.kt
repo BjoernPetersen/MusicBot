@@ -11,9 +11,18 @@ import java.util.ServiceConfigurationError
 import java.util.ServiceLoader
 import kotlin.reflect.KClass
 
+/**
+ * Loads plugins from jar-files from the specified folder.
+ *
+ * @param pluginFolder a folder directly containing plugin jars.
+ */
 class PluginLoader(private val pluginFolder: File) {
 
     private val logger = KotlinLogging.logger {}
+
+    /**
+     * The ClassLoader used to load the plugins.
+     */
     val loader: ClassLoader by lazy { createLoader() }
 
     @Throws(MalformedURLException::class)
@@ -38,6 +47,12 @@ class PluginLoader(private val pluginFolder: File) {
         return URLClassLoader(urls, javaClass.classLoader)
     }
 
+    /**
+     * Loads all plugins extending the specified [type].
+     *
+     * @param type a service interface
+     * @return all found plugins registered for that service type
+     */
     @Suppress("TooGenericExceptionCaught")
     fun <T : Plugin> load(type: KClass<T>): Collection<T> {
         val result = LinkedList<T>()
@@ -71,6 +86,9 @@ class PluginLoader(private val pluginFolder: File) {
     }
 }
 
+/**
+ * Thrown if a plugin could not be loaded.
+ */
 class PluginLoadingException : Exception {
     constructor() : super()
     constructor(message: String) : super(message)

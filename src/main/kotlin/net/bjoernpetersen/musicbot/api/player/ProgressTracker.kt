@@ -8,9 +8,11 @@ import java.time.Instant
 import javax.inject.Inject
 import javax.inject.Singleton
 
+/**
+ * Tracks the progress of the current song.
+ */
 @Singleton
 class ProgressTracker @Inject private constructor() {
-
     private val logger = KotlinLogging.logger {}
 
     private val mutex = Mutex()

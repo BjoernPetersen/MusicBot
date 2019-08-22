@@ -97,8 +97,15 @@ interface Playback {
      */
     suspend fun pause()
 
+    /**
+     * Suspends the calling function until the playback has finished playing or is closed.
+     */
     suspend fun waitForFinish()
 
+    /**
+     * Closes the playback, releases all resources held by it and triggers a release of all waiting
+     * coroutines which called [waitForFinish].
+     */
     @Throws(Exception::class)
     suspend fun close()
 }

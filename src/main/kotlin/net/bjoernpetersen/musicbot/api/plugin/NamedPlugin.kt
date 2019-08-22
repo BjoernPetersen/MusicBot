@@ -6,18 +6,32 @@ import net.bjoernpetersen.musicbot.spi.plugin.UserFacing
 import kotlin.reflect.KClass
 
 /**
- * Static, serializable representation of a plugin.
+ * Static, serializable representation of a [user-facing][UserFacing] plugin.
  *
  * @param id the qualified name of the plugin's [ID base][IdBase]
  * @param name the plugin's [subject][UserFacing.subject]
  */
-data class NamedPlugin<out T : Plugin>(
+data class NamedPlugin<out T>(
     val id: String,
     val name: String
-) {
+) where T : Plugin, T : UserFacing {
 
+    /**
+     * Convenience constructor to create an instance using the ID base class.
+     *
+     * @param idClass ID base class
+     * @param name the plugin's [subject][UserFacing.subject]
+     */
     constructor(idClass: KClass<out T>, name: String) : this(idClass.java.name, name)
 
+    /**
+     * Look up the plugin represented by this object.
+     *
+     * @param classLoader the plugin ClassLoader
+     * @param pluginFinder the PluginFinder to use for the lookup
+     * @return the instance of the plugin
+     * @throws IllegalStateException if the instance can't be found
+     */
     @Suppress("ThrowsCount")
     @Deprecated("Use PluginLookup", ReplaceWith("PluginLookup.lookup(this)"))
     @Throws(IllegalStateException::class)

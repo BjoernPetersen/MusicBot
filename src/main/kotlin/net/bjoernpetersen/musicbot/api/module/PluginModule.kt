@@ -13,6 +13,12 @@ import net.bjoernpetersen.musicbot.spi.plugin.Provider
 import net.bjoernpetersen.musicbot.spi.plugin.Suggester
 import kotlin.reflect.KClass
 
+/**
+ * Injects all plugins found in the specified [pluginFinder].
+ *
+ * @param pluginFinder a [PluginFinder] instance containing all plugins,
+ * including their dependencies.
+ */
 class PluginModule(private val pluginFinder: PluginFinder) : AbstractModule() {
     private fun configureDefaults() {
         pluginFinder.defaultBases.forEach {

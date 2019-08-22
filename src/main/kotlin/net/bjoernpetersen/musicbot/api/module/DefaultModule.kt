@@ -1,7 +1,6 @@
 package net.bjoernpetersen.musicbot.api.module
 
 import com.google.inject.AbstractModule
-import com.google.inject.Injector
 import com.google.inject.Provides
 import com.google.inject.Scopes
 import net.bjoernpetersen.musicbot.internal.auth.DefaultDatabase
@@ -21,43 +20,64 @@ import net.bjoernpetersen.musicbot.spi.plugin.PlaybackFeedbackChannel
 import net.bjoernpetersen.musicbot.spi.plugin.Suggester
 import javax.inject.Singleton
 
+/**
+ * Binds the [ActorPlayer] and its [ActorPlaybackFeedbackChannel] for
+ * the [Player] and [PlaybackFeedbackChannel] respectively.
+ */
 class DefaultPlayerModule(suggester: Suggester?) : PlayerModule(suggester) {
-    @Provides
-    @Singleton
-    fun provideFeedbackChannel(injector: Injector): PlaybackFeedbackChannel {
-        return injector.getInstance(ActorPlaybackFeedbackChannel::class.java)
-    }
-
     override fun configure() {
         super.configure()
-        bind(Player::class.java).to(ActorPlayer::class.java).`in`(Scopes.SINGLETON)
+        bind(PlaybackFeedbackChannel::class.java)
+            .to(ActorPlaybackFeedbackChannel::class.java)
+            .`in`(Scopes.SINGLETON)
+        bind(Player::class.java)
+            .to(ActorPlayer::class.java)
+            .`in`(Scopes.SINGLETON)
     }
 }
 
+/**
+ * Binds [DefaultQueue] as [SongQueue].
+ */
 class DefaultQueueModule : AbstractModule() {
     override fun configure() {
         bind(SongQueue::class.java).to(DefaultQueue::class.java).`in`(Scopes.SINGLETON)
     }
 }
 
+/**
+ * Binds [DefaultSongLoader] as [SongLoader].
+ */
 class DefaultSongLoaderModule : AbstractModule() {
     override fun configure() {
         bind(SongLoader::class.java).to(DefaultSongLoader::class.java).`in`(Scopes.SINGLETON)
     }
 }
 
+/**
+ * Binds [DefaultDatabase] as [UserDatabase].
+ */
 class DefaultUserDatabaseModule(private val databaseUrl: String) : AbstractModule() {
+    /**
+     * Supplies a default user database implementation.
+     */
     @Provides
     @Singleton
     fun provideUserDatabase(): UserDatabase = DefaultDatabase(databaseUrl)
 }
 
+/**
+ * Binds [DefaultResourceCache] as [ResourceCache].
+ */
 class DefaultResourceCacheModule : AbstractModule() {
     override fun configure() {
         bind(ResourceCache::class.java).to(DefaultResourceCache::class.java).`in`(Scopes.SINGLETON)
     }
 }
 
+/**
+ * Binds [DefaultImageCache] as [ImageCache].
+ */
 class DefaultImageCacheModule : AbstractModule() {
     override fun configure() {
         bind(ImageCache::class.java).to(DefaultImageCache::class.java).`in`(Scopes.SINGLETON)

@@ -7,6 +7,13 @@ import net.bjoernpetersen.musicbot.internal.player.PlayerHistoryImpl
 import net.bjoernpetersen.musicbot.spi.player.PlayerHistory
 import net.bjoernpetersen.musicbot.spi.plugin.Suggester
 
+/**
+ * Abstract base module for player modules.
+ *
+ * This module binds [DefaultSuggester] and [PlayerHistory], but not the actual player.
+ *
+ * @param suggester the suggester to bind as [DefaultSuggester]
+ */
 abstract class PlayerModule(private val suggester: Suggester?) : AbstractModule() {
     override fun configure() {
         bind(DefaultSuggester::class.java).toInstance(DefaultSuggester(suggester))

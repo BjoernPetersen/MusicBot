@@ -2,6 +2,9 @@ package net.bjoernpetersen.musicbot.spi.plugin.predefined
 
 import net.bjoernpetersen.musicbot.api.plugin.Base
 
+/**
+ * Marks all video-playback-related interfaces as experimental.
+ */
 @Experimental(Experimental.Level.WARNING)
 annotation class ExperimentalVideoFilePlayback
 
