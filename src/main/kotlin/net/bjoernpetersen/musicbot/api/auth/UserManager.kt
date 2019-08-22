@@ -10,7 +10,6 @@ import net.bjoernpetersen.musicbot.api.config.GenericConfigScope
 import net.bjoernpetersen.musicbot.spi.auth.UserDatabase
 import org.mindrot.jbcrypt.BCrypt
 import java.security.SecureRandom
-import java.sql.SQLException
 import java.time.Duration
 import java.time.Instant
 import java.util.Date
@@ -22,12 +21,14 @@ private const val TEMPORARY_USER_CAPACITY = 32
 private const val TOKEN_TTL_MINUTES = 10L
 private const val SIGNATURE_KEY_SIZE = 4096
 
+/**
+ * Manages all users (guest and full) and creates/verifies their tokens.
+ */
 @Singleton
 class UserManager @Inject constructor(
     private val userDatabase: UserDatabase,
     configManager: ConfigManager
 ) {
-
     private val logger = KotlinLogging.logger { }
 
     private val secrets = configManager[GenericConfigScope(UserManager::class)].state
@@ -35,6 +36,16 @@ class UserManager @Inject constructor(
     private val guestSignatureKey: String = createSignatureKey()
     private val temporaryUsers: MutableMap<String, GuestUser> = HashMap(TEMPORARY_USER_CAPACITY)
 
+    /**
+     * Creates a temporary/guest user. This user is only valid for the duration of the current
+     * bot lifetime.
+     *
+     * @param name the unique name of the new user
+     * @param id an auto-generated password for the user (for example a UUID)
+     * @return the generated user
+     * @throws DuplicateUserException if a user with that name already exists
+     */
+    @Suppress("unused")
     @Throws(DuplicateUserException::class)
     fun createTemporaryUser(name: String, id: String): User {
         if (BotUser.name.equals(name, ignoreCase = true))
@@ -51,31 +62,32 @@ class UserManager @Inject constructor(
         }
     }
 
+    /**
+     * Gets a user by the specified name.
+     *
+     * @param name the unique name identifying the user
+     * @return the user with that name (possibly with different capitalization)
+     * @throws UserNotFoundException if no such user exists
+     */
     @Throws(UserNotFoundException::class)
     fun getUser(name: String): User {
-        if (BotUser.name == name) {
+        if (BotUser.name.equals(name, ignoreCase = true)) {
             return BotUser
         }
         return temporaryUsers[name.toId()]
             ?: userDatabase.findUser(name)
-            ?: throw UserNotFoundException(
-                "Could not find user: $name"
-            )
     }
 
     /**
-     * Updates the specified users password.
+     * Updates the specified user's password.
      *
      * If the user is a guest, this will make them a full user.
      *
      * @param user the user name
      * @param password the new password
      * @return a new, valid user object
-     * @throws DuplicateUserException if the specified user was a guest and a full user with the same
-     * name already existed
-     * @throws SQLException if any SQL errors occur
      */
-    @Throws(DuplicateUserException::class, SQLException::class)
+    @Suppress("unused")
     fun updateUser(user: User, password: String): FullUser {
         if (password.isEmpty()) {
             throw IllegalArgumentException()
@@ -84,41 +96,90 @@ class UserManager @Inject constructor(
         val hash = hash(password)
         return FullUser(user.name, user.permissions, hash).also {
             if (user is GuestUser) {
-                userDatabase.insertUser(it, hash)
+                try {
+                    userDatabase.insertUser(it, hash)
+                } catch (e: DuplicateUserException) {
+                    throw IllegalStateException("Full and guest user with same name exist!", e)
+                }
                 temporaryUsers.remove(user.name.toId())
             } else {
-                userDatabase.updatePassword(it, hash)
+                userDatabase.updatePassword(it.name, hash)
             }
         }
     }
 
-    @Throws(SQLException::class)
+    /**
+     * Updates a user's permissions.
+     *
+     * @param user the user whose permissions should be updated
+     * @param permissions the new set of permissions
+     * @return a new user object with the new permissions
+     * @throws IllegalArgumentException if the specified user is a guest user
+     */
+    @Deprecated(
+        "Use updatePermissions instead",
+        ReplaceWith("updatePermissions(user, permissions)")
+    )
     fun updateUser(user: User, permissions: Set<Permission>): FullUser {
-        if (user is GuestUser) {
-            throw IllegalArgumentException()
-        }
-        userDatabase.updatePermissions(user.name, permissions)
-        return userDatabase.findUser(user.name) ?: throw SQLException()
-    }
-
-    @Throws(SQLException::class)
-    fun deleteUser(user: User) {
-        if (user is FullUser) userDatabase.deleteUser(user.name)
-        else temporaryUsers.remove(user.name)
+        return updatePermissions(user, permissions)
     }
 
     /**
-     * Gets all full users.
+     * Updates a user's permissions.
      *
-     * @return a list of users
-     * @throws SQLException if any SQL errors occur
+     * @param user the user whose permissions should be updated
+     * @param permissions the new set of permissions
+     * @return a new user object with the new permissions
+     * @throws IllegalArgumentException if the specified user is not a full user
      */
-    @Throws(SQLException::class)
+    fun updatePermissions(user: User, permissions: Set<Permission>): FullUser {
+        if (user !is FullUser) {
+            throw IllegalArgumentException()
+        }
+        userDatabase.updatePermissions(user.name, permissions)
+        return userDatabase.findUser(user.name)
+    }
+
+    /**
+     * Permanently deletes a user.
+     *
+     * After calling this method, anyone is free to create a new user with that name.
+     *
+     * @param user the user to delete
+     * @throws IllegalArgumentException if the specified user is the [BotUser]
+     */
+    @Suppress("unused")
+    fun deleteUser(user: User) {
+        when (user) {
+            BotUser -> throw IllegalArgumentException("Can't delete BotUser")
+            is FullUser -> userDatabase.deleteUser(user.name)
+            is GuestUser -> temporaryUsers.remove(user.name)
+        }
+    }
+
+    /**
+     * Gets all **full** users.
+     *
+     * The result **does not** contain any temporary users, because this method should be used
+     * to display users whose permissions may be edited.
+     *
+     * @return a set of all users
+     */
+    @Suppress("unused")
     fun getUsers(): Set<FullUser> {
         return userDatabase.getUsers()
     }
 
+    /**
+     * Creates a JWT token for the specified user.
+     *
+     * @param user a user
+     * @return a JWT token for that user
+     * @throws IllegalArgumentException if the user is the [BotUser]
+     */
+    @Suppress("unused")
     fun toToken(user: User): String {
+        if (user is BotUser) throw IllegalArgumentException("Can't create a token for the bot user")
         val signatureKey: String = if (user is GuestUser) {
             this.guestSignatureKey
         } else {
@@ -133,7 +194,14 @@ class UserManager @Inject constructor(
             .sign(Algorithm.HMAC512(signatureKey))
     }
 
-    @Suppress("ThrowsCount")
+    /**
+     * Create a user object from a JWT token.
+     *
+     * @param token the JWT token
+     * @return a user object
+     * @throws InvalidTokenException if the structure or signature of the token are invalid
+     */
+    @Suppress("ThrowsCount", "unused")
     @Throws(InvalidTokenException::class)
     fun fromToken(token: String): User {
         try {
@@ -157,7 +225,7 @@ class UserManager @Inject constructor(
 
             return FullUser(name, permissions, "")
         } catch (e: JWTVerificationException) {
-            // try again with guest key
+            // try again with guest signature key
             val decoded = try {
                 JWT
                     .require(Algorithm.HMAC512(guestSignatureKey))
