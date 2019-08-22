@@ -17,5 +17,8 @@ interface SongLoader {
      */
     suspend fun load(provider: Provider, song: Song): Resource
 
+    /**
+     * Closes any resources held by this object. After calling this method, this object is unusable.
+     */
     suspend fun close()
 }
