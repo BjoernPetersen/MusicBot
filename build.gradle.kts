@@ -187,6 +187,11 @@ dependencies {
     )
     testImplementation(group = "io.mockk", name = "mockk", version = Lib.MOCK_K)
     testImplementation(group = "org.assertj", name = "assertj-core", version = Lib.ASSERT_J)
+    testImplementation(
+        group = "nl.jqno.equalsverifier",
+        name = "equalsverifier",
+        version = Lib.EQUALSVERIFIER
+    )
 }
 
 publishing {
