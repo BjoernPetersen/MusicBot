@@ -5,6 +5,11 @@ import java.nio.file.InvalidPathException
 import java.nio.file.Path
 import java.nio.file.Paths
 
+/**
+ * Defines serialization and deserialization for config entry values.
+ *
+ * @param T the value type
+ */
 interface ConfigSerializer<T> {
     /**
      * Serializes the given object to a string.
@@ -22,8 +27,14 @@ interface ConfigSerializer<T> {
     fun deserialize(string: String): T
 }
 
+/**
+ * Thrown if a value can't be deserialized.
+ */
 class SerializationException : Exception()
 
+/**
+ * Serializer for integer values.
+ */
 object IntSerializer : ConfigSerializer<Int> {
     override fun serialize(obj: Int): String = obj.toString()
     @Throws(SerializationException::class)

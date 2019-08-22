@@ -24,6 +24,14 @@ data class NamedPlugin<out T>(
      */
     constructor(idClass: KClass<out T>, name: String) : this(idClass.java.name, name)
 
+    /**
+     * Look up the plugin represented by this object.
+     *
+     * @param classLoader the plugin ClassLoader
+     * @param pluginFinder the PluginFinder to use for the lookup
+     * @return the instance of the plugin
+     * @throws IllegalStateException if the instance can't be found
+     */
     @Suppress("ThrowsCount")
     @Deprecated("Use PluginLookup", ReplaceWith("PluginLookup.lookup(this)"))
     @Throws(IllegalStateException::class)
