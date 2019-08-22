@@ -189,7 +189,6 @@ fun SerializedConfiguration<File>.saveLegacyFile() {
     uiNode = FileChooser(isDirectory = false, isOpen = false)
 }
 
-
 /**
  * Configuration object for DSL.
  *
