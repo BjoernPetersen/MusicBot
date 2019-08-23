@@ -3,9 +3,9 @@ package net.bjoernpetersen.musicbot.internal.player
 import com.google.inject.Injector
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.time.delay
 import kotlinx.coroutines.withContext
 import name.falgout.jeffrey.testing.junit.guice.GuiceExtension
 import name.falgout.jeffrey.testing.junit.guice.IncludeModule
@@ -179,7 +179,7 @@ class ActorPlayerTest {
 
             runBlocking {
                 player.start()
-                delay(DummyProvider.LOADING_TIME.plusMillis(100).toMillis())
+                delay(DummyProvider.LOADING_TIME.plusMillis(100))
                 assertThat(player.state)
                     .isSameAs(StopState)
                 player.close()
@@ -193,7 +193,7 @@ class ActorPlayerTest {
             val player = injector.createPlayer(suggester)
             runBlocking {
                 player.start()
-                delay(DummyProvider.LOADING_TIME.plusMillis(100).toMillis())
+                delay(DummyProvider.LOADING_TIME.plusMillis(100))
                 assertThat(player.state)
                     .asInstanceOf<PlayState>()
                 player.close()
@@ -212,7 +212,12 @@ class ActorPlayerTest {
                     .asInstanceOf<PlayState>()
 
                 player.start()
-                delay(DummyProvider.DURATION.plusSeconds(1).toMillis())
+                delay(
+                    DummyProvider.DURATION
+                        .plus(DummyProvider.CLOSING_TIME)
+                        .plus(DummyProvider.LOADING_TIME)
+                        .plusMillis(50)
+                )
                 assertNotEquals(song, player.state.entry?.song)
                 player.close()
             }
