@@ -88,8 +88,8 @@ class DummyProvider : Provider {
     }
 
     companion object {
-        val DURATION: Duration = Duration.ofSeconds(10)
-        val LOADING_TIME: Duration = Duration.ofSeconds(1)
-        val CLOSING_TIME: Duration = Duration.ofMillis(500)
+        val DURATION: Duration = Duration.ofSeconds(5)
+        val LOADING_TIME: Duration = Duration.ofMillis(500)
+        val CLOSING_TIME: Duration = Duration.ofMillis(200)
     }
 }
