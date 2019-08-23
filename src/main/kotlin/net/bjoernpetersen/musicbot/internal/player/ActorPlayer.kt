@@ -6,7 +6,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.actor
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
@@ -228,7 +227,7 @@ private class SyncPlayer @Inject private constructor(
             logger.error(e) { "Could not close playback" }
         }
         playback = CompletablePlayback()
-        state = StopState
+        state = ErrorState
     }
 }
 
@@ -418,13 +417,15 @@ internal class ActorPlayer @Inject private constructor(
 
     private suspend fun autoPlay() {
         withContext(coroutineContext) {
-            while (isActive) {
+            while (!actor.isClosedForSend) {
                 val previousState = state
                 logger.debug("Waiting for song to finish")
                 val await = CompletableDeferred<Unit>()
                 actor.send(Await(await))
                 await.await()
                 logger.trace("Waiting done")
+
+                if (actor.isClosedForSend) continue
 
                 // Prevent auto next calls if next was manually called or an error occurred
                 when {
@@ -443,6 +444,7 @@ internal class ActorPlayer @Inject private constructor(
 
     override suspend fun close() {
         withContext(coroutineContext) {
+            job.complete()
             val result = CompletableDeferred<Unit>()
             actor.send(Stop(result))
             actor.close()
