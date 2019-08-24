@@ -14,12 +14,8 @@ import kotlin.coroutines.CoroutineContext
  *
  * ```
  * class MyPlugin : Plugin, CoroutineScope by PluginScope() {
- *     private fun cancelScope() {
- *         cancel()
- *     }
- *
  *     override suspend fun close() {
- *         cancelScope()
+ *         run { cancel() }
  *     }
  * }
  * ```
