@@ -224,7 +224,7 @@ class SerializationConfiguration<T> {
             }
 
             override fun deserialize(string: String): T {
-                return deserialize(string)
+                return deserializer(string)
             }
         }
     }
