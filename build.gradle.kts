@@ -57,7 +57,7 @@ spotless {
 
 detekt {
     toolVersion = Plugin.DETEKT
-    config = files("buildSrc/src/main/resources/detekt.yml")
+    config = files("$rootDir/buildConfig/detekt.yml")
     buildUponDefaultConfig = true
 }
 
