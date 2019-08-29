@@ -116,22 +116,6 @@ class UserManager @Inject constructor(
      * @param user the user whose permissions should be updated
      * @param permissions the new set of permissions
      * @return a new user object with the new permissions
-     * @throws IllegalArgumentException if the specified user is a guest user
-     */
-    @Deprecated(
-        "Use updatePermissions instead",
-        ReplaceWith("updatePermissions(user, permissions)")
-    )
-    fun updateUser(user: User, permissions: Set<Permission>): FullUser {
-        return updatePermissions(user, permissions)
-    }
-
-    /**
-     * Updates a user's permissions.
-     *
-     * @param user the user whose permissions should be updated
-     * @param permissions the new set of permissions
-     * @return a new user object with the new permissions
      * @throws IllegalArgumentException if the specified user is not a full user
      */
     fun updatePermissions(user: User, permissions: Set<Permission>): FullUser {

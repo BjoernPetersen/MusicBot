@@ -120,27 +120,20 @@ abstract class AbstractPlayback protected constructor() : Playback, CoroutineSco
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.IO + job
 
-    @Deprecated("Don't use this directly, use isDone() or markDone() instead.")
-    protected val done = CompletableDeferred<Unit>()
+    private val done = CompletableDeferred<Unit>()
 
     protected lateinit var feedbackChannel: PlaybackFeedbackChannel
         private set
-
-    @Deprecated("Use feedbackChannel instead", ReplaceWith("feedbackChannel.updateState"))
-    protected val playbackListener: (state: PlaybackState) -> Unit
-        get() = { feedbackChannel.updateState(it) }
 
     override fun setFeedbackChannel(channel: PlaybackFeedbackChannel) {
         feedbackChannel = channel
     }
 
-    @Suppress("DEPRECATION")
     protected fun isDone(): Boolean = done.isCompleted
 
     /**
      * Waits for the [done] condition.
      */
-    @Suppress("DEPRECATION")
     override suspend fun waitForFinish() {
         done.await()
     }
@@ -148,7 +141,6 @@ abstract class AbstractPlayback protected constructor() : Playback, CoroutineSco
     /**
      * Signals all threads waiting for the [done] condition.
      */
-    @Suppress("DEPRECATION")
     protected fun markDone() {
         done.complete(Unit)
     }

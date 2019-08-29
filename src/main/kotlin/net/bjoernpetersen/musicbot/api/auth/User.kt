@@ -71,13 +71,10 @@ sealed class User {
  */
 data class GuestUser(
     override val name: String,
-    @Deprecated("Do not access the id directly", ReplaceWith("hasPassword(id)"))
-    val id: String
+    private val id: String
 ) : User() {
-
-    @Suppress("DEPRECATION")
     override fun hasPassword(password: String): Boolean {
-        if (id.isBlank()) throw IllegalStateException()
+        check(!id.isBlank())
         return id == password
     }
 
@@ -113,9 +110,7 @@ data class FullUser(
 ) : User() {
 
     override fun hasPassword(password: String): Boolean {
-        if (hash.isBlank()) {
-            throw IllegalStateException()
-        }
+        check(!hash.isBlank())
         return BCrypt.checkpw(password, hash)
     }
 

@@ -11,7 +11,6 @@ import net.bjoernpetersen.musicbot.api.plugin.management.PluginFinder
 import net.bjoernpetersen.musicbot.spi.loader.ResourceCache
 import net.bjoernpetersen.musicbot.spi.loader.SongLoader
 import net.bjoernpetersen.musicbot.spi.player.Player
-import java.io.Closeable
 import kotlin.reflect.KClass
 
 private const val CUSTOM_STOPPER_CAPACITY = 32
@@ -57,17 +56,6 @@ class InstanceStopper(private val injector: Injector) {
         }
         action(instance)
     }
-
-    /**
-     * Registers an additional [type] to look up via the [injector] and close either before or after
-     * the instances of all default MusicBot interfaces.
-     *
-     * @param type the type for which to look up the implementation and close when [stop] is called
-     * @param before whether to close the instance before the rest; default: `true`
-     */
-    @Deprecated("Don't use it")
-    fun register(type: Class<out Closeable>, before: Boolean = true) =
-        register(type, before) { it.close() }
 
     /**
      * Registers an additional [type] to look up via the [injector] and close either before or after

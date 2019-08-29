@@ -17,59 +17,16 @@ import java.util.Base64
  * @param title the song's title, which is the most important representation for humans
  * @param description further information about the song, usually the song's artist
  * @param duration the song duration in seconds
- * @param albumArtUrl the URL to the song's album art image
  * @param albumArtPath the URL path to the song's album relative to the bot's base URL
  */
-data class Song @Deprecated("Use DSL instead") internal constructor(
+data class Song internal constructor(
     val id: String,
     val provider: NamedPlugin<Provider>,
     val title: String,
     val description: String,
     val duration: Int? = null,
-    @Deprecated("Use albumArtPath instead")
-    val albumArtUrl: String? = null,
     val albumArtPath: String? = null
 ) {
-
-    @Deprecated("Use Dsl instead")
-    @Suppress("DEPRECATION")
-    @JvmOverloads
-    constructor(
-        id: String,
-        provider: Provider,
-        title: String,
-        description: String,
-        duration: Int? = null,
-        albumArtUrl: String? = null
-    ) : this(
-        id = id,
-        provider = provider.toNamedPlugin(),
-        title = title,
-        description = description,
-        duration = duration,
-        albumArtUrl = albumArtUrl,
-        albumArtPath = albumArtUrl?.let(::remoteToLocalPath)
-    )
-
-    @Suppress("DEPRECATION")
-    @JvmOverloads
-    internal constructor(
-        id: String,
-        provider: NamedPlugin<Provider>,
-        title: String,
-        description: String,
-        duration: Int? = null,
-        albumArtPath: String? = null
-    ) : this(
-        id = id,
-        provider = provider,
-        title = title,
-        description = description,
-        duration = duration,
-        albumArtUrl = null,
-        albumArtPath = albumArtPath
-    )
-
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is Song) return false
@@ -132,11 +89,7 @@ class SongConfiguration internal constructor(val id: String, val provider: Provi
      * Configure the song to serve local album art images using the associated [provider] as an
      * [AlbumArtSupplier].
      */
-    @Deprecated(
-        "This is called automatically for implementations of AlbumArtSupplier",
-        level = DeprecationLevel.WARNING
-    )
-    fun serveLocalImage() {
+    internal fun serveLocalImage() {
         albumArtPath =
             "${ImageServerConstraints.LOCAL_PATH}/${namedPlugin.id.encode()}/${id.encode()}"
     }
@@ -153,12 +106,9 @@ class SongConfiguration internal constructor(val id: String, val provider: Provi
     }
 
     internal fun toSong(): Song {
-        if (!this::title.isInitialized)
-            throw IllegalStateException("Title not set")
-        if (!this::description.isInitialized)
-            throw IllegalStateException("Description not set")
+        check(this::title.isInitialized) { "Title not set" }
+        check(this::description.isInitialized) { "Description not set" }
         return Song(id, namedPlugin, title, description, duration, albumArtPath)
-            .copy(albumArtUrl = remoteUrl)
     }
 }
 
@@ -173,7 +123,6 @@ private fun Provider.toNamedPlugin(): NamedPlugin<Provider> =
  * @param configure a block in which to [configure the song][SongConfiguration]
  * @return the created song
  */
-@Suppress("DEPRECATION")
 fun AlbumArtSupplier.song(id: String, configure: SongConfiguration.() -> Unit): Song {
     val mutable = SongConfiguration(id, this)
     mutable.serveLocalImage()

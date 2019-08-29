@@ -50,24 +50,6 @@ interface UserDatabase {
     fun updatePassword(name: String, hash: String)
 
     /**
-     * Updates the password of a user.
-     *
-     * The name will be trimmed and converted to lower-case according to the US locale before
-     * checking uniqueness.
-     *
-     * @param user the user whose password should be updated
-     * @param hash the user's hashed password
-     * @throws UserNotFoundException if there is no such user
-     */
-    @Deprecated(
-        "Just supply the user's name instead",
-        ReplaceWith("updatePassword(user.name, hash)")
-    )
-    fun updatePassword(user: FullUser, hash: String) {
-        updatePassword(user.name, hash)
-    }
-
-    /**
      * Updates the permissions of a user.
      *
      * The name will be trimmed and converted to lower-case according to the US locale before
