@@ -98,9 +98,9 @@ workflows:
       - fossa_build:
           requires:
             - compile
-#      - fossa_test:
-#          requires:
-#            - fossa_build
+      - fossa_test:
+          requires:
+            - fossa_build
       - check:
           requires:
             - compile
