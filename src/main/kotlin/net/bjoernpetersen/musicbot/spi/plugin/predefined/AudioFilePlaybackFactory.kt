@@ -6,8 +6,18 @@ import net.bjoernpetersen.musicbot.api.plugin.Base
  * PlaybackFactory capable of playing `.aac` and `.m4a` files.
  */
 @Base
-interface AacPlabackFactory :
+interface AacPlaybackFactory :
     FilePlaybackFactory
+
+/**
+ * PlaybackFactory capable of playing `.aac` and `.m4a` files.
+ */
+@Deprecated(
+    "Use non-typo version",
+    ReplaceWith("AacPlaybackFactory"),
+    level = DeprecationLevel.ERROR
+)
+typealias AacPlabackFactory = AacPlaybackFactory
 
 /**
  * PlaybackFactory capable of playing `.flac` files.
