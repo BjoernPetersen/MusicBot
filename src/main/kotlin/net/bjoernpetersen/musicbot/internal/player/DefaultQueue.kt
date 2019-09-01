@@ -32,8 +32,8 @@ internal class DefaultQueue @Inject private constructor() : SongQueue {
 
     override fun remove(song: Song) = synchronized(queue) {
         queue
-            .filter { it.song == song }
-            .forEach {
+            .first { it.song == song }
+            .let {
                 queue.remove(it)
                 notifyListeners { listener -> listener.onRemove(it) }
             }
