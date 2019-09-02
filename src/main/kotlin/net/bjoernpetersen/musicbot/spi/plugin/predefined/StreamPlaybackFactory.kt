@@ -8,7 +8,7 @@ import java.net.URL
 /**
  * An extension of the [PlaybackFactory] interface which accepts URLs.
  */
-interface StreamPlaybackFactory {
+interface StreamPlaybackFactory : PlaybackFactory {
     /**
      * Creates a playback object from the media file at the given URL.
      *
