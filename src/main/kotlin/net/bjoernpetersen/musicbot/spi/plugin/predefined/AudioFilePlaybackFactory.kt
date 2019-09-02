@@ -14,8 +14,7 @@ interface AacPlaybackFactory :
  */
 @Deprecated(
     "Use non-typo version",
-    ReplaceWith("AacPlaybackFactory"),
-    level = DeprecationLevel.ERROR
+    ReplaceWith("AacPlaybackFactory")
 )
 typealias AacPlabackFactory = AacPlaybackFactory
 
