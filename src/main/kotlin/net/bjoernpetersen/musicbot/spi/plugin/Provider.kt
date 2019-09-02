@@ -66,6 +66,7 @@ interface Provider : Plugin, UserFacing {
      *
      * @param song the song to load
      * @return a resource, if any has been allocated
+     * @throws SongLoadingException if the song couldn't be loaded
      */
     @Throws(SongLoadingException::class)
     suspend fun loadSong(song: Song): Resource
