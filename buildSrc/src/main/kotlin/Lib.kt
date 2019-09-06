@@ -6,7 +6,6 @@ object Lib {
 
     const val GUAVA = "28.0-android"
     const val GUICE = "4.2.2"
-    const val SQLITE = "3.28.0"
 
     const val JBCRYPT = "0.4"
     const val JJWT = "3.8.2"

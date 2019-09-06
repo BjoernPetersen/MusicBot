@@ -154,7 +154,6 @@ dependencies {
     api(group = "com.google.guava", name = "guava", version = Lib.GUAVA)
     api(group = "com.google.inject", name = "guice", version = Lib.GUICE, classifier = "no_aop")
 
-    api(group = "org.xerial", name = "sqlite-jdbc", version = Lib.SQLITE)
     implementation(group = "org.mindrot", name = "jbcrypt", version = Lib.JBCRYPT)
 
     implementation(
