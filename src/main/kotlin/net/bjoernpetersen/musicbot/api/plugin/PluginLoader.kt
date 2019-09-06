@@ -1,6 +1,7 @@
 package net.bjoernpetersen.musicbot.api.plugin
 
 import net.bjoernpetersen.musicbot.spi.plugin.Plugin
+import java.io.File
 import kotlin.reflect.KClass
 
 interface PluginLoader {
@@ -17,6 +18,15 @@ interface PluginLoader {
      */
     @Throws(PluginLoadingException::class)
     fun <T : Plugin> load(type: KClass<T>): Collection<T>
+
+    companion object {
+        /**
+         * Temporary method to ease the transition from PluginLoader being a final class to
+         * it being an interface.
+         */
+        @Deprecated("Use PluginLoaderImpl", ReplaceWith("PluginLoaderImpl()"))
+        operator fun invoke(pluginFolder: File): PluginLoader = PluginLoaderImpl(pluginFolder)
+    }
 }
 
 /**
