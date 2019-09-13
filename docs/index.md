@@ -35,5 +35,17 @@ and then silence, because nobody went back and resumed the previous playback.
 
 ### Independent from remote
 
-No one can run off with the bot and disrupt the music, as would be the case with
-Bluetooth streaming.
+If the bot is running on a stationary device (PC, Laptop, Raspberry Pi), no one can run off with
+the bot and disrupt the music, as would be the case with simple Bluetooth streaming from a phone.
+
+## Concept
+
+This library defines a common set of interfaces through which the different parts of the bot can
+communicate with each other. This includes base interfaces for plugins as well as various interfaces
+for server implementations.
+
+The core tries to be compatible with any operating system that supports Java.
+This especially includes Android, which only has (limited) Java 8 compatibility.
+
+Plugins are used for everything that's either OS dependent or too volatile to remain stable over a
+long time period. Most importantly this includes access to [music provider APIs](plugins/#provider).
