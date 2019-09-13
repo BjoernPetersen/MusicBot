@@ -16,4 +16,5 @@ object Lib {
     const val MOCK_K = "1.9.3"
     const val ASSERT_J = "3.13.2"
     const val EQUALSVERIFIER = "3.1.9"
+    const val SQLITE = "3.28.0"
 }

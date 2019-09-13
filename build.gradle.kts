@@ -168,7 +168,8 @@ dependencies {
         version = Lib.JAVA_SEMVER
     )
 
-    testImplementation(group = "org.slf4j", name = "slf4j-simple", version = Lib.SLF4J)
+    testRuntimeOnly(group = "org.slf4j", name = "slf4j-simple", version = Lib.SLF4J)
+    testRuntimeOnly(group = "org.xerial", name = "sqlite-jdbc", version = Lib.SQLITE)
     testRuntimeOnly(
         group = "org.junit.jupiter",
         name = "junit-jupiter-engine",
