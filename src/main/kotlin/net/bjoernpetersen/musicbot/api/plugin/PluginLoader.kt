@@ -2,8 +2,14 @@ package net.bjoernpetersen.musicbot.api.plugin
 
 import net.bjoernpetersen.musicbot.spi.plugin.Plugin
 import java.io.File
+import java.util.ServiceLoader
 import kotlin.reflect.KClass
 
+/**
+ * Responsible for plugin discovery.
+ *
+ * This should usually happen using the [PluginLoaderImpl], which uses Java's [ServiceLoader].
+ */
 interface PluginLoader {
     /**
      * The ClassLoader used to load the plugins.

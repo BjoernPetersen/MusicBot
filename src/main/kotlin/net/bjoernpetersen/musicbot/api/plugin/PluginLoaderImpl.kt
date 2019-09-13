@@ -12,7 +12,7 @@ import java.util.ServiceLoader
 import kotlin.reflect.KClass
 
 /**
- * Loads plugins from jar-files from the specified folder.
+ * Loads plugins from jar-files from the specified folder using Java's [ServiceLoader].
  *
  * @param pluginFolder a folder directly containing plugin jars.
  */
