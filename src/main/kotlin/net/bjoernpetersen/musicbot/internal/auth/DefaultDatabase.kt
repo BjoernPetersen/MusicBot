@@ -7,11 +7,17 @@ import net.bjoernpetersen.musicbot.api.auth.Permission
 import net.bjoernpetersen.musicbot.api.auth.UserNotFoundException
 import net.bjoernpetersen.musicbot.api.auth.toId
 import net.bjoernpetersen.musicbot.spi.auth.UserDatabase
+import java.nio.file.Path
 import java.sql.DriverManager
 import java.sql.SQLException
 import java.util.HashSet
 
-internal class DefaultDatabase(databaseUrl: String) : UserDatabase {
+internal class DefaultDatabase
+@Deprecated("Use file constructor instead")
+constructor(databaseUrl: String) : UserDatabase {
+    @Suppress("DEPRECATION")
+    constructor(file: Path) : this("jdbc:sqlite:$file")
+
     private val connection = DriverManager.getConnection(databaseUrl)
 
     init {

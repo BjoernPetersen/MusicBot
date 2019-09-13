@@ -32,15 +32,15 @@ class DefaultDatabaseTest {
     private lateinit var file: Path
     private lateinit var database: UserDatabase
 
-    private fun Injector.createDatabase(url: String): UserDatabase {
-        return createChildInjector(DefaultUserDatabaseModule(url))
+    private fun Injector.createDatabase(file: Path): UserDatabase {
+        return createChildInjector(DefaultUserDatabaseModule(file))
             .getInstance(UserDatabase::class.java)
     }
 
     @BeforeEach
     fun createDb(injector: Injector) {
         file = Files.createTempFile(Paths.get(DIR), FILE_NAME, FILE_EXTENSION)
-        database = injector.createDatabase("jdbc:sqlite:$file")
+        database = injector.createDatabase(file)
     }
 
     @AfterEach

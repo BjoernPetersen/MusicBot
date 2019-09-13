@@ -18,6 +18,7 @@ import net.bjoernpetersen.musicbot.spi.player.Player
 import net.bjoernpetersen.musicbot.spi.player.SongQueue
 import net.bjoernpetersen.musicbot.spi.plugin.PlaybackFeedbackChannel
 import net.bjoernpetersen.musicbot.spi.plugin.Suggester
+import java.nio.file.Path
 import javax.inject.Singleton
 
 /**
@@ -57,12 +58,18 @@ class DefaultSongLoaderModule : AbstractModule() {
 /**
  * Binds [DefaultDatabase] as [UserDatabase].
  */
-class DefaultUserDatabaseModule(private val databaseUrl: String) : AbstractModule() {
+class DefaultUserDatabaseModule
+@Deprecated("Don't supply the full URL, just the file path")
+constructor(private val databaseUrl: String) : AbstractModule() {
+    @Suppress("DEPRECATION")
+    constructor(databaseFile: Path) : this("jdbc:sqlite:$databaseFile")
+
     /**
      * Supplies a default user database implementation.
      */
     @Provides
     @Singleton
+    @Suppress("DEPRECATION")
     fun provideUserDatabase(): UserDatabase = DefaultDatabase(databaseUrl)
 }
 
