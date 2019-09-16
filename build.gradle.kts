@@ -129,6 +129,12 @@ tasks {
             include("LICENSE")
         }
     }
+
+    dependencyUpdates {
+        rejectVersionIf {
+            isUnstable(candidate.version, currentVersion)
+        }
+    }
 }
 
 dependencies {
