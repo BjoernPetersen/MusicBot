@@ -343,6 +343,7 @@ internal class ActorPlayer @Inject private constructor(
         queue.addListener(object : QueueChangeListener {
             override fun onAdd(entry: QueueEntry) {
                 launch { resourceCache.get(entry.song) }
+                if (state is StopState) launch { next() }
             }
 
             override fun onRemove(entry: QueueEntry) = Unit
