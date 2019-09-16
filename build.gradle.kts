@@ -132,7 +132,8 @@ tasks {
 
     dependencyUpdates {
         rejectVersionIf {
-            isUnstable(candidate.version, currentVersion)
+            val version = candidate.version
+            isUnstable(version, currentVersion) || isWrongPlatform(version, currentVersion)
         }
     }
 }
