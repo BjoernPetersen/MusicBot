@@ -28,7 +28,7 @@ annotation class ActiveBase
  * An ID base may be `SpotifyProviderBase`, identifying whichever Spotify provider implementation
  * is active at runtime, even if the implementation changes between sessions.
  *
- * @param displayName a short name to represent the ID
+ * @param displayName a short name to represent the ID, example: "Spotify"
  */
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.RUNTIME)

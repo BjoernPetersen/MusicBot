@@ -72,16 +72,21 @@ interface Plugin {
     /**
      * An arbitrary plugin name. Keep it short, but descriptive.
      *
-     * The name will never be shown without the user knowing the specialized plugin interface
-     * this plugin implements (Provider, Suggester, ...), so please don't include that part in the
-     * name.
+     * The name should tend to describe **how** it is implemented rather than **what**
+     * it's implementing. The user will always know what base the plugin implements and what type it
+     * is (Provider, Suggester, ...).
      *
      * This value should be static, i.e. not dependent on config or state.
+     *
+     * ### Examples
+     *
+     * - _For a SpotifyPlaybackFactory_: Remote control, Android SDK
+     * - _For a VolumeHandler_: Native system master volume, Spotify client volume
      */
     val name: String
 
     /**
-     * A one or two sentence description of the plugin.
+     * A one or two sentence description of the plugin **implementation**.
      */
     val description: String
 
