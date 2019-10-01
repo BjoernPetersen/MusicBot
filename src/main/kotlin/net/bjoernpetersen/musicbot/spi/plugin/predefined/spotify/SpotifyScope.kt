@@ -3,6 +3,11 @@ package net.bjoernpetersen.musicbot.spi.plugin.predefined.spotify
 import net.bjoernpetersen.musicbot.api.config.ConfigSerializer
 import net.bjoernpetersen.musicbot.api.config.SerializationException
 
+/**
+ * A Spotify API scope.
+ *
+ * @param id the scope ID as recognized by the API
+ */
 enum class SpotifyScope(val id: String) {
     // Playlists
     /**
