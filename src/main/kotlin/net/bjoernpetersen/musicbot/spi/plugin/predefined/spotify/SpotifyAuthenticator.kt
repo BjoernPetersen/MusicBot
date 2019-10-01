@@ -7,4 +7,9 @@ import net.bjoernpetersen.musicbot.spi.plugin.predefined.Authenticator
  * Authenticator providing a Spotify Web API token.
  */
 @Base
-interface SpotifyAuthenticator : Authenticator
+interface SpotifyAuthenticator : Authenticator {
+    /**
+     * Require the specified access token scopes.
+     */
+    fun requireScopes(vararg scopes: SpotifyScope)
+}
