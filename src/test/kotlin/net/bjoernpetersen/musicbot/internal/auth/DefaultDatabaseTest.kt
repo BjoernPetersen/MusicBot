@@ -28,23 +28,23 @@ import java.nio.file.Path
 import java.nio.file.Paths
 
 @ExtendWith(GuiceExtension::class)
-class DefaultDatabaseTest {
-    private lateinit var file: Path
-    private lateinit var database: UserDatabase
+open class DefaultDatabaseTest {
+    protected lateinit var file: Path
+    protected lateinit var database: UserDatabase
 
-    private fun Injector.createDatabase(file: Path): UserDatabase {
+    protected fun Injector.createDatabase(file: Path): UserDatabase {
         return createChildInjector(DefaultUserDatabaseModule(file))
             .getInstance(UserDatabase::class.java)
     }
 
     @BeforeEach
-    fun createDb(injector: Injector) {
+    open fun createDb(injector: Injector) {
         file = Files.createTempFile(Paths.get(DIR), FILE_NAME, FILE_EXTENSION)
         database = injector.createDatabase(file)
     }
 
     @AfterEach
-    fun closeDb() {
+    open fun closeDb() {
         database.close()
         Files.delete(file)
     }
@@ -118,6 +118,7 @@ class DefaultDatabaseTest {
                     assertEquals(expected.name, user.name)
                     assertEquals(expected.permissions, user.permissions)
                     assertEquals(expected.signature, user.signature)
+                    assertThat(user.hasPassword(expected.getPass()))
                 }
             }
         }
@@ -165,7 +166,7 @@ class DefaultDatabaseTest {
         }
     }
 
-    private companion object {
+    protected companion object {
         const val DIR = "build/tmp"
         const val FILE_NAME = "test"
         const val FILE_EXTENSION = "db"

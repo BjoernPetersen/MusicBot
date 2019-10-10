@@ -158,7 +158,7 @@ class UserManager @Inject constructor(
         return when (user) {
             BotUser -> throw IllegalArgumentException("Can't update signature for BotUser")
             is FullUser -> user.copy(signature = createSignatureKey())
-                .also { userDatabase.updateSignature( it.name, it.signature ) }
+                .also { userDatabase.updateSignature(it.name, it.signature) }
             is GuestUser -> user.copy(signature = createSignatureKey())
                 .also { temporaryUsers[it.name.toId()] = it }
         }
@@ -332,7 +332,10 @@ private fun hash(password: String): String {
     return BCrypt.hashpw(password, BCrypt.gensalt())
 }
 
-private fun createSignatureKey(): String {
+/**
+ * craete a random utf-8 string of length [SIGNATURE_KEY_SIZE] that can be used as signature
+ */
+fun createSignatureKey(): String {
     val rand = SecureRandom()
     val bytes = ByteArray(SIGNATURE_KEY_SIZE)
     rand.nextBytes(bytes)
