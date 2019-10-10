@@ -70,9 +70,9 @@ constructor(databaseUrl: String) : UserDatabase {
         try {
             connection.autoCommit = false
             val version = connection.createStatement().use { statement ->
-                 statement.executeQuery("PRAGMA user_version").use { it.getInt(1) }
+                statement.executeQuery("PRAGMA user_version").use { it.getInt(1) }
             }
-            if(version < 1) {
+            if (version < 1) {
                 migrateV0()
             }
             connection.commit()
