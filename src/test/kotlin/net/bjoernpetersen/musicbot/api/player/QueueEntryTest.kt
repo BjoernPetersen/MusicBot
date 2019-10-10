@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test
 
 class QueueEntryTest {
 
-    private fun user(name: String): User = GuestUser(name, "testid")
+    private fun user(name: String): User = GuestUser(name, "testid", "unusedSignature")
 
     private fun song(id: String, providerId: String) = Song(
         id,

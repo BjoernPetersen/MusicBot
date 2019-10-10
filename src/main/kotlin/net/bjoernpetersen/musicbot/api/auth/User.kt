@@ -35,6 +35,10 @@ sealed class User {
      * A set of permissions this user has.
      */
     abstract val permissions: Set<Permission>
+    /**
+     * A signature used to sign refresh-tokens
+     */
+    abstract val signature: String
 
     /**
      * A function to test whether this user has the specified password.
@@ -71,6 +75,7 @@ sealed class User {
  */
 data class GuestUser(
     override val name: String,
+    override val signature: String,
     private val id: String
 ) : User() {
     override fun hasPassword(password: String): Boolean {
@@ -106,6 +111,7 @@ data class GuestUser(
 data class FullUser(
     override val name: String,
     override val permissions: Set<Permission>,
+    override val signature: String,
     private val hash: String
 ) : User() {
 
@@ -140,6 +146,7 @@ data class FullUser(
 object BotUser : User() {
     override val name: String = "MusicBot"
     override val permissions: Set<Permission> = emptySet()
+    override val signature = ""
     override fun hasPassword(password: String): Boolean = false
 }
 

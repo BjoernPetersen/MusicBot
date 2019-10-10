@@ -27,23 +27,27 @@ constructor(databaseUrl: String) : UserDatabase {
                     id TEXT PRIMARY KEY UNIQUE NOT NULL,
                     name TEXT NOT NULL,
                     password TEXT NOT NULL,
-                    permissions TEXT NOT NULL)""".trimMargin()
+                    permissions TEXT NOT NULL,
+                    signature TEXT NOT NULL)""".trimMargin()
             )
         }
     }
 
     private val getUser = connection.prepareStatement(
-        "SELECT name, password, permissions FROM users WHERE id=?"
+        "SELECT name, password, permissions, signature FROM users WHERE id=?"
     )
     private val getUsers = connection.prepareStatement("SELECT * FROM users")
     private val createUser = connection.prepareStatement(
-        "INSERT OR ABORT INTO users(id, name, password, permissions) VALUES(?, ?, ?, ?)"
+        "INSERT OR ABORT INTO users(id, name, password, permissions, signature) VALUES(?, ?, ?, ?, ?)"
     )
     private val updatePassword = connection.prepareStatement(
         "UPDATE users SET password=? WHERE id=?"
     )
     private val updatePermissions = connection.prepareStatement(
         "UPDATE users SET permissions=? WHERE id=?"
+    )
+    private val updateSignature = connection.prepareStatement(
+        "UPDATE users SET signature=? WHERE id=?"
     )
     private val deleteUser = connection.prepareStatement("DELETE FROM users WHERE id=?")
 
@@ -61,6 +65,7 @@ constructor(databaseUrl: String) : UserDatabase {
                 var dbName: String
                 var hash: String
                 var permissionString: String
+                var signature: String
                 getUser.executeQuery().use { resultSet ->
                     if (!resultSet.next()) {
                         throw UserNotFoundException("No such user: $id")
@@ -69,7 +74,8 @@ constructor(databaseUrl: String) : UserDatabase {
                     hash = resultSet.getString("password")
                     permissionString = resultSet.getString("permissions")
                     val permissions = getPermissions(permissionString)
-                    return FullUser(dbName, permissions, hash)
+                    signature = resultSet.getString("signature")
+                    return FullUser(dbName, permissions, signature, hash)
                 }
             } catch (e: SQLException) {
                 throw UserNotFoundException(e)
@@ -86,7 +92,8 @@ constructor(databaseUrl: String) : UserDatabase {
                     val hash = resultSet.getString("password")
                     val permissionString = resultSet.getString("permissions")
                     val permissions = getPermissions(permissionString)
-                    users.add(FullUser(name, permissions, hash))
+                    val signature = resultSet.getString("signature")
+                    users.add(FullUser(name, permissions, signature, hash))
                 }
 
                 return users
@@ -105,6 +112,7 @@ constructor(databaseUrl: String) : UserDatabase {
                 createUser.setString(2, user.name)
                 createUser.setString(3, hash)
                 createUser.setString(4, permissionString)
+                createUser.setString(5, user.signature)
                 createUser.execute()
             } catch (e: SQLException) {
                 throw DuplicateUserException(e)
@@ -134,6 +142,18 @@ constructor(databaseUrl: String) : UserDatabase {
             updatePermissions.setString(1, permissionString)
             updatePermissions.setString(2, id)
             updatePermissions.execute()
+            if (updatePermissions.updateCount == 0)
+                throw UserNotFoundException("Can't update user because it does not exist: $name")
+        }
+    }
+
+    override fun updateSignature(name: String, signature: String) {
+        val id = name.toId()
+        synchronized(updateSignature) {
+            updateSignature.clearParameters()
+            updateSignature.setString(1, signature)
+            updateSignature.setString(2, id)
+            updateSignature.execute()
             if (updatePermissions.updateCount == 0)
                 throw UserNotFoundException("Can't update user because it does not exist: $name")
         }

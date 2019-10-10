@@ -62,6 +62,18 @@ interface UserDatabase {
     fun updatePermissions(name: String, permissions: Set<Permission>)
 
     /**
+     * Updates the signature of a user
+     *
+     * The name will be trimmed and converted to lower-case according to the US locale before
+     * checking uniqueness.
+     *
+     * @param name the user who's password should be updated
+     * @param signature the new signature of the user
+     * @throws UserNotFoundException if there is no such user
+     */
+    fun updateSignature(name: String, signature: String)
+
+    /**
      * Deletes a user from the database.
      *
      * The name will be trimmed and converted to lower-case according to the US locale before

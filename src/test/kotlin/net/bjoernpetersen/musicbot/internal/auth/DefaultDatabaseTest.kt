@@ -83,6 +83,13 @@ class DefaultDatabaseTest {
         }
     }
 
+    @Test
+    fun `unknown updateSignature`() {
+        assertThrows<UserNotFoundException> {
+            database.updateSignature(UNKNOWN_USER, "alsoInvalid")
+        }
+    }
+
     @Nested
     inner class FilledDatabase {
         @BeforeEach
@@ -110,6 +117,7 @@ class DefaultDatabaseTest {
                     val expected = users.first()
                     assertEquals(expected.name, user.name)
                     assertEquals(expected.permissions, user.permissions)
+                    assertEquals(expected.signature, user.signature)
                 }
             }
         }
@@ -119,7 +127,7 @@ class DefaultDatabaseTest {
             return KNOWN_USER_VARIATIONS.map {
                 dynamicTest("\"$it\"") {
                     assertThrows<DuplicateUserException> {
-                        database.insertUser(FullUser(KNOWN_USER, emptySet(), HASH2), HASH2)
+                        database.insertUser(FullUser(KNOWN_USER, emptySet(), SIGNATURE, HASH2), HASH2)
                     }
                 }
             }
@@ -138,6 +146,14 @@ class DefaultDatabaseTest {
             database.updatePermissions(KNOWN_USER, permissions)
             val user = database.findUser(KNOWN_USER)
             assertEquals(permissions, user.permissions)
+        }
+
+        @Test
+        fun updateSignature() {
+            val newSig = "alsoUnknownSig"
+            database.updateSignature(KNOWN_USER, newSig)
+            val user = database.findUser(KNOWN_USER)
+            assertEquals(newSig, user.signature)
         }
 
         @Test
@@ -162,17 +178,21 @@ class DefaultDatabaseTest {
         const val PASS2 = "j;23l45j*"
         val HASH2 = BCrypt.hashpw(PASS2, BCrypt.gensalt())!!
         const val UNKNOWN_USER = "unknown"
+        const val SIGNATURE = "invalidSignature1"
+        const val SIGNATURE2 = "invalidSignature2"
 
         val users = listOf(
             FullUser(
                 name = KNOWN_USER,
                 permissions = setOf(Permission.MOVE, Permission.DISLIKE),
-                hash = HASH
+                hash = HASH,
+                signature = SIGNATURE
             ),
             FullUser(
                 name = KNOWN_USER2,
                 permissions = setOf(Permission.PAUSE, Permission.ENQUEUE),
-                hash = HASH2
+                hash = HASH2,
+                signature = SIGNATURE2
             )
         )
 
