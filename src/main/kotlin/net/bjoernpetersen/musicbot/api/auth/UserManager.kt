@@ -118,6 +118,7 @@ class UserManager @Inject constructor(
      * @return a new user object with the new permissions
      * @throws IllegalArgumentException if the specified user is not a full user
      */
+    @Suppress("unused")
     fun updatePermissions(user: User, permissions: Set<Permission>): FullUser {
         if (user !is FullUser) {
             throw IllegalArgumentException()
@@ -139,7 +140,7 @@ class UserManager @Inject constructor(
         when (user) {
             BotUser -> throw IllegalArgumentException("Can't delete BotUser")
             is FullUser -> userDatabase.deleteUser(user.name)
-            is GuestUser -> temporaryUsers.remove(user.name)
+            is GuestUser -> temporaryUsers.remove(user.name.toId())
         }
     }
 
