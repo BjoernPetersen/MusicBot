@@ -208,7 +208,7 @@ class UserManager @Inject constructor(
             .withIssuedAt(Date())
             .withExpiresAt(Date.from(Instant.now().plus(Duration.ofDays(REFRESH_TOKEN_TTL_DAYS))))
             .withClaim("refresh", true)
-            .sign(Algorithm.HMAC512(user.signature));
+            .sign(Algorithm.HMAC512(user.signature))
     }
 
     /**
@@ -325,7 +325,7 @@ class UserManager @Inject constructor(
         } catch (e: JWTVerificationException) {
             throw InvalidTokenException(e)
         }
-        return user;
+        return user
     }
 }
 

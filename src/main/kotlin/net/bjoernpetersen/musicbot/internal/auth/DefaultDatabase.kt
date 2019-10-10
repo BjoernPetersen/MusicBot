@@ -89,7 +89,7 @@ constructor(databaseUrl: String) : UserDatabase {
             val updateSig = connection.prepareStatement("UPDATE users SET signature=? WHERE id=?")
             statement.executeQuery("SELECT * FROM users").use { resultSet ->
                 while (resultSet.next()) {
-                    updateSig.clearParameters();
+                    updateSig.clearParameters()
                     updateSig.setString(1, createSignatureKey())
                     updateSig.setString(2, resultSet.getString("id"))
                     updateSig.execute()

@@ -21,7 +21,7 @@ import java.sql.DriverManager
 import java.sql.SQLException
 
 class MigratedDatabaseTest : DefaultDatabaseTest() {
-    private lateinit var connection: Connection;
+    private lateinit var connection: Connection
 
     private var injectorFunctions: List<() -> Unit> = emptyList()
     private fun execute(functions: List<() -> Unit>) {
@@ -75,7 +75,6 @@ class MigratedDatabaseTest : DefaultDatabaseTest() {
                 }
             }
         }
-
     }
 
     private fun assertVersion1() {
@@ -85,7 +84,7 @@ class MigratedDatabaseTest : DefaultDatabaseTest() {
                 .also { Assertions.assertEquals(1, it) }
 
             statement.executeQuery("PRAGMA table_info(users)").use {
-                var count = 0;
+                var count = 0
                 while (it.next()) {
                     val column = v1Columns[it.getString("name")]
                         ?: throw SQLException("unexpected column ${it.getString("name")} in db")
@@ -135,6 +134,5 @@ class MigratedDatabaseTest : DefaultDatabaseTest() {
         val type: String,
         val notnull: Boolean,
         val pk: Boolean
-    ) {}
-
+    )
 }
