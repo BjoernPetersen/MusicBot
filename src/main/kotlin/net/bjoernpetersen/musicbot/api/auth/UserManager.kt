@@ -273,6 +273,7 @@ class UserManager @Inject constructor(
         return FullUser(name, permissions, "", "")
     }
 
+    @Suppress("ThrowsCount")
     @Throws(InvalidTokenException::class)
     private fun decodeGuestUserToken(token: String): GuestUser {
         val decoded = try {

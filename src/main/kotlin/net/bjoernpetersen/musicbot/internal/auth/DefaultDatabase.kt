@@ -17,6 +17,7 @@ private const val DATABASE_VERSION = 1
 
 internal class DefaultDatabase
 @Deprecated("Use file constructor instead")
+@Suppress("TooManyFunctions")
 constructor(databaseUrl: String) : UserDatabase {
     @Suppress("DEPRECATION")
     constructor(file: Path) : this("jdbc:sqlite:$file")
@@ -66,38 +67,13 @@ constructor(databaseUrl: String) : UserDatabase {
     }
 
     private fun migrateDB() {
-        connection.autoCommit = false
         try {
-            connection.createStatement().use { statement ->
-                val version = statement.executeQuery("PRAGMA user_version").use { it.getInt(1) }
-                if (version < 1) {
-                    statement.execute("ALTER TABLE users ADD COLUMN signature TEXT")
-                    val updateSig = connection.prepareStatement("UPDATE users SET signature=? WHERE id=?")
-                    statement.executeQuery("SELECT * FROM users").use { resultSet ->
-                        while (resultSet.next()) {
-                            updateSig.clearParameters();
-                            updateSig.setString(1, createSignatureKey())
-                            updateSig.setString(2, resultSet.getString("id"))
-                            updateSig.execute()
-                        }
-                    }
-                    statement.execute("PRAGMA foreign_key = off")
-                    statement.execute(
-                        """CREATE TABLE IF NOT EXISTS users_copy (
-                            id TEXT PRIMARY KEY UNIQUE NOT NULL,
-                            name TEXT NOT NULL,
-                            password TEXT NOT NULL,
-                            permissions TEXT NOT NULL,
-                            signature TEXT NOT NULL)""".trimIndent())
-                    statement.execute(
-                        """INSERT INTO users_copy(id, name, password, permissions, signature)
-                            SELECT id, name, password, permissions, signature
-                            FROM users""".trimIndent())
-                    statement.execute("DROP TABLE users")
-                    statement.execute("ALTER TABLE users_copy RENAME TO users")
-                    statement.execute("PRAGMA user_version = 1")
-                    statement.execute("PRAGMA foreign_key=on")
-                }
+            connection.autoCommit = false
+            val version = connection.createStatement().use { statement ->
+                 statement.executeQuery("PRAGMA user_version").use { it.getInt(1) }
+            }
+            if(version < 1) {
+                migrateV0()
             }
             connection.commit()
         } catch (e: SQLException) {
@@ -105,6 +81,37 @@ constructor(databaseUrl: String) : UserDatabase {
             throw SQLException("Unable to migrate database. rolling back", e)
         }
         connection.autoCommit = true
+    }
+
+    private fun migrateV0() {
+        connection.createStatement().use { statement ->
+            statement.execute("ALTER TABLE users ADD COLUMN signature TEXT")
+            val updateSig = connection.prepareStatement("UPDATE users SET signature=? WHERE id=?")
+            statement.executeQuery("SELECT * FROM users").use { resultSet ->
+                while (resultSet.next()) {
+                    updateSig.clearParameters();
+                    updateSig.setString(1, createSignatureKey())
+                    updateSig.setString(2, resultSet.getString("id"))
+                    updateSig.execute()
+                }
+            }
+            statement.execute("PRAGMA foreign_key = off")
+            statement.execute(
+                """CREATE TABLE IF NOT EXISTS users_copy (
+                            id TEXT PRIMARY KEY UNIQUE NOT NULL,
+                            name TEXT NOT NULL,
+                            password TEXT NOT NULL,
+                            permissions TEXT NOT NULL,
+                            signature TEXT NOT NULL)""".trimIndent())
+            statement.execute(
+                """INSERT INTO users_copy(id, name, password, permissions, signature)
+                            SELECT id, name, password, permissions, signature
+                            FROM users""".trimIndent())
+            statement.execute("DROP TABLE users")
+            statement.execute("ALTER TABLE users_copy RENAME TO users")
+            statement.execute("PRAGMA user_version = 1")
+            statement.execute("PRAGMA foreign_key=on")
+        }
     }
 
     private fun getPermissions(permissionString: String): Set<Permission> = Splitter.on(',')
