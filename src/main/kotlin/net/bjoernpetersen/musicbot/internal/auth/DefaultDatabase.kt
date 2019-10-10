@@ -15,9 +15,9 @@ import java.util.HashSet
 
 private const val DATABASE_VERSION = 1
 
+@Suppress("TooManyFunctions")
 internal class DefaultDatabase
 @Deprecated("Use file constructor instead")
-@Suppress("TooManyFunctions")
 constructor(databaseUrl: String) : UserDatabase {
     @Suppress("DEPRECATION")
     constructor(file: Path) : this("jdbc:sqlite:$file")

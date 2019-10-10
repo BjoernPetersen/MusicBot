@@ -303,7 +303,7 @@ class UserManager @Inject constructor(
      * [GuestUser]s after a restart of the server
      *
      */
-    @Suppress("unused")
+    @Suppress("unused", "ThrowsCount")
     @Throws(InvalidTokenException::class, UserNotFoundException::class)
     fun decodeRefreshToken(token: String): User {
         val decoded = try {
