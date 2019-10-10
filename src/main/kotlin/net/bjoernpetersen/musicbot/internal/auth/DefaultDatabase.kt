@@ -67,8 +67,8 @@ constructor(databaseUrl: String) : UserDatabase {
     }
 
     private fun migrateDB() {
+        val savepoint = connection.setSavepoint()
         try {
-            connection.autoCommit = false
             val version = connection.createStatement().use { statement ->
                 statement.executeQuery("PRAGMA user_version").use { it.getInt(1) }
             }
@@ -77,7 +77,7 @@ constructor(databaseUrl: String) : UserDatabase {
             }
             connection.commit()
         } catch (e: SQLException) {
-            connection.rollback()
+            connection.rollback(savepoint)
             throw SQLException("Unable to migrate database. rolling back", e)
         }
         connection.autoCommit = true
