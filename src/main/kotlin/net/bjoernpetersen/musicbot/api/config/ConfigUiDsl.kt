@@ -14,7 +14,6 @@ import java.nio.file.Path
  * - [describe]
  * - [action]
  */
-@ExperimentalConfigDsl
 class ActionButtonConfiguration<T> internal constructor() {
     /**
      * @see ActionButton.label
@@ -62,7 +61,6 @@ class ActionButtonConfiguration<T> internal constructor() {
 /**
  * Create an [ActionButton].
  */
-@ExperimentalConfigDsl
 fun <T> actionButton(configure: ActionButtonConfiguration<T>.() -> Unit): ActionButton<T> {
     val config = ActionButtonConfiguration<T>()
     config.configure()
@@ -72,7 +70,6 @@ fun <T> actionButton(configure: ActionButtonConfiguration<T>.() -> Unit): Action
 /**
  * Create and use an [ActionButton].
  */
-@ExperimentalConfigDsl
 fun <T> SerializedConfiguration<T>.actionButton(
     configure: ActionButtonConfiguration<T>.() -> Unit
 ) {
@@ -84,7 +81,6 @@ fun <T> SerializedConfiguration<T>.actionButton(
 /**
  * Create and use an [ActionButton].
  */
-@ExperimentalConfigDsl
 fun StringConfiguration.actionButton(
     configure: ActionButtonConfiguration<String>.() -> Unit
 ) {
@@ -96,7 +92,6 @@ fun StringConfiguration.actionButton(
 /**
  * Create a [PathChooser] for opening files.
  */
-@ExperimentalConfigDsl
 fun openFile(): PathChooser {
     return PathChooser(isDirectory = false, isOpen = true)
 }
@@ -104,7 +99,6 @@ fun openFile(): PathChooser {
 /**
  * Use a [PathChooser] for opening files.
  */
-@ExperimentalConfigDsl
 fun SerializedConfiguration<Path>.openFile() {
     uiNode = PathChooser(isDirectory = false, isOpen = true)
 }
@@ -112,7 +106,6 @@ fun SerializedConfiguration<Path>.openFile() {
 /**
  * Create a [PathChooser] for opening directories.
  */
-@ExperimentalConfigDsl
 fun openDirectory(): PathChooser {
     return PathChooser(isDirectory = true, isOpen = true)
 }
@@ -120,7 +113,6 @@ fun openDirectory(): PathChooser {
 /**
  * Use a [PathChooser] for opening directories.
  */
-@ExperimentalConfigDsl
 fun SerializedConfiguration<Path>.openDirectory() {
     uiNode = PathChooser(isDirectory = true, isOpen = true)
 }
@@ -128,7 +120,6 @@ fun SerializedConfiguration<Path>.openDirectory() {
 /**
  * Create a [PathChooser] for saving files.
  */
-@ExperimentalConfigDsl
 fun saveFile(): PathChooser {
     return PathChooser(isDirectory = false, isOpen = false)
 }
@@ -136,7 +127,6 @@ fun saveFile(): PathChooser {
 /**
  * Use a [PathChooser] for saving files.
  */
-@ExperimentalConfigDsl
 fun SerializedConfiguration<Path>.saveFile() {
     uiNode = PathChooser(isDirectory = false, isOpen = false)
 }
@@ -144,7 +134,6 @@ fun SerializedConfiguration<Path>.saveFile() {
 /**
  * Create a [FileChooser] for opening files.
  */
-@ExperimentalConfigDsl
 fun openLegacyFile(): FileChooser {
     return FileChooser(isDirectory = false, isOpen = true)
 }
@@ -152,7 +141,6 @@ fun openLegacyFile(): FileChooser {
 /**
  * Use a [FileChooser] for opening files.
  */
-@ExperimentalConfigDsl
 fun SerializedConfiguration<File>.openLegacyFile() {
     uiNode = FileChooser(isDirectory = false, isOpen = true)
 }
@@ -160,7 +148,6 @@ fun SerializedConfiguration<File>.openLegacyFile() {
 /**
  * Create a [FileChooser] for opening directories.
  */
-@ExperimentalConfigDsl
 fun openLegacyDirectory(): FileChooser {
     return FileChooser(isDirectory = true, isOpen = true)
 }
@@ -168,7 +155,6 @@ fun openLegacyDirectory(): FileChooser {
 /**
  * Use a [FileChooser] for opening directories.
  */
-@ExperimentalConfigDsl
 fun SerializedConfiguration<File>.openLegacyDirectory() {
     uiNode = FileChooser(isDirectory = true, isOpen = true)
 }
@@ -176,7 +162,6 @@ fun SerializedConfiguration<File>.openLegacyDirectory() {
 /**
  * Create a [FileChooser] for saving files.
  */
-@ExperimentalConfigDsl
 fun saveLegacyFile(): FileChooser {
     return FileChooser(isDirectory = false, isOpen = false)
 }
@@ -184,7 +169,6 @@ fun saveLegacyFile(): FileChooser {
 /**
  * Use a [FileChooser] for saving files.
  */
-@ExperimentalConfigDsl
 fun SerializedConfiguration<File>.saveLegacyFile() {
     uiNode = FileChooser(isDirectory = false, isOpen = false)
 }
@@ -201,7 +185,6 @@ fun SerializedConfiguration<File>.saveLegacyFile() {
  *
  * - [lazy]
  */
-@ExperimentalConfigDsl
 class ChoiceBoxConfiguration<T> internal constructor() {
     private lateinit var descriptor: (T) -> String
     private lateinit var onRefresh: suspend () -> List<T>?
@@ -253,7 +236,6 @@ class ChoiceBoxConfiguration<T> internal constructor() {
 /**
  * Create a [ChoiceBox].
  */
-@ExperimentalConfigDsl
 fun <T> choiceBox(configure: ChoiceBoxConfiguration<T>.() -> Unit): ChoiceBox<T> {
     val config = ChoiceBoxConfiguration<T>()
     config.configure()
@@ -263,7 +245,6 @@ fun <T> choiceBox(configure: ChoiceBoxConfiguration<T>.() -> Unit): ChoiceBox<T>
 /**
  * Create and use a [ChoiceBox].
  */
-@ExperimentalConfigDsl
 fun <T> SerializedConfiguration<T>.choiceBox(
     configure: ChoiceBoxConfiguration<T>.() -> Unit
 ) {

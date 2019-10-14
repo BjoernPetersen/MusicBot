@@ -11,6 +11,7 @@ import kotlin.reflect.KProperty
  * preceding deprecation.
  */
 @Experimental
+@Deprecated("No longer experimental")
 annotation class ExperimentalConfigDsl
 
 /**
@@ -26,7 +27,6 @@ annotation class ExperimentalConfigDsl
  * - [uiNode], required for non-state entries
  * - [default]
  */
-@ExperimentalConfigDsl
 class StringConfiguration(val key: String) {
 
     init {
@@ -80,14 +80,12 @@ class StringConfiguration(val key: String) {
  * Creates a String config entry.
  * @param key the unique (in scope) entry key
  */
-@ExperimentalConfigDsl
 fun Config.string(key: String, configure: StringConfiguration.() -> Unit): Config.StringEntry {
     val config = StringConfiguration(key)
     config.configure()
     return config.toEntry(this)
 }
 
-@ExperimentalConfigDsl
 private class StringDelegate(
     private val config: Config,
     private val configure: StringConfiguration.() -> Unit
@@ -103,7 +101,6 @@ private class StringDelegate(
 /**
  * Delegate to create a String config entry.
  */
-@ExperimentalConfigDsl
 fun Config.string(
     configure: StringConfiguration.() -> Unit
 ): ReadOnlyProperty<Any?, Config.StringEntry> = StringDelegate(this, configure)
@@ -116,7 +113,6 @@ fun Config.string(
  * - [description]
  * - [default]
  */
-@ExperimentalConfigDsl
 class BooleanConfiguration(val key: String) {
     /**
      * A description of what the entry does.
@@ -151,14 +147,12 @@ class BooleanConfiguration(val key: String) {
  * Creates a boolean config entry.
  * @param key the unique (in scope) entry key
  */
-@ExperimentalConfigDsl
 fun Config.boolean(key: String, configure: BooleanConfiguration.() -> Unit): Config.BooleanEntry {
     val config = BooleanConfiguration(key)
     config.configure()
     return config.toEntry(this)
 }
 
-@ExperimentalConfigDsl
 private class BooleanDelegate(
     private val config: Config,
     private val configure: BooleanConfiguration.() -> Unit
@@ -174,7 +168,6 @@ private class BooleanDelegate(
 /**
  * Delegate to create a boolean config entry.
  */
-@ExperimentalConfigDsl
 fun Config.boolean(
     configure: BooleanConfiguration.() -> Unit
 ): ReadOnlyProperty<Any?, Config.BooleanEntry> = BooleanDelegate(this, configure)
@@ -189,7 +182,6 @@ fun Config.boolean(
  *
  * @param T the type of config value to serialize and deserialize
  */
-@ExperimentalConfigDsl
 class SerializationConfiguration<T> {
     private lateinit var serializer: (T) -> String
     private lateinit var deserializer: (String) -> T
@@ -233,7 +225,6 @@ class SerializationConfiguration<T> {
 /**
  * Configure config serialization using a DSL.
  */
-@ExperimentalConfigDsl
 fun <T> serialization(configure: SerializationConfiguration<T>.() -> Unit): ConfigSerializer<T> {
     val config = SerializationConfiguration<T>()
     config.configure()
@@ -243,7 +234,6 @@ fun <T> serialization(configure: SerializationConfiguration<T>.() -> Unit): Conf
 /**
  * Configure and use config serialization using a DSL.
  */
-@ExperimentalConfigDsl
 fun <T> SerializedConfiguration<T>.serialization(
     configure: SerializationConfiguration<T>.() -> Unit
 ) {
@@ -266,7 +256,6 @@ fun <T> SerializedConfiguration<T>.serialization(
  * - [uiNode], required for non-state entries
  * - [default]
  */
-@ExperimentalConfigDsl
 class SerializedConfiguration<T>(val key: String) {
     /**
      * A description of what the entry does.
@@ -322,7 +311,6 @@ class SerializedConfiguration<T>(val key: String) {
  *
  * @param key the unique (in scope) entry key
  */
-@ExperimentalConfigDsl
 fun <T> Config.serialized(
     key: String,
     configure: SerializedConfiguration<T>.() -> Unit
@@ -332,7 +320,6 @@ fun <T> Config.serialized(
     return config.toEntry(this)
 }
 
-@ExperimentalConfigDsl
 private class SerializedDelegate<T>(
     private val config: Config,
     private val configure: SerializedConfiguration<T>.() -> Unit
@@ -348,7 +335,6 @@ private class SerializedDelegate<T>(
 /**
  * Delegate to create a config entry accepting a non-string type.
  */
-@ExperimentalConfigDsl
 fun <T> Config.serialized(
     configure: SerializedConfiguration<T>.() -> Unit
 ): ReadOnlyProperty<Any?, Config.SerializedEntry<T>> = SerializedDelegate(this, configure)

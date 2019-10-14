@@ -16,7 +16,6 @@ import java.io.File
 import java.nio.file.Path
 
 @ExtendWith(ConfigExtension::class)
-@UseExperimental(ExperimentalConfigDsl::class)
 class ConfigUiDslTest {
 
     @Nested

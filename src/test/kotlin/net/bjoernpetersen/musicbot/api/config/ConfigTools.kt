@@ -1,6 +1,5 @@
 package net.bjoernpetersen.musicbot.api.config
 
-@UseExperimental(ExperimentalConfigDsl::class)
 fun Config.implEntry(
     key: String = "key",
     configure: SerializedConfiguration<Impl>.() -> Unit = {}

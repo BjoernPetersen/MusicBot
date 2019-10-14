@@ -13,7 +13,6 @@ import org.junit.jupiter.api.TestFactory
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 
-@UseExperimental(ExperimentalConfigDsl::class)
 @ExtendWith(ConfigExtension::class)
 class ConfigDslTest {
     @Test

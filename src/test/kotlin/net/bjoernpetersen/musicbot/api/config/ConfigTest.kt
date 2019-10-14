@@ -65,7 +65,6 @@ class ConfigTest {
     }
 
     @Test
-    @ExperimentalConfigDsl
     fun deserializeError(config: Config) {
         val entry = config.implEntry {
             serializer = Impl.FaultySerializer
