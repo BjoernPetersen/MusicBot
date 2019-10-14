@@ -16,7 +16,9 @@ class ConfigSerializerTest {
         return listOf(
             (42 to "42") with IntSerializer,
             (File(path) to path) with FileSerializer,
-            (Paths.get(path) to path) with PathSerializer
+            (Paths.get(path) to path) with PathSerializer,
+            (listOf(1, 2, 3) to "1,2,3" with IntSerializer.listSerializer()),
+            (setOf(1, 2, 3) to "1,2,3" with IntSerializer.setSerializer())
         ).map { pair ->
             dynamicTest("to ${pair.serializedValue}") {
                 assertEquals(pair.serializedValue, pair.serialize())
@@ -41,7 +43,10 @@ class ConfigSerializerTest {
         return listOf(
             (42 to "42") with IntSerializer,
             (File(path) to path) with FileSerializer,
-            (Paths.get(path) to path) with PathSerializer
+            (Paths.get(path) to path) with PathSerializer,
+            (listOf(1, 2, 3) to "1,2,3" with IntSerializer.listSerializer()),
+            (setOf(1, 2, 3) to "1,2,3" with IntSerializer.setSerializer()),
+            (setOf(1, 2, 3) to "1,2,3,2" with IntSerializer.setSerializer())
         ).map { pair ->
             dynamicTest("of ${pair.serializedValue}") {
                 assertEquals(pair.value, pair.deserialize())
