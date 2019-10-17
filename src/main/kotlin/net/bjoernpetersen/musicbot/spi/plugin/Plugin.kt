@@ -214,14 +214,16 @@ val KClass<*>.hasActiveBase: Boolean
         superclasses.any { it.hasActiveBase }
 
 val KClass<*>.idName: String
-    get() = findAnnotation<IdBase>()?.displayName ?: throw DeclarationException()
+    get() = id.findAnnotation<IdBase>()?.displayName ?: throw DeclarationException()
 
 val Plugin.bases: List<KClass<out Plugin>>
+    get() = this::class.bases
+
+val KClass<*>.bases: List<KClass<out Plugin>>
     get() {
         val specs = mutableListOf<KClass<out Plugin>>()
-        val type = this::class
-        if (type.isBase) specs.add(type)
-        type.allSuperclasses.asSequence()
+        if (this.isBase) specs.add(this as KClass<out Plugin>)
+        this.allSuperclasses.asSequence()
             .filter { it.isBase }
             .filter {
                 it.isSubclassOf(Plugin::class).also { isSubclass ->
@@ -243,8 +245,14 @@ val Plugin.bases: List<KClass<out Plugin>>
 
 val Plugin.id: KClass<out Plugin>
     @Beta
+    get() = this::class.id
+
+val KClass<*>.id: KClass<out Plugin>
+    @Beta
     get() {
         var foundActive = false
+        if (isIdBase) return this as KClass<out Plugin>
+        val bases = bases
         val ids: MutableList<KClass<out Plugin>> = ArrayList(bases.size)
         bases.forEach {
             if (it.isIdBase) {
