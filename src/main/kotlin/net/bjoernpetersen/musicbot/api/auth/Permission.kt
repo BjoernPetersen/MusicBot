@@ -1,6 +1,8 @@
 package net.bjoernpetersen.musicbot.api.auth
 
 import com.google.common.annotations.Beta
+import net.bjoernpetersen.musicbot.api.config.ConfigSerializer
+import net.bjoernpetersen.musicbot.api.config.SerializationException
 import net.bjoernpetersen.musicbot.spi.plugin.Suggester
 
 /**
@@ -55,7 +57,7 @@ enum class Permission(val label: String) {
      */
     EXIT("exit");
 
-    companion object {
+    companion object : ConfigSerializer<Permission> {
         private val defaultPermissions: Set<Permission> by lazy {
             values().filterTo(HashSet()) { permission ->
                 Permission::class.java
@@ -79,6 +81,15 @@ enum class Permission(val label: String) {
         @Beta
         @JvmStatic
         fun getDefaults(): Set<Permission> = defaultPermissions
+
+        override fun serialize(obj: Permission): String = obj.label
+        override fun deserialize(string: String): Permission {
+            return try {
+                matchByLabel(string)
+            } catch (e: IllegalArgumentException) {
+                throw SerializationException()
+            }
+        }
     }
 }
 
