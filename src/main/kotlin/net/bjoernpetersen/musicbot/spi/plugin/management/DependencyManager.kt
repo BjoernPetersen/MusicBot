@@ -188,11 +188,16 @@ interface DependencyManager {
     /**
      * Create an immutable [PluginFinder] from the current state of this object.
      *
+     * @param providerOrder provider IDs in the order they should appear in the result
+     * @param suggesterOrder suggester IDs in the order they should appear in the result
      * @return a PluginFinder
      * @throws DependencyConfigurationException if there are problems with the current configuration
      */
     @Throws(DependencyConfigurationException::class)
-    fun finish(): PluginFinder
+    fun finish(
+        providerOrder: List<String>,
+        suggesterOrder: List<String>
+    ): PluginFinder
 }
 
 /**

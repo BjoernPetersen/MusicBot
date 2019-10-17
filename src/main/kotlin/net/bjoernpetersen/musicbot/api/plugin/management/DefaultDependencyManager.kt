@@ -105,11 +105,14 @@ class DefaultDependencyManager(
     }
 
     @Throws(DependencyConfigurationException::class)
-    override fun finish(): PluginFinder {
+    override fun finish(
+        providerOrder: List<String>,
+        suggesterOrder: List<String>
+    ): PluginFinder {
         val genericPlugins: List<GenericPlugin> = findEnabledGeneric()
         val playbackFactories: List<PlaybackFactory> = findEnabledPlaybackFactory()
-        val providers: List<Provider> = findEnabledProvider()
-        val suggesters: List<Suggester> = findEnabledSuggester()
+        val providers: List<Provider> = findEnabledProvider().sortedByOrder(providerOrder)
+        val suggesters: List<Suggester> = findEnabledSuggester().sortedByOrder(suggesterOrder)
 
         val defaultByBase = findEnabledDependencies()
             .associateWithTo(HashMap()) { base ->
@@ -181,3 +184,7 @@ data class Plugins(
     val providers: List<Provider>,
     val suggesters: List<Suggester>
 )
+
+private fun <T : Plugin> List<T>.sortedByOrder(order: List<String>): List<T> {
+    return sortedBy { order.indexOf(it.id.qualifiedName!!) }
+}
