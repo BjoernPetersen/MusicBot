@@ -2,7 +2,10 @@ import java.util.Locale
 
 private val UNSTABLE_KEYWORDS = listOf(
     "alpha",
-    "beta"
+    "beta",
+    "rc",
+    "m",
+    "eap"
 )
 
 fun isUnstable(version: String, currentVersion: String): Boolean {
