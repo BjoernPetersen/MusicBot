@@ -37,6 +37,7 @@ idea {
 java {
     sourceCompatibility = JavaVersion.VERSION_1_8
     targetCompatibility = JavaVersion.VERSION_1_8
+    withSourcesJar()
 }
 
 spotless {
@@ -84,12 +85,6 @@ tasks {
         dependsOn("dokkaJavadoc")
         archiveClassifier.set("javadoc")
         from("$buildDir/javadoc")
-    }
-
-    @Suppress("UNUSED_VARIABLE")
-    val sourcesJar by creating(Jar::class) {
-        archiveClassifier.set("sources")
-        from(sourceSets["main"].allSource)
     }
 
     "processResources"(ProcessResources::class) {
@@ -212,7 +207,6 @@ publishing {
         create("Maven", MavenPublication::class) {
             from(components["java"])
             artifact(tasks.getByName("javadocJar"))
-            artifact(tasks.getByName("sourcesJar"))
 
             pom {
                 name.set("MusicBot")
