@@ -3,6 +3,8 @@ package net.bjoernpetersen.musicbot.spi.plugin
 import net.bjoernpetersen.musicbot.api.config.Config
 import net.bjoernpetersen.musicbot.api.player.Song
 import net.bjoernpetersen.musicbot.api.plugin.IdBase
+import net.bjoernpetersen.musicbot.api.plugin.bases
+import net.bjoernpetersen.musicbot.api.plugin.id
 import net.bjoernpetersen.musicbot.spi.loader.Resource
 import net.bjoernpetersen.musicbot.spi.plugin.management.InitStateWriter
 import org.junit.jupiter.api.Assertions.assertDoesNotThrow

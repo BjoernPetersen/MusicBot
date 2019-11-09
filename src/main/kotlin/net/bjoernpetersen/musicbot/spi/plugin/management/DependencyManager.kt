@@ -2,6 +2,10 @@ package net.bjoernpetersen.musicbot.spi.plugin.management
 
 import com.google.common.annotations.Beta
 import net.bjoernpetersen.musicbot.api.plugin.ActiveBase
+import net.bjoernpetersen.musicbot.api.plugin.DeclarationException
+import net.bjoernpetersen.musicbot.api.plugin.PluginId
+import net.bjoernpetersen.musicbot.api.plugin.bases
+import net.bjoernpetersen.musicbot.api.plugin.id
 import net.bjoernpetersen.musicbot.api.plugin.management.PluginFinder
 import net.bjoernpetersen.musicbot.api.plugin.management.findDependencies
 import net.bjoernpetersen.musicbot.spi.plugin.GenericPlugin
@@ -9,9 +13,6 @@ import net.bjoernpetersen.musicbot.spi.plugin.PlaybackFactory
 import net.bjoernpetersen.musicbot.spi.plugin.Plugin
 import net.bjoernpetersen.musicbot.spi.plugin.Provider
 import net.bjoernpetersen.musicbot.spi.plugin.Suggester
-import net.bjoernpetersen.musicbot.spi.plugin.bases
-import net.bjoernpetersen.musicbot.spi.plugin.hasActiveBase
-import net.bjoernpetersen.musicbot.spi.plugin.id
 import kotlin.reflect.KClass
 
 /**
@@ -92,7 +93,12 @@ interface DependencyManager {
         plugin: Plugin,
         visited: MutableMap<Plugin, Boolean?> = HashMap()
     ): Boolean {
-        if (plugin::class.hasActiveBase && isDefault(plugin, plugin.id)) return true
+        val id = try {
+            plugin.id
+        } catch (e: DeclarationException) {
+            null
+        }
+        if (id != null && isDefault(plugin, id.type)) return true
         if (plugin in visited) return visited[plugin]
             ?: throw IllegalStateException("Cyclic dependency: $plugin $visited")
         visited[plugin] = null
@@ -195,8 +201,8 @@ interface DependencyManager {
      */
     @Throws(DependencyConfigurationException::class)
     fun finish(
-        providerOrder: List<String>,
-        suggesterOrder: List<String>
+        providerOrder: List<PluginId>,
+        suggesterOrder: List<PluginId>
     ): PluginFinder
 }
 

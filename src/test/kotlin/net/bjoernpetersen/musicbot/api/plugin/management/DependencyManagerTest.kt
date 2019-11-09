@@ -1,6 +1,9 @@
 package net.bjoernpetersen.musicbot.api.plugin.management
 
 import net.bjoernpetersen.musicbot.api.config.Config
+import net.bjoernpetersen.musicbot.api.plugin.bases
+import net.bjoernpetersen.musicbot.api.plugin.category
+import net.bjoernpetersen.musicbot.api.plugin.id
 import net.bjoernpetersen.musicbot.test.api.config.ConfigExtension
 import net.bjoernpetersen.musicbot.api.plugin.management.plugins.AuthMyProvider
 import net.bjoernpetersen.musicbot.api.plugin.management.plugins.AuthMySuggester
@@ -16,9 +19,6 @@ import net.bjoernpetersen.musicbot.spi.plugin.GenericPlugin
 import net.bjoernpetersen.musicbot.spi.plugin.PlaybackFactory
 import net.bjoernpetersen.musicbot.spi.plugin.Provider
 import net.bjoernpetersen.musicbot.spi.plugin.Suggester
-import net.bjoernpetersen.musicbot.spi.plugin.bases
-import net.bjoernpetersen.musicbot.spi.plugin.category
-import net.bjoernpetersen.musicbot.spi.plugin.id
 import net.bjoernpetersen.musicbot.spi.plugin.management.DependencyManager
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -62,7 +62,7 @@ class DependencyManagerTest {
         .map { (plugin, manager) ->
             dynamicTest("${plugin.category.simpleName}: ${plugin.name}") {
                 assertFalse(manager.isEnabled(plugin))
-                manager.setDefault(plugin, plugin.id)
+                manager.setDefault(plugin, plugin.id.type)
                 assertTrue(manager.isEnabled(plugin))
             }
         }
@@ -90,7 +90,7 @@ class DependencyManagerTest {
             providers = listOf(provider))
 
         assertFalse(manager.isEnabled(provider))
-        manager.setDefault(provider, provider.id)
+        manager.setDefault(provider, provider.id.type)
         assertTrue(manager.isEnabled(provider))
 
         assertFalse(manager.isEnabled(auth))

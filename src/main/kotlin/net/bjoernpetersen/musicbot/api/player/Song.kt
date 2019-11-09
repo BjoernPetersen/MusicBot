@@ -2,9 +2,9 @@ package net.bjoernpetersen.musicbot.api.player
 
 import net.bjoernpetersen.musicbot.api.image.ImageServerConstraints
 import net.bjoernpetersen.musicbot.api.plugin.NamedPlugin
+import net.bjoernpetersen.musicbot.api.plugin.id
 import net.bjoernpetersen.musicbot.spi.image.AlbumArtSupplier
 import net.bjoernpetersen.musicbot.spi.plugin.Provider
-import net.bjoernpetersen.musicbot.spi.plugin.id
 import java.util.Base64
 
 /**
@@ -113,7 +113,7 @@ class SongConfiguration internal constructor(val id: String, val provider: Provi
 }
 
 private fun Provider.toNamedPlugin(): NamedPlugin<Provider> =
-    NamedPlugin(id.qualifiedName!!, subject)
+    NamedPlugin(id.qualifiedName, subject)
 
 /**
  * Create a song using the Song DSL and configure it to serve the album art using the calling

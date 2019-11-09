@@ -9,15 +9,16 @@ import net.bjoernpetersen.musicbot.api.config.MainConfigScope
 import net.bjoernpetersen.musicbot.api.config.NonnullConfigChecker
 import net.bjoernpetersen.musicbot.api.config.SerializationException
 import net.bjoernpetersen.musicbot.api.config.UiNode
+import net.bjoernpetersen.musicbot.api.plugin.DeclarationException
+import net.bjoernpetersen.musicbot.api.plugin.PluginId
 import net.bjoernpetersen.musicbot.api.plugin.PluginLoader
+import net.bjoernpetersen.musicbot.api.plugin.bases
+import net.bjoernpetersen.musicbot.api.plugin.id
 import net.bjoernpetersen.musicbot.spi.plugin.GenericPlugin
 import net.bjoernpetersen.musicbot.spi.plugin.PlaybackFactory
 import net.bjoernpetersen.musicbot.spi.plugin.Plugin
 import net.bjoernpetersen.musicbot.spi.plugin.Provider
 import net.bjoernpetersen.musicbot.spi.plugin.Suggester
-import net.bjoernpetersen.musicbot.spi.plugin.bases
-import net.bjoernpetersen.musicbot.spi.plugin.hasActiveBase
-import net.bjoernpetersen.musicbot.spi.plugin.id
 import net.bjoernpetersen.musicbot.spi.plugin.management.DependencyConfigurationException
 import net.bjoernpetersen.musicbot.spi.plugin.management.DependencyManager
 import kotlin.reflect.KClass
@@ -106,8 +107,8 @@ class DefaultDependencyManager(
 
     @Throws(DependencyConfigurationException::class)
     override fun finish(
-        providerOrder: List<String>,
-        suggesterOrder: List<String>
+        providerOrder: List<PluginId>,
+        suggesterOrder: List<PluginId>
     ): PluginFinder {
         val genericPlugins: List<GenericPlugin> = findEnabledGeneric()
         val playbackFactories: List<PlaybackFactory> = findEnabledPlaybackFactory()
@@ -126,9 +127,12 @@ class DefaultDependencyManager(
 
         sequenceOf(genericPlugins, playbackFactories, providers, suggesters)
             .flatMap { it.asSequence() }
-            .filter { it::class.hasActiveBase }
             .forEach {
-                defaultByBase[it.id] = it
+                try {
+                    defaultByBase[it.id.type] = it
+                } catch (e: DeclarationException) {
+                    // ignore
+                }
             }
 
         return PluginFinder(defaultByBase, genericPlugins, playbackFactories, providers, suggesters)
@@ -185,6 +189,6 @@ data class Plugins(
     val suggesters: List<Suggester>
 )
 
-private fun <T : Plugin> List<T>.sortedByOrder(order: List<String>): List<T> {
-    return sortedBy { order.indexOf(it.id.qualifiedName!!) }
+private fun <T : Plugin> List<T>.sortedByOrder(order: List<PluginId>): List<T> {
+    return sortedBy { order.indexOf(it.id) }
 }
