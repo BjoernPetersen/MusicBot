@@ -8,6 +8,7 @@ import net.bjoernpetersen.musicbot.api.config.SerializationException
  *
  * @param id the scope ID as recognized by the API
  */
+@Suppress("unused")
 enum class SpotifyScope(val id: String) {
     // Playlists
     /**
@@ -128,6 +129,8 @@ enum class SpotifyScope(val id: String) {
      * [Official docs](https://developer.spotify.com/documentation/general/guides/scopes/#app-remote-control)
      */
     APP_REMOTE_CONTROL("app-remote-control");
+
+    override fun toString(): String = id
 
     companion object : ConfigSerializer<SpotifyScope> {
         private val scopeById: Map<String, SpotifyScope> by lazy { values().associateBy { it.id } }
