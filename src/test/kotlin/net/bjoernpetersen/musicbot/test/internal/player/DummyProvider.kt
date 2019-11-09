@@ -1,5 +1,6 @@
 package net.bjoernpetersen.musicbot.test.internal.player
 
+import java.time.Duration
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import net.bjoernpetersen.musicbot.api.config.Config
@@ -13,7 +14,6 @@ import net.bjoernpetersen.musicbot.spi.plugin.NoSuchSongException
 import net.bjoernpetersen.musicbot.spi.plugin.Playback
 import net.bjoernpetersen.musicbot.spi.plugin.Provider
 import net.bjoernpetersen.musicbot.spi.plugin.management.InitStateWriter
-import java.time.Duration
 
 @IdBase("Dummy")
 class DummyProvider : Provider {

@@ -3,6 +3,8 @@ package net.bjoernpetersen.musicbot.api.module
 import com.google.inject.AbstractModule
 import com.google.inject.Provides
 import com.google.inject.Scopes
+import java.nio.file.Path
+import javax.inject.Singleton
 import net.bjoernpetersen.musicbot.internal.auth.DefaultDatabase
 import net.bjoernpetersen.musicbot.internal.image.DefaultImageCache
 import net.bjoernpetersen.musicbot.internal.loader.DefaultResourceCache
@@ -18,8 +20,6 @@ import net.bjoernpetersen.musicbot.spi.player.Player
 import net.bjoernpetersen.musicbot.spi.player.SongQueue
 import net.bjoernpetersen.musicbot.spi.plugin.PlaybackFeedbackChannel
 import net.bjoernpetersen.musicbot.spi.plugin.Suggester
-import java.nio.file.Path
-import javax.inject.Singleton
 
 /**
  * Binds the [ActorPlayer] and its [ActorPlaybackFeedbackChannel] for

@@ -1,9 +1,9 @@
 package net.bjoernpetersen.musicbot.api.plugin.management
 
 import com.google.inject.spi.InjectionPoint
-import net.bjoernpetersen.musicbot.spi.plugin.Plugin
 import kotlin.reflect.KClass
 import kotlin.reflect.full.isSubclassOf
+import net.bjoernpetersen.musicbot.spi.plugin.Plugin
 
 /**
  * Find the immediate plugin dependencies of a plugin.

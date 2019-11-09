@@ -1,5 +1,6 @@
 package net.bjoernpetersen.musicbot.api.player
 
+import java.time.Duration
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import name.falgout.jeffrey.testing.junit.guice.GuiceExtension
@@ -11,7 +12,6 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import java.time.Duration
 
 @Suppress("RemoveExplicitTypeArguments")
 @ExtendWith(GuiceExtension::class)

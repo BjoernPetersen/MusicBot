@@ -2,8 +2,8 @@ package net.bjoernpetersen.musicbot.api.module
 
 import com.google.inject.AbstractModule
 import com.google.inject.Provides
-import net.bjoernpetersen.musicbot.spi.util.BrowserOpener
 import javax.inject.Singleton
+import net.bjoernpetersen.musicbot.spi.util.BrowserOpener
 
 /**
  * Guice module which binds an instance of [BrowserOpener].

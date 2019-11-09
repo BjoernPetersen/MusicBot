@@ -1,9 +1,9 @@
 package net.bjoernpetersen.musicbot.spi.plugin
 
+import javax.inject.Inject
 import net.bjoernpetersen.musicbot.api.config.Config
 import net.bjoernpetersen.musicbot.api.plugin.InitializationException
 import net.bjoernpetersen.musicbot.spi.plugin.management.InitStateWriter
-import javax.inject.Inject
 
 /**
  * Base interface for plugins. This interface isn't meant to be directly implemented, but to be

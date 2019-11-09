@@ -1,8 +1,8 @@
 package net.bjoernpetersen.musicbot.api.plugin
 
+import kotlin.reflect.KClass
 import net.bjoernpetersen.musicbot.spi.plugin.Plugin
 import net.bjoernpetersen.musicbot.spi.plugin.UserFacing
-import kotlin.reflect.KClass
 
 /**
  * Static, serializable representation of a [user-facing][UserFacing] plugin.

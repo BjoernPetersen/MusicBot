@@ -2,6 +2,7 @@ package net.bjoernpetersen.musicbot.api.module
 
 import com.google.inject.AbstractModule
 import com.google.inject.multibindings.Multibinder
+import kotlin.reflect.KClass
 import net.bjoernpetersen.musicbot.api.plugin.fix
 import net.bjoernpetersen.musicbot.api.plugin.management.PluginFinder
 import net.bjoernpetersen.musicbot.internal.plugin.PluginLookupImpl
@@ -11,7 +12,6 @@ import net.bjoernpetersen.musicbot.spi.plugin.Plugin
 import net.bjoernpetersen.musicbot.spi.plugin.PluginLookup
 import net.bjoernpetersen.musicbot.spi.plugin.Provider
 import net.bjoernpetersen.musicbot.spi.plugin.Suggester
-import kotlin.reflect.KClass
 
 /**
  * Injects all plugins found in the specified [pluginFinder].

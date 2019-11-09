@@ -2,6 +2,9 @@ package net.bjoernpetersen.musicbot.internal.loader
 
 import com.google.inject.AbstractModule
 import com.google.inject.Guice
+import java.time.Duration
+import kotlin.coroutines.CoroutineContext
+import kotlin.reflect.KClass
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -39,9 +42,6 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import java.time.Duration
-import kotlin.coroutines.CoroutineContext
-import kotlin.reflect.KClass
 
 private fun createCache(): ResourceCache = Guice
     .createInjector(DefaultSongLoaderModule(), DummyPluginLookupModule)

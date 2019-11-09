@@ -1,11 +1,11 @@
 package net.bjoernpetersen.musicbot.api.plugin.management
 
+import kotlin.reflect.KClass
 import net.bjoernpetersen.musicbot.spi.plugin.GenericPlugin
 import net.bjoernpetersen.musicbot.spi.plugin.PlaybackFactory
 import net.bjoernpetersen.musicbot.spi.plugin.Plugin
 import net.bjoernpetersen.musicbot.spi.plugin.Provider
 import net.bjoernpetersen.musicbot.spi.plugin.Suggester
-import kotlin.reflect.KClass
 
 /**
  * Storage class for configured plugins that are (at least meant to be) active.

@@ -1,6 +1,7 @@
 package net.bjoernpetersen.musicbot.api.plugin.management
 
 import com.google.common.collect.MultimapBuilder
+import kotlin.reflect.KClass
 import mu.KotlinLogging
 import net.bjoernpetersen.musicbot.api.config.ChoiceBox
 import net.bjoernpetersen.musicbot.api.config.Config
@@ -21,7 +22,6 @@ import net.bjoernpetersen.musicbot.spi.plugin.Provider
 import net.bjoernpetersen.musicbot.spi.plugin.Suggester
 import net.bjoernpetersen.musicbot.spi.plugin.management.DependencyConfigurationException
 import net.bjoernpetersen.musicbot.spi.plugin.management.DependencyManager
-import kotlin.reflect.KClass
 
 /**
  * Default implementation of the [DependencyManager] interface.

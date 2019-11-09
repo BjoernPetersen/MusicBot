@@ -3,6 +3,7 @@ package net.bjoernpetersen.musicbot.api.module
 import com.google.inject.ConfigurationException
 import com.google.inject.Injector
 import com.google.inject.ProvisionException
+import kotlin.reflect.KClass
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
@@ -11,7 +12,6 @@ import net.bjoernpetersen.musicbot.api.plugin.management.PluginFinder
 import net.bjoernpetersen.musicbot.spi.loader.ResourceCache
 import net.bjoernpetersen.musicbot.spi.loader.SongLoader
 import net.bjoernpetersen.musicbot.spi.player.Player
-import kotlin.reflect.KClass
 
 private const val CUSTOM_STOPPER_CAPACITY = 32
 

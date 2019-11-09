@@ -1,12 +1,12 @@
 package net.bjoernpetersen.musicbot.spi.plugin
 
+import java.time.Duration
+import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.withContext
-import java.time.Duration
-import kotlin.coroutines.CoroutineContext
 
 /**
  * A feedback channel back to the player to send signals about playback state changes

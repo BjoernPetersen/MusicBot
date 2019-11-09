@@ -1,9 +1,9 @@
 package net.bjoernpetersen.musicbot.api.plugin
 
-import net.bjoernpetersen.musicbot.spi.plugin.Plugin
 import java.io.File
 import java.util.ServiceLoader
 import kotlin.reflect.KClass
+import net.bjoernpetersen.musicbot.spi.plugin.Plugin
 
 /**
  * Responsible for plugin discovery.

@@ -1,11 +1,11 @@
 package net.bjoernpetersen.musicbot.api.player
 
+import java.util.Base64
 import net.bjoernpetersen.musicbot.api.image.ImageServerConstraints
 import net.bjoernpetersen.musicbot.api.plugin.NamedPlugin
 import net.bjoernpetersen.musicbot.api.plugin.id
 import net.bjoernpetersen.musicbot.spi.image.AlbumArtSupplier
 import net.bjoernpetersen.musicbot.spi.plugin.Provider
-import java.util.Base64
 
 /**
  * Information about a song, usually created by a [Provider].

@@ -1,12 +1,12 @@
 package net.bjoernpetersen.musicbot.api.config
 
+import java.io.File
+import java.nio.file.Paths
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.DynamicTest
 import org.junit.jupiter.api.DynamicTest.dynamicTest
 import org.junit.jupiter.api.TestFactory
 import org.junit.jupiter.api.assertThrows
-import java.io.File
-import java.nio.file.Paths
 
 private val path = "example${File.separator}file${File.separator}path"
 

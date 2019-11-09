@@ -1,6 +1,9 @@
 package net.bjoernpetersen.musicbot.internal.auth
 
 import com.google.inject.Injector
+import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.Paths
 import name.falgout.jeffrey.testing.junit.guice.GuiceExtension
 import net.bjoernpetersen.musicbot.api.auth.DuplicateUserException
 import net.bjoernpetersen.musicbot.api.auth.FullUser
@@ -23,9 +26,6 @@ import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mindrot.jbcrypt.BCrypt
-import java.nio.file.Files
-import java.nio.file.Path
-import java.nio.file.Paths
 
 @ExtendWith(GuiceExtension::class)
 class DefaultDatabaseTest {

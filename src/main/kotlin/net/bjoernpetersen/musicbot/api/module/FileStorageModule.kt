@@ -1,8 +1,8 @@
 package net.bjoernpetersen.musicbot.api.module
 
 import com.google.inject.AbstractModule
-import net.bjoernpetersen.musicbot.spi.util.FileStorage
 import kotlin.reflect.KClass
+import net.bjoernpetersen.musicbot.spi.util.FileStorage
 
 /**
  * Guice module to bind a [FileStorage] implementation.

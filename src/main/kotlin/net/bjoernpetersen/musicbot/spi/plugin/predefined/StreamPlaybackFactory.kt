@@ -1,9 +1,9 @@
 package net.bjoernpetersen.musicbot.spi.plugin.predefined
 
-import net.bjoernpetersen.musicbot.spi.plugin.Playback
-import net.bjoernpetersen.musicbot.spi.plugin.PlaybackFactory
 import java.io.IOException
 import java.net.URL
+import net.bjoernpetersen.musicbot.spi.plugin.Playback
+import net.bjoernpetersen.musicbot.spi.plugin.PlaybackFactory
 
 /**
  * An extension of the [PlaybackFactory] interface which accepts URLs.

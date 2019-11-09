@@ -1,14 +1,14 @@
 package net.bjoernpetersen.musicbot.api.plugin
 
-import net.bjoernpetersen.musicbot.api.config.ConfigSerializer
-import net.bjoernpetersen.musicbot.api.config.SerializationException
-import net.bjoernpetersen.musicbot.spi.plugin.Plugin
 import javax.inject.Inject
 import javax.inject.Named
 import kotlin.reflect.KClass
 import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.isSubclassOf
 import kotlin.reflect.full.isSuperclassOf
+import net.bjoernpetersen.musicbot.api.config.ConfigSerializer
+import net.bjoernpetersen.musicbot.api.config.SerializationException
+import net.bjoernpetersen.musicbot.spi.plugin.Plugin
 
 /**
  * Wrapper for a plugin ID class.

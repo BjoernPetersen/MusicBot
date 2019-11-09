@@ -4,12 +4,6 @@ import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import com.auth0.jwt.exceptions.JWTVerificationException
 import com.auth0.jwt.exceptions.SignatureVerificationException
-import mu.KotlinLogging
-import net.bjoernpetersen.musicbot.api.config.Config
-import net.bjoernpetersen.musicbot.api.config.ConfigManager
-import net.bjoernpetersen.musicbot.api.config.GenericConfigScope
-import net.bjoernpetersen.musicbot.spi.auth.UserDatabase
-import org.mindrot.jbcrypt.BCrypt
 import java.security.SecureRandom
 import java.time.Duration
 import java.time.Instant
@@ -17,6 +11,12 @@ import java.util.Date
 import java.util.HashMap
 import javax.inject.Inject
 import javax.inject.Singleton
+import mu.KotlinLogging
+import net.bjoernpetersen.musicbot.api.config.Config
+import net.bjoernpetersen.musicbot.api.config.ConfigManager
+import net.bjoernpetersen.musicbot.api.config.GenericConfigScope
+import net.bjoernpetersen.musicbot.spi.auth.UserDatabase
+import org.mindrot.jbcrypt.BCrypt
 
 private const val TEMPORARY_USER_CAPACITY = 32
 private const val TOKEN_TTL_MINUTES = 10L

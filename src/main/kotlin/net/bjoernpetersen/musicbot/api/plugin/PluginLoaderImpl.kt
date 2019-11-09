@@ -1,7 +1,5 @@
 package net.bjoernpetersen.musicbot.api.plugin
 
-import mu.KotlinLogging
-import net.bjoernpetersen.musicbot.spi.plugin.Plugin
 import java.io.File
 import java.net.MalformedURLException
 import java.net.URL
@@ -10,6 +8,8 @@ import java.util.LinkedList
 import java.util.ServiceConfigurationError
 import java.util.ServiceLoader
 import kotlin.reflect.KClass
+import mu.KotlinLogging
+import net.bjoernpetersen.musicbot.spi.plugin.Plugin
 
 /**
  * Loads plugins from jar-files from the specified folder using Java's [ServiceLoader].

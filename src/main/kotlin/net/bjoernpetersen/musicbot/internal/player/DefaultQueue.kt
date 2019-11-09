@@ -1,10 +1,5 @@
 package net.bjoernpetersen.musicbot.internal.player
 
-import mu.KotlinLogging
-import net.bjoernpetersen.musicbot.api.player.QueueEntry
-import net.bjoernpetersen.musicbot.api.player.Song
-import net.bjoernpetersen.musicbot.spi.player.QueueChangeListener
-import net.bjoernpetersen.musicbot.spi.player.SongQueue
 import java.util.Base64
 import java.util.Collections
 import java.util.HashSet
@@ -13,6 +8,11 @@ import java.util.Locale
 import java.util.Objects
 import javax.inject.Inject
 import kotlin.math.min
+import mu.KotlinLogging
+import net.bjoernpetersen.musicbot.api.player.QueueEntry
+import net.bjoernpetersen.musicbot.api.player.Song
+import net.bjoernpetersen.musicbot.spi.player.QueueChangeListener
+import net.bjoernpetersen.musicbot.spi.player.SongQueue
 
 internal class DefaultQueue @Inject private constructor() : SongQueue {
     private val logger = KotlinLogging.logger {}

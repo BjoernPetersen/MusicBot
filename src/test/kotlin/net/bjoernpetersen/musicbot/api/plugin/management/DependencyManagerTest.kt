@@ -4,7 +4,6 @@ import net.bjoernpetersen.musicbot.api.config.Config
 import net.bjoernpetersen.musicbot.api.plugin.bases
 import net.bjoernpetersen.musicbot.api.plugin.category
 import net.bjoernpetersen.musicbot.api.plugin.id
-import net.bjoernpetersen.musicbot.test.api.config.ConfigExtension
 import net.bjoernpetersen.musicbot.api.plugin.management.plugins.AuthMyProvider
 import net.bjoernpetersen.musicbot.api.plugin.management.plugins.AuthMySuggester
 import net.bjoernpetersen.musicbot.api.plugin.management.plugins.DumbAuth
@@ -20,6 +19,7 @@ import net.bjoernpetersen.musicbot.spi.plugin.PlaybackFactory
 import net.bjoernpetersen.musicbot.spi.plugin.Provider
 import net.bjoernpetersen.musicbot.spi.plugin.Suggester
 import net.bjoernpetersen.musicbot.spi.plugin.management.DependencyManager
+import net.bjoernpetersen.musicbot.test.api.config.ConfigExtension
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.DynamicTest.dynamicTest

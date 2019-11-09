@@ -1,8 +1,8 @@
 package net.bjoernpetersen.musicbot.api.config
 
-import net.bjoernpetersen.musicbot.spi.config.ConfigChecker
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
+import net.bjoernpetersen.musicbot.spi.config.ConfigChecker
 
 /**
  * Marks all parts of the Config DSL as experimental.

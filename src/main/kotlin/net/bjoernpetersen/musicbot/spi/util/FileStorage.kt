@@ -1,7 +1,7 @@
 package net.bjoernpetersen.musicbot.spi.util
 
-import net.bjoernpetersen.musicbot.spi.plugin.Plugin
 import java.io.File
+import net.bjoernpetersen.musicbot.spi.plugin.Plugin
 
 /**
  * Provides a location for plugins to store files in.

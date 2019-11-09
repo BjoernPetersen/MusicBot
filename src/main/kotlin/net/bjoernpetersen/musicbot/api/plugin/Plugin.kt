@@ -1,10 +1,10 @@
 package net.bjoernpetersen.musicbot.api.plugin
 
-import net.bjoernpetersen.musicbot.spi.plugin.Plugin
 import kotlin.reflect.KClass
 import kotlin.reflect.full.allSuperclasses
 import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.isSubclassOf
+import net.bjoernpetersen.musicbot.spi.plugin.Plugin
 
 /**
  * An exception during plugin initialization.

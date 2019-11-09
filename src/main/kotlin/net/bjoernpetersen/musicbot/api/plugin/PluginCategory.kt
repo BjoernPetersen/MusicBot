@@ -1,5 +1,7 @@
 package net.bjoernpetersen.musicbot.api.plugin
 
+import kotlin.reflect.KClass
+import kotlin.reflect.full.isSuperclassOf
 import net.bjoernpetersen.musicbot.api.plugin.management.PluginFinder
 import net.bjoernpetersen.musicbot.spi.plugin.GenericPlugin
 import net.bjoernpetersen.musicbot.spi.plugin.PlaybackFactory
@@ -7,8 +9,6 @@ import net.bjoernpetersen.musicbot.spi.plugin.Plugin
 import net.bjoernpetersen.musicbot.spi.plugin.Provider
 import net.bjoernpetersen.musicbot.spi.plugin.Suggester
 import net.bjoernpetersen.musicbot.spi.plugin.management.DependencyManager
-import kotlin.reflect.KClass
-import kotlin.reflect.full.isSuperclassOf
 
 /**
  * Represents one of the broader plugin categories.

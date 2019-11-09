@@ -1,9 +1,9 @@
 package net.bjoernpetersen.musicbot.spi.plugin
 
+import kotlin.reflect.KClass
 import net.bjoernpetersen.musicbot.api.plugin.ActiveBase
 import net.bjoernpetersen.musicbot.api.plugin.IdBase
 import net.bjoernpetersen.musicbot.api.plugin.NamedPlugin
-import kotlin.reflect.KClass
 
 /**
  * An object which can be used to look up plugins by its base or ID representation.

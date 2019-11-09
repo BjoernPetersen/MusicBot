@@ -1,12 +1,12 @@
 package net.bjoernpetersen.musicbot.api.player
 
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
-import mu.KotlinLogging
 import java.time.Duration
 import java.time.Instant
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import mu.KotlinLogging
 
 /**
  * Tracks the progress of the current song.
