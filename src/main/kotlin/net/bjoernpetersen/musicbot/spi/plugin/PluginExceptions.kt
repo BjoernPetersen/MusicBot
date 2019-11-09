@@ -7,7 +7,10 @@ import net.bjoernpetersen.musicbot.api.plugin.InitializationException as NewInit
  */
 @Deprecated(
     "Use version from api package",
-    ReplaceWith("net.bjoernpetersen.musicbot.api.plugin.InitializationException"),
+    ReplaceWith(
+        "InitializationException",
+        "net.bjoernpetersen.musicbot.api.plugin.InitializationException"
+    ),
     level = DeprecationLevel.ERROR
 )
 open class InitializationException : NewInitException {
@@ -23,7 +26,10 @@ open class InitializationException : NewInitException {
  */
 @Deprecated(
     "Use version from api package",
-    ReplaceWith("net.bjoernpetersen.musicbot.api.plugin.ConfigurationException"),
+    ReplaceWith(
+        "ConfigurationException",
+        "net.bjoernpetersen.musicbot.api.plugin.ConfigurationException"
+    ),
     level = DeprecationLevel.ERROR
 )
 class ConfigurationException : NewInitException {
@@ -39,7 +45,10 @@ class ConfigurationException : NewInitException {
  */
 @Deprecated(
     "Use version from api package",
-    ReplaceWith("net.bjoernpetersen.musicbot.api.plugin.DeclarationException"),
+    ReplaceWith(
+        "DeclarationException",
+        "net.bjoernpetersen.musicbot.api.plugin.DeclarationException"
+    ),
     level = DeprecationLevel.ERROR
 )
 class DeclarationException : RuntimeException {

@@ -11,7 +11,7 @@ import kotlin.reflect.KProperty
  * preceding deprecation.
  */
 @Experimental
-@Deprecated("No longer experimental")
+@Deprecated("No longer experimental", ReplaceWith(""))
 annotation class ExperimentalConfigDsl
 
 /**
