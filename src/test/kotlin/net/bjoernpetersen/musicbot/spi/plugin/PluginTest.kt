@@ -28,7 +28,7 @@ class PluginTest {
     @Test
     fun idCorrect() {
         val uut = TestProvider()
-        assertEquals(TestProviderBase::class, uut.id)
+        assertEquals(TestProviderBase::class, uut.id.type)
     }
 }
 
