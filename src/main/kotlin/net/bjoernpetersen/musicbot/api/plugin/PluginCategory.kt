@@ -10,6 +10,20 @@ import net.bjoernpetersen.musicbot.spi.plugin.management.DependencyManager
 import kotlin.reflect.KClass
 import kotlin.reflect.full.isSuperclassOf
 
+/**
+ * Represents one of the broader plugin categories.
+ *
+ * All plugins (indirectly) implement one specialized plugin sub-interface. Those sub-interfaces are
+ * called categories and this enum contains some helper/accessor methods to work with them in a
+ * generalized manner.
+ *
+ * For example, the [DependencyManager] interface has methods to retrieve plugins from each
+ * category. You are creating a MusicBot implementation and want to show a tab per category
+ * containing a list of all plugins in that category. For that purpose you could create a tab for
+ * each item in this this enum and use the [select] method to call the right accessor function.
+ *
+ * @param type the interface class
+ */
 enum class PluginCategory(val type: KClass<out Plugin>) {
     GENERIC(GenericPlugin::class) {
         override fun select(dependencyManager: DependencyManager): List<Plugin> {
@@ -48,13 +62,31 @@ enum class PluginCategory(val type: KClass<out Plugin>) {
         }
     };
 
+    /**
+     * A simple name of the category.
+     */
     val simpleName = type.simpleName!!
 
+    /**
+     * @param dependencyManager a dependency manager
+     * @return all plugins in this category from the dependency manager
+     */
     abstract fun select(dependencyManager: DependencyManager): List<Plugin>
+
+    /**
+     * @param finder a plugin finder
+     * @return all plugins in this category from the plugin finder
+     */
     abstract fun select(finder: PluginFinder): List<Plugin>
+
     override fun toString(): String = simpleName
 
     companion object {
+        /**
+         * @param type a plugin class
+         * @return the category of the plugin
+         * @throws IllegalArgumentException if [type] doesn't extend a known category
+         */
         operator fun invoke(type: KClass<*>): PluginCategory {
             return values().firstOrNull { it.type.isSuperclassOf(type) }
                 ?: throw IllegalArgumentException(
@@ -62,6 +94,11 @@ enum class PluginCategory(val type: KClass<out Plugin>) {
                 )
         }
 
+        /**
+         * @param plugin a plugin
+         * @return the category of the plugin
+         * @throws IllegalArgumentException if [plugin] doesn't extend a known category
+         */
         operator fun invoke(plugin: Plugin): PluginCategory {
             return when (plugin) {
                 is GenericPlugin -> GENERIC
@@ -76,8 +113,14 @@ enum class PluginCategory(val type: KClass<out Plugin>) {
     }
 }
 
+/**
+ * Assumes this class is a plugin class and retrieves its [category][PluginCategory].
+ */
 val KClass<*>.pluginCategory: PluginCategory
     get() = PluginCategory(this)
 
+/**
+ * Gets the category of this plugin.
+ */
 val Plugin.category: PluginCategory
     get() = PluginCategory(this)
