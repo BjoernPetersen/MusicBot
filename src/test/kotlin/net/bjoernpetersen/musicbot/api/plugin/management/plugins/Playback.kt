@@ -2,12 +2,11 @@ package net.bjoernpetersen.musicbot.api.plugin.management.plugins
 
 import net.bjoernpetersen.musicbot.api.config.Config
 import net.bjoernpetersen.musicbot.api.plugin.Base
-import net.bjoernpetersen.musicbot.api.plugin.IdBase
 import net.bjoernpetersen.musicbot.spi.plugin.PlaybackFactory
 import net.bjoernpetersen.musicbot.spi.plugin.management.InitStateWriter
 
-@IdBase("Self ID")
-class SelfIdPlayback : PlaybackFactory by TodoPlaybackFactory("self")
+@Base
+class SelfBasePlayback : PlaybackFactory by TodoPlaybackFactory("self")
 
 @Base
 interface EchoPlayback : PlaybackFactory {
@@ -15,7 +14,7 @@ interface EchoPlayback : PlaybackFactory {
     fun echoThis(message: String)
 }
 
-@IdBase("Separate ID")
+@Base
 interface MyPlayback : EchoPlayback
 
 class MyPlaybackImpl : MyPlayback, PlaybackFactory by TodoPlaybackFactory("MyEcho") {

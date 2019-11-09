@@ -10,9 +10,9 @@ import net.bjoernpetersen.musicbot.api.plugin.management.plugins.DumbAuth
 import net.bjoernpetersen.musicbot.api.plugin.management.plugins.DumbAuthImpl
 import net.bjoernpetersen.musicbot.api.plugin.management.plugins.MyProvider
 import net.bjoernpetersen.musicbot.api.plugin.management.plugins.MyProviderImpl
+import net.bjoernpetersen.musicbot.api.plugin.management.plugins.SelfBaseGeneric
+import net.bjoernpetersen.musicbot.api.plugin.management.plugins.SelfBasePlayback
 import net.bjoernpetersen.musicbot.api.plugin.management.plugins.SelfIdActiveGeneric
-import net.bjoernpetersen.musicbot.api.plugin.management.plugins.SelfIdGeneric
-import net.bjoernpetersen.musicbot.api.plugin.management.plugins.SelfIdPlayback
 import net.bjoernpetersen.musicbot.api.plugin.management.plugins.SelfIdProvider
 import net.bjoernpetersen.musicbot.spi.plugin.GenericPlugin
 import net.bjoernpetersen.musicbot.spi.plugin.PlaybackFactory
@@ -69,9 +69,9 @@ class DependencyManagerTest {
 
     @TestFactory
     fun inactivePluginsAreInactive(config: Config) = listOf(
-        SelfIdGeneric().managed(config),
+        SelfBaseGeneric().managed(config),
         DumbAuthImpl().managed(config),
-        SelfIdPlayback().managed(config))
+        SelfBasePlayback().managed(config))
         .map { (plugin, manager) ->
             dynamicTest("${plugin.category.simpleName}: ${plugin.name}") {
                 assertFalse(manager.isEnabled(plugin))

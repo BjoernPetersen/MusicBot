@@ -11,7 +11,8 @@ import net.bjoernpetersen.musicbot.spi.plugin.management.InitStateWriter
 @ActiveBase
 class SelfIdActiveGeneric : GenericPlugin by TodoGeneric("self active")
 
-class SelfIdGeneric : GenericPlugin by TodoGeneric("self inactive")
+@Base
+class SelfBaseGeneric : GenericPlugin by TodoGeneric("self inactive")
 
 @IdBase("Separate ID")
 @ActiveBase
