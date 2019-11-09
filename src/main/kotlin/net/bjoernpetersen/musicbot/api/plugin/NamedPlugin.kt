@@ -36,3 +36,12 @@ data class NamedPlugin<out T>(
         return id.hashCode()
     }
 }
+
+/**
+ * Creates a NamedPlugin for this plugin instance. Only works for active plugins (with ID).
+ */
+fun <T> T.toNamedPlugin(): NamedPlugin<T> where T : Plugin, T : UserFacing {
+    val id = id.qualifiedName
+    val subject = subject
+    return NamedPlugin(id = id, name = subject)
+}
