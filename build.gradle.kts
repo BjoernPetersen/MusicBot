@@ -22,6 +22,8 @@ plugins {
 group = "com.github.bjoernpetersen"
 version = "0.24.0-SNAPSHOT"
 
+fun isSnapshot() = version.toString().endsWith("SNAPSHOT")
+
 repositories {
     jcenter()
 }
@@ -128,6 +130,10 @@ tasks {
         from(project.projectDir) {
             include("LICENSE")
         }
+    }
+
+    withType<GenerateModuleMetadata>() {
+        enabled = !isSnapshot()
     }
 
     dependencyUpdates {
@@ -243,7 +249,7 @@ publishing {
                 val snapshotsRepoUrl = "https://oss.sonatype.org/content/repositories/snapshots"
                 // change to point to your repo, e.g. http://my.org/repo
                 url = uri(
-                    if (version.toString().endsWith("SNAPSHOT")) snapshotsRepoUrl
+                    if (isSnapshot()) snapshotsRepoUrl
                     else releasesRepoUrl
                 )
                 credentials {
