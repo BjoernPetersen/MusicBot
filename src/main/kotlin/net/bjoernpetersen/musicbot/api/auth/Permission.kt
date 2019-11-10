@@ -2,7 +2,7 @@ package net.bjoernpetersen.musicbot.api.auth
 
 import com.google.common.annotations.Beta
 import net.bjoernpetersen.musicbot.api.config.ConfigSerializer
-import net.bjoernpetersen.musicbot.api.config.SerializationException
+import net.bjoernpetersen.musicbot.api.config.DeserializationException
 import net.bjoernpetersen.musicbot.spi.plugin.Suggester
 
 /**
@@ -87,7 +87,7 @@ enum class Permission(val label: String) {
             return try {
                 matchByLabel(string)
             } catch (e: IllegalArgumentException) {
-                throw SerializationException()
+                throw DeserializationException()
             }
         }
     }

@@ -15,21 +15,38 @@ interface ConfigSerializer<T> {
      * Serializes the given object to a string.
      *
      * This operation should not fail.
+     *
+     * @param obj a value
+     * @return a serialized representation of the value
      */
     fun serialize(obj: T): String
 
     /**
      * Deserializes the given string.
      *
-     * @throws SerializationException if the string can't be deserialized
+     * @param string the serialized value
+     * @return the deserialized value
+     * @throws DeserializationException if the string can't be deserialized
+     * @throws SerializationException (deprecated for removal) if the string can't be deserialized
      */
-    @Throws(SerializationException::class)
+    @Suppress("DEPRECATION")
+    @Throws(DeserializationException::class, SerializationException::class)
     fun deserialize(string: String): T
 }
 
 /**
  * Thrown if a value can't be deserialized.
  */
+class DeserializationException : Exception()
+
+/**
+ * Thrown if a value can't be deserialized.
+ */
+@Deprecated(
+    "Misnomer, use DeserializationException",
+    ReplaceWith(
+        "DeserializationException",
+        "net.bjoernpetersen.musicbot.api.config.DeserializationException"))
 class SerializationException : Exception()
 
 /**
@@ -37,9 +54,8 @@ class SerializationException : Exception()
  */
 object IntSerializer : ConfigSerializer<Int> {
     override fun serialize(obj: Int): String = obj.toString()
-    @Throws(SerializationException::class)
     override fun deserialize(string: String): Int = string.toIntOrNull()
-        ?: throw SerializationException()
+        ?: throw DeserializationException()
 }
 
 /**
@@ -51,22 +67,19 @@ object FileSerializer : ConfigSerializer<File> {
         return obj.path
     }
 
-    override fun deserialize(string: String): File {
-        return File(string)
-    }
+    override fun deserialize(string: String): File = File(string)
 }
 
 /**
  * Serializer for paths. Will not check for existence on deserialization.
  */
 object PathSerializer : ConfigSerializer<Path> {
-
     override fun serialize(obj: Path): String = obj.toString()
 
     override fun deserialize(string: String): Path = try {
         Paths.get(string)
     } catch (e: InvalidPathException) {
-        throw SerializationException()
+        throw DeserializationException()
     }
 }
 

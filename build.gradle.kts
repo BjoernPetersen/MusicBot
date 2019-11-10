@@ -127,7 +127,7 @@ tasks {
         }
     }
 
-    withType<GenerateModuleMetadata>() {
+    withType<GenerateModuleMetadata> {
         enabled = !isSnapshot()
     }
 

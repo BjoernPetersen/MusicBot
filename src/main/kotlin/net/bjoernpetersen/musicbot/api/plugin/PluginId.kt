@@ -7,7 +7,7 @@ import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.isSubclassOf
 import kotlin.reflect.full.isSuperclassOf
 import net.bjoernpetersen.musicbot.api.config.ConfigSerializer
-import net.bjoernpetersen.musicbot.api.config.SerializationException
+import net.bjoernpetersen.musicbot.api.config.DeserializationException
 import net.bjoernpetersen.musicbot.spi.plugin.Plugin
 
 /**
@@ -75,7 +75,7 @@ class PluginId(type: KClass<*>, val displayName: String) {
             val type = try {
                 classLoader.loadClass(qualifiedName).kotlin
             } catch (e: ClassNotFoundException) {
-                throw SerializationException()
+                throw DeserializationException()
             }
             return PluginId(type, displayName)
         }

@@ -31,7 +31,7 @@ class ConfigSerializerTest {
         return listOf("", " ", "abc", "1a", "1,2", "1.2", "1.2.3", "1a2")
             .map {
                 dynamicTest("for value $it") {
-                    assertThrows<SerializationException> {
+                    assertThrows<DeserializationException> {
                         IntSerializer.deserialize("abc")
                     }
                 }

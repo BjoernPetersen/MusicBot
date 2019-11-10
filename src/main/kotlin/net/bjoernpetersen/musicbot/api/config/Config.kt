@@ -146,9 +146,13 @@ class Config internal constructor(
         val default: T? = null
     ) : Entry<T>(key, description, uiNode) {
 
+        @Suppress("DEPRECATION")
         override fun getWithoutDefault(): T? = try {
             getValue(key)?.let { serializer.deserialize(it) }
         } catch (e: SerializationException) {
+            logger.warn(e) { "Deserialization failure" }
+            null
+        } catch (e: DeserializationException) {
             logger.warn(e) { "Deserialization failure" }
             null
         }

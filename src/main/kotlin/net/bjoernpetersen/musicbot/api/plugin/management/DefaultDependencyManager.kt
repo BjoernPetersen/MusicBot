@@ -6,9 +6,9 @@ import mu.KotlinLogging
 import net.bjoernpetersen.musicbot.api.config.ChoiceBox
 import net.bjoernpetersen.musicbot.api.config.Config
 import net.bjoernpetersen.musicbot.api.config.ConfigSerializer
+import net.bjoernpetersen.musicbot.api.config.DeserializationException
 import net.bjoernpetersen.musicbot.api.config.MainConfigScope
 import net.bjoernpetersen.musicbot.api.config.NonnullConfigChecker
-import net.bjoernpetersen.musicbot.api.config.SerializationException
 import net.bjoernpetersen.musicbot.api.config.UiNode
 import net.bjoernpetersen.musicbot.api.plugin.DeclarationException
 import net.bjoernpetersen.musicbot.api.plugin.PluginId
@@ -61,7 +61,7 @@ class DefaultDependencyManager(
         override fun serialize(obj: Plugin): String = obj::class.qualifiedName!!
 
         override fun deserialize(string: String): Plugin = allPlugins
-            .firstOrNull { it::class.qualifiedName == string } ?: throw SerializationException()
+            .firstOrNull { it::class.qualifiedName == string } ?: throw DeserializationException()
     }
 
     private val defaultByBase: Map<KClass<out Plugin>, Config.SerializedEntry<Plugin>> =
@@ -119,7 +119,7 @@ class DefaultDependencyManager(
             .associateWithTo(HashMap()) { base ->
                 val plugin = try {
                     getDefault(base)
-                } catch (e: SerializationException) {
+                } catch (e: DeserializationException) {
                     null
                 } ?: throw DependencyConfigurationException("No default: ${base.qualifiedName}")
                 plugin

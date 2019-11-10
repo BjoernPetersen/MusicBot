@@ -38,7 +38,7 @@ data class Impl(override val name: String = "TestName") : Base {
         }
 
         override fun deserialize(string: String): Impl {
-            throw SerializationException()
+            throw DeserializationException()
         }
     }
 }

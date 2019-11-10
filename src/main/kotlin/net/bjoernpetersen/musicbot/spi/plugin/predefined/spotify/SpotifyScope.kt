@@ -1,7 +1,7 @@
 package net.bjoernpetersen.musicbot.spi.plugin.predefined.spotify
 
 import net.bjoernpetersen.musicbot.api.config.ConfigSerializer
-import net.bjoernpetersen.musicbot.api.config.SerializationException
+import net.bjoernpetersen.musicbot.api.config.DeserializationException
 
 /**
  * A Spotify API scope.
@@ -139,7 +139,7 @@ enum class SpotifyScope(val id: String) {
         }
 
         override fun deserialize(string: String): SpotifyScope {
-            return scopeById[string] ?: throw SerializationException()
+            return scopeById[string] ?: throw DeserializationException()
         }
     }
 }
