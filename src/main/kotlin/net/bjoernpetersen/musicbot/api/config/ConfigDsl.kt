@@ -196,7 +196,7 @@ class SerializationConfiguration<T> {
 
     /**
      * Specify how to deserialize a string to a value of type [T].
-     * The function may throw a [SerializationException].
+     * The function may throw a [DeserializationException].
      */
     fun deserialize(action: (String) -> T) {
         this.deserializer = action
