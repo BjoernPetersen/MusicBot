@@ -1,5 +1,5 @@
 object Plugin {
-    const val SPOTLESS = "3.25.0"
+    const val SPOTLESS = "3.26.0"
     const val DETEKT = "1.1.1"
     const val JACOCO = "0.8.4"
 
