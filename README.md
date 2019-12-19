@@ -61,7 +61,7 @@ The only known implementation can be found in the
 ### Plugins
 
 For documentation on how to implement plugins, have a look at the JavaDocs or
-at the [docs hosted on github.io](https://bjoernpetersen.github.io/MusicBot/).
+at the [docs hosted on github.io](https://docs.kiu.party).
 
 For several "official" plugins, have a look at the [MusicBot-plugins](https://github.com/BjoernPetersen/MusicBot-plugins) project.
 
