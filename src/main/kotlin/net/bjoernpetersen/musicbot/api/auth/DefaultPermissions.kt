@@ -11,5 +11,13 @@ object DefaultPermissions {
     /**
      * A set of all default permissions.
      */
-    var defaultPermissions: Set<Permission> = Permission.getDefaults()
+    @Suppress("MemberNameEqualsClassName")
+    @Deprecated("Use value", ReplaceWith("value"))
+    var defaultPermissions: Set<Permission>
+        get() = value
+        set(value) {
+            this.value = value
+        }
+
+    var value: Set<Permission> = Permission.getDefaults()
 }
