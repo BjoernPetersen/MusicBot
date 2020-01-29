@@ -27,7 +27,7 @@ class ProgressTracker @Inject private constructor() {
      */
     suspend fun getCurrentProgress(): SongProgress {
         mutex.withLock {
-            logger.debug { "Get progress" }
+            logger.trace { "Get progress" }
             val currentStart = currentStart ?: return SongProgress(Duration.ZERO, true)
             val pausedSince = pausedSince
             return if (pausedSince == null)
