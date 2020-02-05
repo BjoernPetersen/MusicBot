@@ -78,7 +78,7 @@ data class GuestUser(
         return id == password
     }
 
-    override val permissions: Set<Permission> = DefaultPermissions.defaultPermissions
+    override val permissions: Set<Permission> = DefaultPermissions.value
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
