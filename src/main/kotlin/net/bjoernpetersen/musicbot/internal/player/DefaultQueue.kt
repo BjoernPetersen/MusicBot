@@ -24,10 +24,15 @@ internal class DefaultQueue @Inject private constructor() : SongQueue {
         get() = queue.isEmpty()
 
     override fun insert(entry: QueueEntry) = synchronized(queue) {
-        if (!queue.asSequence().map { it.song }.contains(entry.song)) {
+        fun add() {
             queue.add(entry)
-            if (entry.passes()) queue.add(entry)
             notifyListeners { listener -> listener.onAdd(entry) }
+        }
+
+        val freePass = entry.passes()
+        if (freePass || !queue.asSequence().map { it.song }.contains(entry.song)) {
+            add()
+            if (freePass) add()
         }
     }
 
