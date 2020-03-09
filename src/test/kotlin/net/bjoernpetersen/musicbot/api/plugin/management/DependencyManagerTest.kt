@@ -31,13 +31,13 @@ import org.junit.jupiter.api.extension.ExtendWith
 class DependencyManagerTest {
 
     private fun manager(
-        state: Config,
+        plain: Config,
         genericPlugins: List<GenericPlugin> = emptyList(),
         playbackFactories: List<PlaybackFactory> = emptyList(),
         providers: List<Provider> = emptyList(),
         suggesters: List<Suggester> = emptyList()
     ): DependencyManager = DefaultDependencyManager(
-        state,
+        plain,
         genericPlugins,
         playbackFactories,
         providers,

@@ -26,14 +26,14 @@ import net.bjoernpetersen.musicbot.spi.plugin.management.DependencyManager
 /**
  * Default implementation of the [DependencyManager] interface.
  *
- * @param state a state config (usually from the [main config scope][MainConfigScope])
+ * @param plain a plain config (usually from the [main config scope][MainConfigScope])
  * @param genericPlugins a list of all available generic plugins
  * @param playbackFactories a list of all available playback factories
  * @param providers a list of all available providers
  * @param suggesters a list of all available suggesters
  */
 class DefaultDependencyManager(
-    state: Config,
+    plain: Config,
     override val genericPlugins: List<GenericPlugin>,
     override val playbackFactories: List<PlaybackFactory>,
     override val providers: List<Provider>,
@@ -45,6 +45,7 @@ class DefaultDependencyManager(
     private val basesByPlugin: Map<Plugin, Set<KClass<out Plugin>>> = allPlugins
         .associateWith { it.bases.toSet() }
     private val allBases: Set<KClass<out Plugin>> = basesByPlugin.values.flatten().toSet()
+
     @Suppress("UnstableApiUsage")
     private val pluginsByBase = MultimapBuilder.SetMultimapBuilder
         .hashKeys()
@@ -65,18 +66,18 @@ class DefaultDependencyManager(
     }
 
     private val defaultByBase: Map<KClass<out Plugin>, Config.SerializedEntry<Plugin>> =
-        allBases.associateWith { state.defaultEntry(it) }
+        allBases.associateWith { plain.defaultEntry(it) }
 
     /**
      * Convenience constructor which loads all plugins using the specified PluginLoader.
      *
-     * @param state the [MainConfigScope] state config
+     * @param plain the [MainConfigScope] plain config
      * @param loader a plugin loader
      */
-    constructor(state: Config, loader: PluginLoader) : this(state, loadPlugins(loader))
+    constructor(plain: Config, loader: PluginLoader) : this(plain, loadPlugins(loader))
 
-    private constructor(state: Config, plugins: Plugins) : this(
-        state,
+    private constructor(plain: Config, plugins: Plugins) : this(
+        plain,
         plugins.generic,
         plugins.playbackFactories,
         plugins.providers,
