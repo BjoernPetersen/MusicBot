@@ -2,13 +2,13 @@ object Lib {
     const val KOTLIN = Plugin.KOTLIN
     const val SLF4J = "1.8.0-beta4"
     const val KOTLIN_LOGGING = "1.7.8"
-    const val KOTLIN_COROUTINES = "1.3.3"
+    const val KOTLIN_COROUTINES = "1.3.4"
 
     const val GUAVA = "28.2-android"
     const val GUICE = "4.2.2"
 
     const val JBCRYPT = "0.4"
-    const val JJWT = "3.9.0"
+    const val JJWT = "3.10.0"
     const val JAVA_SEMVER = "0.9.0"
 
     const val JUNIT = "5.6.0"
