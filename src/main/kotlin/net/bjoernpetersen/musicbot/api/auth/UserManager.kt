@@ -12,15 +12,16 @@ import java.util.HashMap
 import javax.inject.Inject
 import javax.inject.Singleton
 import mu.KotlinLogging
+import net.bjoernpetersen.musicbot.api.config.ByteArraySerializer
 import net.bjoernpetersen.musicbot.api.config.Config
 import net.bjoernpetersen.musicbot.api.config.ConfigManager
 import net.bjoernpetersen.musicbot.api.config.GenericConfigScope
+import net.bjoernpetersen.musicbot.api.config.serialized
 import net.bjoernpetersen.musicbot.spi.auth.UserDatabase
 import org.mindrot.jbcrypt.BCrypt
 
 private const val TEMPORARY_USER_CAPACITY = 32
 private const val TOKEN_TTL_MINUTES = 10L
-private const val SIGNATURE_KEY_SIZE = 4096
 
 /**
  * Manages all users (guest and full) and creates/verifies their tokens.
@@ -34,8 +35,12 @@ class UserManager @Inject constructor(
     private val logger = KotlinLogging.logger { }
 
     private val secrets = configManager[GenericConfigScope(UserManager::class)].state
-    private val signatureKey: Config.StringEntry = secrets.StringEntry("signatureKey", "", { null })
-    private val guestSignatureKey: String = createSignatureKey()
+    private val signatureKey by secrets.serialized<ByteArray> {
+        description = ""
+        serializer = ByteArraySerializer
+        check { null }
+    }
+    private val guestSignatureKey: ByteArray = Crypto.createSignatureKey()
     private val temporaryUsers: MutableMap<String, GuestUser> = HashMap(TEMPORARY_USER_CAPACITY)
 
     /**
@@ -95,7 +100,7 @@ class UserManager @Inject constructor(
             throw IllegalArgumentException()
         }
 
-        val hash = hash(password)
+        val hash = Crypto.hash(password)
         return FullUser(user.name, user.permissions, hash).also {
             if (user is GuestUser) {
                 try {
@@ -166,7 +171,7 @@ class UserManager @Inject constructor(
     @Suppress("unused")
     fun toToken(user: User): String {
         if (user is BotUser) throw IllegalArgumentException("Can't create a token for the bot user")
-        val signatureKey: String = if (user is GuestUser) {
+        val signatureKey: ByteArray = if (user is GuestUser) {
             this.guestSignatureKey
         } else {
             getSignatureKey()
@@ -244,18 +249,7 @@ class UserManager @Inject constructor(
         return GuestUser(name, "")
     }
 
-    private fun getSignatureKey(): String {
-        return signatureKey.get() ?: createSignatureKey().also { signatureKey.set(it) }
+    private fun getSignatureKey(): ByteArray {
+        return signatureKey.get() ?: Crypto.createSignatureKey().also { signatureKey.set(it) }
     }
-}
-
-private fun hash(password: String): String {
-    return BCrypt.hashpw(password, BCrypt.gensalt())
-}
-
-private fun createSignatureKey(): String {
-    val rand = SecureRandom()
-    val bytes = ByteArray(SIGNATURE_KEY_SIZE)
-    rand.nextBytes(bytes)
-    return String(bytes, Charsets.UTF_8)
 }
