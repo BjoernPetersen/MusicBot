@@ -4,6 +4,7 @@ import java.io.File
 import java.nio.file.InvalidPathException
 import java.nio.file.Path
 import java.nio.file.Paths
+import java.util.Base64
 
 /**
  * Defines serialization and deserialization for config entry values.
@@ -37,7 +38,10 @@ interface ConfigSerializer<T> {
 /**
  * Thrown if a value can't be deserialized.
  */
-class DeserializationException : Exception()
+class DeserializationException : Exception {
+    constructor() : super()
+    constructor(cause: Throwable) : super(cause)
+}
 
 /**
  * Thrown if a value can't be deserialized.
@@ -46,7 +50,9 @@ class DeserializationException : Exception()
     "Misnomer, use DeserializationException",
     ReplaceWith(
         "DeserializationException",
-        "net.bjoernpetersen.musicbot.api.config.DeserializationException"))
+        "net.bjoernpetersen.musicbot.api.config.DeserializationException"
+    )
+)
 class SerializationException : Exception()
 
 /**
@@ -79,7 +85,24 @@ object PathSerializer : ConfigSerializer<Path> {
     override fun deserialize(string: String): Path = try {
         Paths.get(string)
     } catch (e: InvalidPathException) {
-        throw DeserializationException()
+        throw DeserializationException(e)
+    }
+}
+
+object ByteArraySerializer : ConfigSerializer<ByteArray> {
+    private val encoder = Base64.getEncoder()
+    private val decoder = Base64.getDecoder()
+
+    override fun serialize(obj: ByteArray): String {
+        return encoder.encodeToString(obj)
+    }
+
+    override fun deserialize(string: String): ByteArray {
+        try {
+            return decoder.decode(string)
+        } catch (e: IllegalArgumentException) {
+            throw DeserializationException(e)
+        }
     }
 }
 
