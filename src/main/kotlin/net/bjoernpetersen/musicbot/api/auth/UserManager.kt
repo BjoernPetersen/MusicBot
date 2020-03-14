@@ -4,7 +4,6 @@ import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import com.auth0.jwt.exceptions.JWTVerificationException
 import com.auth0.jwt.exceptions.SignatureVerificationException
-import java.security.SecureRandom
 import java.time.Duration
 import java.time.Instant
 import java.util.Date
@@ -13,12 +12,10 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import mu.KotlinLogging
 import net.bjoernpetersen.musicbot.api.config.ByteArraySerializer
-import net.bjoernpetersen.musicbot.api.config.Config
 import net.bjoernpetersen.musicbot.api.config.ConfigManager
 import net.bjoernpetersen.musicbot.api.config.GenericConfigScope
 import net.bjoernpetersen.musicbot.api.config.serialized
 import net.bjoernpetersen.musicbot.spi.auth.UserDatabase
-import org.mindrot.jbcrypt.BCrypt
 
 private const val TEMPORARY_USER_CAPACITY = 32
 private const val TOKEN_TTL_MINUTES = 10L
@@ -40,7 +37,7 @@ class UserManager @Inject constructor(
         serializer = ByteArraySerializer
         check { null }
     }
-    private val guestSignatureKey: ByteArray = Crypto.createSignatureKey()
+    private val guestSignatureKey: ByteArray = Crypto.createRandomBytes()
     private val temporaryUsers: MutableMap<String, GuestUser> = HashMap(TEMPORARY_USER_CAPACITY)
 
     /**
@@ -250,6 +247,6 @@ class UserManager @Inject constructor(
     }
 
     private fun getSignatureKey(): ByteArray {
-        return signatureKey.get() ?: Crypto.createSignatureKey().also { signatureKey.set(it) }
+        return signatureKey.get() ?: Crypto.createRandomBytes().also { signatureKey.set(it) }
     }
 }

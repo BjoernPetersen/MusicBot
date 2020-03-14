@@ -11,7 +11,6 @@ import java.util.Random
 object Crypto {
     private const val SIGNATURE_KEY_SIZE = 4096
     private val random: Random = SecureRandom()
-    private val encoder = Base64.getEncoder()
 
     /**
      * Creates a hash string from a clear-text [password].
@@ -21,10 +20,10 @@ object Crypto {
     }
 
     /**
-     * Creates a key which can be used for HMAC512 signatures.
+     * Creates a key with the specified [length] which can be used for cryptographic signatures.
      */
-    fun createSignatureKey(): ByteArray {
-        val bytes = ByteArray(SIGNATURE_KEY_SIZE)
+    fun createRandomBytes(length: Int = SIGNATURE_KEY_SIZE): ByteArray {
+        val bytes = ByteArray(length)
         random.nextBytes(bytes)
         return bytes
     }
