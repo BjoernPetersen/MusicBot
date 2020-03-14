@@ -7,7 +7,6 @@ import com.auth0.jwt.exceptions.SignatureVerificationException
 import java.time.Duration
 import java.time.Instant
 import java.util.Date
-import java.util.HashMap
 import javax.inject.Inject
 import javax.inject.Singleton
 import mu.KotlinLogging
@@ -15,9 +14,9 @@ import net.bjoernpetersen.musicbot.api.config.ByteArraySerializer
 import net.bjoernpetersen.musicbot.api.config.ConfigManager
 import net.bjoernpetersen.musicbot.api.config.GenericConfigScope
 import net.bjoernpetersen.musicbot.api.config.serialized
+import net.bjoernpetersen.musicbot.internal.auth.TempUserDatabase
 import net.bjoernpetersen.musicbot.spi.auth.UserDatabase
 
-private const val TEMPORARY_USER_CAPACITY = 32
 private const val TOKEN_TTL_MINUTES = 10L
 
 /**
@@ -25,8 +24,9 @@ private const val TOKEN_TTL_MINUTES = 10L
  */
 @Singleton
 @Suppress("TooManyFunctions")
-class UserManager @Inject constructor(
+class UserManager @Inject private constructor(
     private val userDatabase: UserDatabase,
+    private val tempUserDatabase: TempUserDatabase,
     configManager: ConfigManager
 ) {
     private val logger = KotlinLogging.logger { }
@@ -38,7 +38,6 @@ class UserManager @Inject constructor(
         check { null }
     }
     private val guestSignatureKey: ByteArray = Crypto.createRandomBytes()
-    private val temporaryUsers: MutableMap<String, GuestUser> = HashMap(TEMPORARY_USER_CAPACITY)
 
     /**
      * Creates a temporary/guest user. This user is only valid for the duration of the current
@@ -60,9 +59,7 @@ class UserManager @Inject constructor(
             getUser(name)
             throw DuplicateUserException("User already exists: $name")
         } catch (expected: UserNotFoundException) {
-            val user = GuestUser(name, id)
-            temporaryUsers[user.name.toId()] = user
-            return user
+            return tempUserDatabase.insertUser(name, id)
         }
     }
 
@@ -78,8 +75,8 @@ class UserManager @Inject constructor(
         if (BotUser.name.equals(name, ignoreCase = true)) {
             return BotUser
         }
-        return temporaryUsers[name.toId()]
-            ?: userDatabase.findUser(name)
+
+        return tempUserDatabase.findUser(name) ?: userDatabase.findUser(name)
     }
 
     /**
@@ -105,7 +102,7 @@ class UserManager @Inject constructor(
                 } catch (e: DuplicateUserException) {
                     throw IllegalStateException("Full and guest user with same name exist!", e)
                 }
-                temporaryUsers.remove(user.name.toId())
+                tempUserDatabase.deleteUser(user.name)
             } else {
                 userDatabase.updatePassword(it.name, hash)
             }
@@ -141,7 +138,7 @@ class UserManager @Inject constructor(
         when (user) {
             BotUser -> throw IllegalArgumentException("Can't delete BotUser")
             is FullUser -> userDatabase.deleteUser(user.name)
-            is GuestUser -> temporaryUsers.remove(user.name)
+            is GuestUser -> tempUserDatabase.deleteUser(user.name)
         }
     }
 
