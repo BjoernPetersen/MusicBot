@@ -100,6 +100,7 @@ tasks {
             jvmTarget = "1.8"
             freeCompilerArgs = listOf(
                 "-Xuse-experimental=kotlin.Experimental",
+                "-Xopt-in=org.mylibrary.OptInAnnotation",
                 "-Xnew-inference"
             )
         }

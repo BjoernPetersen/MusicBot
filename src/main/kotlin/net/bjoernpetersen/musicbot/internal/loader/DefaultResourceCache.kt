@@ -48,7 +48,7 @@ internal class DefaultResourceCache @Inject private constructor(
             logger.error(throwable) { "Exception during cleanup" }
         })
 
-    @UseExperimental(ExperimentalCoroutinesApi::class)
+    @OptIn(ExperimentalCoroutinesApi::class)
     private val cache = CacheBuilder.newBuilder()
         .maximumSize(CACHE_SIZE)
         .expireAfterAccess(CACHE_EXPIRATION_HOURS, TimeUnit.HOURS)
