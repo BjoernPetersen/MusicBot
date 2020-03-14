@@ -89,6 +89,9 @@ object PathSerializer : ConfigSerializer<Path> {
     }
 }
 
+/**
+ * Serializer for generic byte arrays. The byte arrays don't have to be valid unicode.
+ */
 object ByteArraySerializer : ConfigSerializer<ByteArray> {
     private val encoder = Base64.getEncoder()
     private val decoder = Base64.getDecoder()
