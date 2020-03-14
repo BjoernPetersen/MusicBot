@@ -27,7 +27,7 @@ internal class TempUserDatabase {
     /**
      * Inserts a new user into the database.
      *
-     * @param user a user to insert into the database
+     * @param name the name of a user to insert into the database
      * @param id the user's password-like ID
      * @throws DuplicateUserException if a full user with an equal name already exists
      */

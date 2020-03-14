@@ -1,23 +1,11 @@
 package net.bjoernpetersen.musicbot.api.auth
 
-import com.auth0.jwt.JWT
-import com.auth0.jwt.algorithms.Algorithm
-import com.auth0.jwt.exceptions.JWTVerificationException
-import com.auth0.jwt.exceptions.SignatureVerificationException
-import java.time.Duration
-import java.time.Instant
-import java.util.Date
 import javax.inject.Inject
 import javax.inject.Singleton
 import mu.KotlinLogging
-import net.bjoernpetersen.musicbot.api.config.ByteArraySerializer
-import net.bjoernpetersen.musicbot.api.config.ConfigManager
-import net.bjoernpetersen.musicbot.api.config.GenericConfigScope
-import net.bjoernpetersen.musicbot.api.config.serialized
 import net.bjoernpetersen.musicbot.internal.auth.TempUserDatabase
+import net.bjoernpetersen.musicbot.spi.auth.TokenHandler
 import net.bjoernpetersen.musicbot.spi.auth.UserDatabase
-
-private const val TOKEN_TTL_MINUTES = 10L
 
 /**
  * Manages all users (guest and full) and creates/verifies their tokens.
@@ -27,17 +15,9 @@ private const val TOKEN_TTL_MINUTES = 10L
 class UserManager @Inject private constructor(
     private val userDatabase: UserDatabase,
     private val tempUserDatabase: TempUserDatabase,
-    configManager: ConfigManager
+    private val tokenHandler: TokenHandler
 ) {
     private val logger = KotlinLogging.logger { }
-
-    private val secrets = configManager[GenericConfigScope(UserManager::class)].state
-    private val signatureKey by secrets.serialized<ByteArray> {
-        description = ""
-        serializer = ByteArraySerializer
-        check { null }
-    }
-    private val guestSignatureKey: ByteArray = Crypto.createRandomBytes()
 
     /**
      * Creates a temporary/guest user. This user is only valid for the duration of the current
@@ -162,21 +142,9 @@ class UserManager @Inject private constructor(
      * @return a JWT token for that user
      * @throws IllegalArgumentException if the user is the [BotUser]
      */
-    @Suppress("unused")
+    @Deprecated("Use TokenHandler instead")
     fun toToken(user: User): String {
-        if (user is BotUser) throw IllegalArgumentException("Can't create a token for the bot user")
-        val signatureKey: ByteArray = if (user is GuestUser) {
-            this.guestSignatureKey
-        } else {
-            getSignatureKey()
-        }
-
-        return JWT.create()
-            .withSubject(user.name)
-            .withIssuedAt(Date())
-            .withExpiresAt(Date.from(Instant.now().plus(Duration.ofMinutes(TOKEN_TTL_MINUTES))))
-            .withArrayClaim("permissions", user.permissions.map { it.label }.toTypedArray())
-            .sign(Algorithm.HMAC512(signatureKey))
+        return tokenHandler.createToken(user)
     }
 
     /**
@@ -186,64 +154,9 @@ class UserManager @Inject private constructor(
      * @return a user object
      * @throws InvalidTokenException if the structure or signature of the token are invalid
      */
-    @Suppress("unused")
+    @Deprecated("Use TokenHandler instead")
     @Throws(InvalidTokenException::class)
     fun fromToken(token: String): User {
-        return try {
-            decodeFullUserToken(token)
-        } catch (e: SignatureVerificationException) {
-            // try again with guest signature key
-            decodeGuestUserToken(token)
-        }
-    }
-
-    @Suppress("ThrowsCount")
-    @Throws(InvalidTokenException::class, SignatureVerificationException::class)
-    private fun decodeFullUserToken(token: String): FullUser {
-        val decoded = try {
-            JWT
-                .require(Algorithm.HMAC512(getSignatureKey()))
-                .build()
-                .verify(token)
-        } catch (e: SignatureVerificationException) {
-            // This one should be propagated
-            throw e
-        } catch (e: JWTVerificationException) {
-            throw InvalidTokenException(e)
-        }
-        val name = decoded.subject ?: throw InvalidTokenException("subject missing")
-        val permissions: Set<Permission> = decoded
-            .getClaim("permissions")
-            .asList(String::class.java)
-            .mapNotNull {
-                try {
-                    Permission.matchByLabel(it)
-                } catch (e: IllegalArgumentException) {
-                    logger.error { "Unknown permission in token: $it" }
-                    null
-                }
-            }
-            .toSet()
-
-        return FullUser(name, permissions, "")
-    }
-
-    @Throws(InvalidTokenException::class)
-    private fun decodeGuestUserToken(token: String): GuestUser {
-        val decoded = try {
-            JWT
-                .require(Algorithm.HMAC512(guestSignatureKey))
-                .build()
-                .verify(token)
-        } catch (e: JWTVerificationException) {
-            throw InvalidTokenException(e)
-        }
-
-        val name = decoded.subject ?: throw InvalidTokenException("subject missing")
-        return GuestUser(name, "")
-    }
-
-    private fun getSignatureKey(): ByteArray {
-        return signatureKey.get() ?: Crypto.createRandomBytes().also { signatureKey.set(it) }
+        return tokenHandler.decodeToken(token)
     }
 }
