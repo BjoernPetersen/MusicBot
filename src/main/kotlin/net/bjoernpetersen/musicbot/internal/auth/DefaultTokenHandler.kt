@@ -7,7 +7,6 @@ import com.auth0.jwt.exceptions.SignatureVerificationException
 import com.auth0.jwt.interfaces.DecodedJWT
 import java.time.Duration
 import java.time.Instant
-import java.time.temporal.ChronoUnit
 import java.util.Date
 import javax.inject.Inject
 import mu.KotlinLogging
@@ -28,7 +27,7 @@ import net.bjoernpetersen.musicbot.api.config.serialized
 import net.bjoernpetersen.musicbot.spi.auth.TokenHandler
 
 private const val ACCESS_TOKEN_TTL_MINUTES = 10L
-private const val REFRESH_TOKEN_TTL_MONTHS = 6L
+private const val REFRESH_TOKEN_TTL_DAYS = 6L * 30
 private const val REFRESH_TOKEN_LIMIT_DAYS = 14L
 
 @Suppress("TooManyFunctions")
@@ -73,7 +72,7 @@ internal class DefaultTokenHandler @Inject private constructor(
             .withIssuedAt(Date())
             .withExpiresAt(
                 Date.from(
-                    Instant.now().plus(Duration.of(REFRESH_TOKEN_TTL_MONTHS, ChronoUnit.MONTHS))
+                    Instant.now().plus(Duration.ofDays(REFRESH_TOKEN_TTL_DAYS))
                 )
             )
             .sign(Algorithm.HMAC512(getSignatureKey(user)))
