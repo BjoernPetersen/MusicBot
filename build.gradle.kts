@@ -20,7 +20,7 @@ plugins {
 }
 
 group = "com.github.bjoernpetersen"
-version = "0.24.0-SNAPSHOT"
+version = "0.24.0"
 
 fun isSnapshot() = version.toString().endsWith("SNAPSHOT")
 
