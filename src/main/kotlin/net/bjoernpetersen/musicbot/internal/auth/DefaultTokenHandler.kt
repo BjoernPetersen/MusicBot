@@ -31,7 +31,6 @@ private const val ACCESS_TOKEN_TTL_MINUTES = 10L
 private const val REFRESH_TOKEN_TTL_MONTHS = 6L
 private const val REFRESH_TOKEN_LIMIT_DAYS = 14L
 
-// TODO create module allowing access to this
 @Suppress("TooManyFunctions")
 internal class DefaultTokenHandler @Inject private constructor(
     configManager: ConfigManager,

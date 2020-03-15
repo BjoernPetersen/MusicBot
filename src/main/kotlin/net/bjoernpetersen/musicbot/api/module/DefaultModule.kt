@@ -8,12 +8,14 @@ import java.sql.Connection
 import java.sql.DriverManager
 import javax.inject.Singleton
 import net.bjoernpetersen.musicbot.internal.auth.DefaultDatabase
+import net.bjoernpetersen.musicbot.internal.auth.DefaultTokenHandler
 import net.bjoernpetersen.musicbot.internal.image.DefaultImageCache
 import net.bjoernpetersen.musicbot.internal.loader.DefaultResourceCache
 import net.bjoernpetersen.musicbot.internal.loader.DefaultSongLoader
 import net.bjoernpetersen.musicbot.internal.player.ActorPlaybackFeedbackChannel
 import net.bjoernpetersen.musicbot.internal.player.ActorPlayer
 import net.bjoernpetersen.musicbot.internal.player.DefaultQueue
+import net.bjoernpetersen.musicbot.spi.auth.TokenHandler
 import net.bjoernpetersen.musicbot.spi.auth.UserDatabase
 import net.bjoernpetersen.musicbot.spi.image.ImageCache
 import net.bjoernpetersen.musicbot.spi.loader.ResourceCache
@@ -83,7 +85,7 @@ class DefaultUserDatabaseModule constructor() : AbstractModule() {
     constructor(databaseUrl: String) : this()
 
     override fun configure() {
-        bind(UserDatabase::class.java).to(DefaultDatabase::class.java)
+        bind(UserDatabase::class.java).to(DefaultDatabase::class.java).`in`(Scopes.SINGLETON)
     }
 }
 
@@ -93,6 +95,15 @@ class DefaultUserDatabaseModule constructor() : AbstractModule() {
 class DefaultResourceCacheModule : AbstractModule() {
     override fun configure() {
         bind(ResourceCache::class.java).to(DefaultResourceCache::class.java).`in`(Scopes.SINGLETON)
+    }
+}
+
+/**
+ * Binds [DefaultTokenHandler] as [TokenHandler].
+ */
+class DefaultTokenHandlerModule : AbstractModule() {
+    override fun configure() {
+        bind(TokenHandler::class.java).to(DefaultTokenHandler::class.java).`in`(Scopes.SINGLETON)
     }
 }
 
