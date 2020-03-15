@@ -5,6 +5,8 @@ import javax.inject.Inject
 import net.bjoernpetersen.musicbot.api.auth.Crypto
 import net.bjoernpetersen.musicbot.api.config.ByteArraySerializer
 
+private const val REFRESH_CLAIM_LENGTH = 128
+
 internal class RefreshClaimDatabaseImpl @Inject private constructor(
     connection: Connection
 ) : RefreshClaimDatabase {
@@ -40,7 +42,7 @@ internal class RefreshClaimDatabaseImpl @Inject private constructor(
     }
 
     private fun createClaim(userId: String): String {
-        val bytes = Crypto.createRandomBytes(128)
+        val bytes = Crypto.createRandomBytes(REFRESH_CLAIM_LENGTH)
         val encoded = ByteArraySerializer.serialize(bytes)
         synchronized(createClaim) {
             createClaim.clearParameters()
