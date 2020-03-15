@@ -30,6 +30,8 @@ private const val ACCESS_TOKEN_TTL_MINUTES = 10L
 private const val REFRESH_TOKEN_TTL_DAYS = 6L * 30
 private const val REFRESH_TOKEN_LIMIT_DAYS = 14L
 
+private const val REFRESH_CLAIM = "refresh_claim"
+
 @Suppress("TooManyFunctions")
 internal class DefaultTokenHandler @Inject private constructor(
     configManager: ConfigManager,
@@ -51,6 +53,12 @@ internal class DefaultTokenHandler @Inject private constructor(
     override fun createTokens(refreshToken: String): Tokens {
         val token = decodeToken(refreshToken)
         val user = userManager.getUser(token.jwt.subject)
+        val expectedClaim = refreshClaimDatabase.getClaim(user.name.toId())
+        val claim = token.jwt.getClaim(REFRESH_CLAIM).asString()
+        if (expectedClaim != claim) {
+            throw InvalidTokenException("Invalid refresh claim")
+        }
+
         val accessToken = createAccessToken(user)
 
         val expiration = token.jwt.expiresAt.toInstant()
@@ -67,6 +75,7 @@ internal class DefaultTokenHandler @Inject private constructor(
     }
 
     override fun createRefreshToken(user: User): String {
+        val claim = refreshClaimDatabase.getClaim(user.name.toId())
         return JWT.create()
             .withSubject(user.name)
             .withIssuedAt(Date())
@@ -75,6 +84,7 @@ internal class DefaultTokenHandler @Inject private constructor(
                     Instant.now().plus(Duration.ofDays(REFRESH_TOKEN_TTL_DAYS))
                 )
             )
+            .withClaim(REFRESH_CLAIM, claim)
             .sign(Algorithm.HMAC512(getSignatureKey(user)))
     }
 
