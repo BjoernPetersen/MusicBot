@@ -10,6 +10,7 @@ import net.bjoernpetersen.musicbot.api.auth.FullUser
 import net.bjoernpetersen.musicbot.api.auth.Permission
 import net.bjoernpetersen.musicbot.api.auth.User
 import net.bjoernpetersen.musicbot.api.auth.UserNotFoundException
+import net.bjoernpetersen.musicbot.api.module.DefaultDatabaseConnectionModule
 import net.bjoernpetersen.musicbot.api.module.DefaultUserDatabaseModule
 import net.bjoernpetersen.musicbot.spi.auth.UserDatabase
 import org.assertj.core.api.Assertions.assertThat
@@ -33,8 +34,10 @@ class DefaultDatabaseTest {
     private lateinit var database: UserDatabase
 
     private fun Injector.createDatabase(file: Path): UserDatabase {
-        return createChildInjector(DefaultUserDatabaseModule(file))
-            .getInstance(UserDatabase::class.java)
+        return createChildInjector(
+            DefaultDatabaseConnectionModule(file),
+            DefaultUserDatabaseModule()
+        ).getInstance(UserDatabase::class.java)
     }
 
     @BeforeEach

@@ -4,7 +4,6 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import mu.KotlinLogging
 import net.bjoernpetersen.musicbot.internal.auth.TempUserDatabase
-import net.bjoernpetersen.musicbot.spi.auth.TokenHandler
 import net.bjoernpetersen.musicbot.spi.auth.UserDatabase
 
 /**
@@ -14,8 +13,7 @@ import net.bjoernpetersen.musicbot.spi.auth.UserDatabase
 @Suppress("TooManyFunctions")
 class UserManager @Inject private constructor(
     private val userDatabase: UserDatabase,
-    private val tempUserDatabase: TempUserDatabase,
-    private val tokenHandler: TokenHandler
+    private val tempUserDatabase: TempUserDatabase
 ) {
     private val logger = KotlinLogging.logger { }
 
@@ -133,30 +131,5 @@ class UserManager @Inject private constructor(
     @Suppress("unused")
     fun getUsers(): Set<FullUser> {
         return userDatabase.getUsers()
-    }
-
-    /**
-     * Creates a JWT token for the specified user.
-     *
-     * @param user a user
-     * @return a JWT token for that user
-     * @throws IllegalArgumentException if the user is the [BotUser]
-     */
-    @Deprecated("Use TokenHandler instead")
-    fun toToken(user: User): String {
-        return tokenHandler.createToken(user)
-    }
-
-    /**
-     * Create a user object from a JWT token.
-     *
-     * @param token the JWT token
-     * @return a user object
-     * @throws InvalidTokenException if the structure or signature of the token are invalid
-     */
-    @Deprecated("Use TokenHandler instead")
-    @Throws(InvalidTokenException::class)
-    fun fromToken(token: String): User {
-        return tokenHandler.decodeToken(token)
     }
 }

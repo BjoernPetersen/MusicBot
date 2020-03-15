@@ -1,10 +1,10 @@
 package net.bjoernpetersen.musicbot.internal.auth
 
 import com.google.common.base.Splitter
-import java.nio.file.Path
-import java.sql.DriverManager
+import java.sql.Connection
 import java.sql.SQLException
 import java.util.HashSet
+import javax.inject.Inject
 import net.bjoernpetersen.musicbot.api.auth.DuplicateUserException
 import net.bjoernpetersen.musicbot.api.auth.FullUser
 import net.bjoernpetersen.musicbot.api.auth.Permission
@@ -12,13 +12,9 @@ import net.bjoernpetersen.musicbot.api.auth.UserNotFoundException
 import net.bjoernpetersen.musicbot.api.auth.toId
 import net.bjoernpetersen.musicbot.spi.auth.UserDatabase
 
-internal class DefaultDatabase
-@Deprecated("Use file constructor instead")
-constructor(databaseUrl: String) : UserDatabase {
-    @Suppress("DEPRECATION")
-    constructor(file: Path) : this("jdbc:sqlite:$file")
-
-    private val connection = DriverManager.getConnection(databaseUrl)
+internal class DefaultDatabase @Inject private constructor(
+    private val connection: Connection
+) : UserDatabase {
 
     init {
         connection.createStatement().use { statement ->

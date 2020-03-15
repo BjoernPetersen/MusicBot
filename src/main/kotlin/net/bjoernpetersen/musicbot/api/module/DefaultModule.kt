@@ -4,6 +4,8 @@ import com.google.inject.AbstractModule
 import com.google.inject.Provides
 import com.google.inject.Scopes
 import java.nio.file.Path
+import java.sql.Connection
+import java.sql.DriverManager
 import javax.inject.Singleton
 import net.bjoernpetersen.musicbot.internal.auth.DefaultDatabase
 import net.bjoernpetersen.musicbot.internal.image.DefaultImageCache
@@ -56,21 +58,33 @@ class DefaultSongLoaderModule : AbstractModule() {
 }
 
 /**
- * Binds [DefaultDatabase] as [UserDatabase].
+ * Binds a JDBC SQLite connection for [Connection] using the specified [databaseFile] path.
  */
-class DefaultUserDatabaseModule
-@Deprecated("Don't supply the full URL, just the file path")
-constructor(private val databaseUrl: String) : AbstractModule() {
-    @Suppress("DEPRECATION")
-    constructor(databaseFile: Path) : this("jdbc:sqlite:$databaseFile")
+class DefaultDatabaseConnectionModule(private val databaseFile: Path) : AbstractModule() {
 
     /**
-     * Supplies a default user database implementation.
+     * Provides the connection.
      */
     @Provides
     @Singleton
-    @Suppress("DEPRECATION")
-    fun provideUserDatabase(): UserDatabase = DefaultDatabase(databaseUrl)
+    fun provideConnection(): Connection = DriverManager.getConnection("jdbc:sqlite:$databaseFile")
+}
+
+/**
+ * Binds [DefaultDatabase] as [UserDatabase].
+ */
+class DefaultUserDatabaseModule constructor() : AbstractModule() {
+    @Deprecated("Value is ignored")
+    @Suppress("UNUSED_PARAMETER")
+    constructor(databaseFile: Path) : this()
+
+    @Deprecated("Value is ignored")
+    @Suppress("UNUSED_PARAMETER")
+    constructor(databaseUrl: String) : this()
+
+    override fun configure() {
+        bind(UserDatabase::class.java).to(DefaultDatabase::class.java)
+    }
 }
 
 /**

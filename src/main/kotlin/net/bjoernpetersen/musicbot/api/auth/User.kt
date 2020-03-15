@@ -31,6 +31,7 @@ sealed class User {
      * The name of the user. May be composed of any unicode characters.
      */
     abstract val name: String
+
     /**
      * A set of permissions this user has.
      */
@@ -55,16 +56,15 @@ sealed class User {
  * ## Authentication
  *
  * Guests don't need to provide a password in order to lower the barrier for bot usage.
- * In lieu of a password, clients send some unique [identifier][id] like an UUID or an installation ID
- * which is then used the same way passwords are for [full users][FullUser].
+ * In lieu of a password, clients send some unique [identifier][id] like an UUID or an installation
+ * ID which is then used the same way passwords are for [full users][FullUser].
  *
- * At best, the [id] should be reproducible by the client and **only** the one client it came from.
+ * Optimally, the [id] should be reproducible by the client and **only** the one client it came from.
  *
  * ## Limitations
  *
  * Due to the questionable security of guest "passwords", all guest users have exactly the
  * permissions defined by [DefaultPermissions].
- *
  *
  * @param name a name which identifies the user
  * @param id some unique identifier (see `Authentication`)
@@ -84,13 +84,13 @@ data class GuestUser(
         if (this === other) return true
         if (other !is GuestUser) return false
 
-        if (name != other.name) return false
+        if (name.toId() != other.name.toId()) return false
 
         return true
     }
 
     override fun hashCode(): Int {
-        return name.hashCode()
+        return name.toId().hashCode()
     }
 }
 
@@ -118,13 +118,13 @@ data class FullUser(
         if (this === other) return true
         if (other !is FullUser) return false
 
-        if (name != other.name) return false
+        if (name.toId() != other.name.toId()) return false
 
         return true
     }
 
     override fun hashCode(): Int {
-        return name.hashCode()
+        return name.toId().hashCode()
     }
 }
 

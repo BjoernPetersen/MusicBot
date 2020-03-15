@@ -97,7 +97,7 @@ object ByteArraySerializer : ConfigSerializer<ByteArray> {
     private val decoder = Base64.getDecoder()
 
     override fun serialize(obj: ByteArray): String {
-        return encoder.encodeToString(obj)
+        return String(encoder.encode(obj), Charsets.US_ASCII)
     }
 
     override fun deserialize(string: String): ByteArray {

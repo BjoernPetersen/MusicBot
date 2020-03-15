@@ -1,7 +1,7 @@
 package net.bjoernpetersen.musicbot.spi.auth
 
-import net.bjoernpetersen.musicbot.api.auth.BotUser
 import net.bjoernpetersen.musicbot.api.auth.InvalidTokenException
+import net.bjoernpetersen.musicbot.api.auth.Tokens
 import net.bjoernpetersen.musicbot.api.auth.User
 
 /**
@@ -9,13 +9,22 @@ import net.bjoernpetersen.musicbot.api.auth.User
  */
 interface TokenHandler {
     /**
-     * Creates a JWT token for the specified user.
+     * Creates an access token for the user associated with the refresh token.
+     * If the refresh token was about to expire, the result will also include a refresh token.
+     *
+     * @param refreshToken a refresh token
+     * @return an access token and possibly a refresh token for that user
+     * @throws InvalidTokenException if the refresh token was invalid
+     */
+    fun createTokens(refreshToken: String): Tokens
+
+    /**
+     * Creates an access token and a refresh token for the specified user.
      *
      * @param user a user
-     * @return a JWT token for that user
-     * @throws IllegalArgumentException if the user is the [BotUser]
+     * @return a token pair for that user
      */
-    fun createToken(user: User): String
+    fun createTokens(user: User): Tokens
 
     /**
      * Create a user object from a JWT token.
@@ -25,10 +34,18 @@ interface TokenHandler {
      * @throws InvalidTokenException if the structure or signature of the token are invalid
      */
     @Throws(InvalidTokenException::class)
-    fun decodeToken(token: String): User
+    fun decodeAccessToken(token: String): User
 
     /**
-     * Invalidates all cached tokens for the specified user.
+     * Create a refresh token for the specified user.
+     *
+     * @param user the user to create the token for
+     * @return a refresh token
+     */
+    fun createRefreshToken(user: User): String
+
+    /**
+     * Invalidates all previous refresh tokens for the specified user.
      *
      * @param user any user
      */
