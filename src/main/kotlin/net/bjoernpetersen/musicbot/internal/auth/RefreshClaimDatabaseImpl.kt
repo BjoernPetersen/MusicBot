@@ -40,7 +40,7 @@ internal class RefreshClaimDatabaseImpl @Inject private constructor(
     }
 
     private fun createClaim(userId: String): String {
-        val bytes = Crypto.createRandomBytes()
+        val bytes = Crypto.createRandomBytes(128)
         val encoded = ByteArraySerializer.serialize(bytes)
         synchronized(createClaim) {
             createClaim.clearParameters()
