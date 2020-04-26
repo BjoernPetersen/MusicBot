@@ -9,6 +9,12 @@ import net.bjoernpetersen.musicbot.api.plugin.Base
 interface AviPlaybackFactory : FilePlaybackFactory
 
 /**
+ * PlaybackFactory capable of playing `.flv` files.
+ */
+@Base
+interface FlvPlaybackFactory : FilePlaybackFactory
+
+/**
  * PlaybackFactory capable of playing `.mkv` files.
  */
 @Base
