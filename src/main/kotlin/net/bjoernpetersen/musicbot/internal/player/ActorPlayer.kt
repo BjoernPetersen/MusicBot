@@ -82,7 +82,7 @@ private class SyncPlayer @Inject private constructor(
     private val resourceCache: ResourceCache,
     private val pluginLookup: PluginLookup,
     private val songPlayedNotifier: SongPlayedNotifier,
-    private val playbackFeedbackChannel: PlaybackFeedbackChannel
+    override val playbackFeedbackChannel: ActorPlaybackFeedbackChannel
 ) : Player {
 
     private val logger = KotlinLogging.logger {}
@@ -237,7 +237,6 @@ internal class ActorPlayer @Inject private constructor(
     private val queue: SongQueue,
     defaultSuggester: DefaultSuggester,
     private val resourceCache: ResourceCache,
-    feedbackChannel: ActorPlaybackFeedbackChannel,
     progressTracker: ProgressTracker
 ) : Player, CoroutineScope {
 
@@ -246,6 +245,9 @@ internal class ActorPlayer @Inject private constructor(
     private val job = Job()
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.Default + job
+
+    override val playbackFeedbackChannel: PlaybackFeedbackChannel
+        get() = syncPlayer.playbackFeedbackChannel
 
     private val suggester: Suggester? = defaultSuggester.suggester
 
@@ -312,7 +314,7 @@ internal class ActorPlayer @Inject private constructor(
     }
 
     init {
-        feedbackChannel.onStateChange = { feedback ->
+        syncPlayer.playbackFeedbackChannel.onStateChange = { feedback ->
             logger.trace { "Playback state update: $feedback" }
             try {
                 launch { actor.send(StateChange(state, feedback)) }
@@ -455,10 +457,9 @@ internal class ActorPlayer @Inject private constructor(
     }
 }
 
-internal class ActorPlaybackFeedbackChannel @Inject private constructor(
+private class ActorPlaybackFeedbackChannel @Inject private constructor(
     private val progressTracker: ProgressTracker
 ) : PlaybackFeedbackChannel {
-
     var onStateChange: ((PlaybackState) -> Unit)? = null
         set(value) {
             if (field != null) throw IllegalStateException("Already initialized")

@@ -2,6 +2,7 @@ package net.bjoernpetersen.musicbot.spi.player
 
 import net.bjoernpetersen.musicbot.api.player.PlayerState
 import net.bjoernpetersen.musicbot.api.player.StopState
+import net.bjoernpetersen.musicbot.spi.plugin.PlaybackFeedbackChannel
 
 typealias PlayerStateListener = (oldState: PlayerState, newState: PlayerState) -> Unit
 
@@ -9,6 +10,11 @@ typealias PlayerStateListener = (oldState: PlayerState, newState: PlayerState) -
  * A player which handles the current playback and takes songs from the queue.
  */
 interface Player {
+
+    /**
+     * The PlaybackFeedbackChannel of this player.
+     */
+    val playbackFeedbackChannel: PlaybackFeedbackChannel
 
     /**
      * The current state of the player.

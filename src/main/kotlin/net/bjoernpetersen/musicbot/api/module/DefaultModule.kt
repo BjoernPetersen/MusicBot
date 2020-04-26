@@ -12,7 +12,6 @@ import net.bjoernpetersen.musicbot.internal.auth.DefaultTokenHandler
 import net.bjoernpetersen.musicbot.internal.image.DefaultImageCache
 import net.bjoernpetersen.musicbot.internal.loader.DefaultResourceCache
 import net.bjoernpetersen.musicbot.internal.loader.DefaultSongLoader
-import net.bjoernpetersen.musicbot.internal.player.ActorPlaybackFeedbackChannel
 import net.bjoernpetersen.musicbot.internal.player.ActorPlayer
 import net.bjoernpetersen.musicbot.internal.player.DefaultQueue
 import net.bjoernpetersen.musicbot.spi.auth.TokenHandler
@@ -32,9 +31,6 @@ import net.bjoernpetersen.musicbot.spi.plugin.Suggester
 class DefaultPlayerModule(suggester: Suggester?) : PlayerModule(suggester) {
     override fun configure() {
         super.configure()
-        bind(PlaybackFeedbackChannel::class.java)
-            .to(ActorPlaybackFeedbackChannel::class.java)
-            .`in`(Scopes.SINGLETON)
         bind(Player::class.java)
             .to(ActorPlayer::class.java)
             .`in`(Scopes.SINGLETON)

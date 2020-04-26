@@ -7,6 +7,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.withContext
+import net.bjoernpetersen.musicbot.spi.player.Player
 
 /**
  * A feedback channel back to the player to send signals about playback state changes
@@ -14,9 +15,11 @@ import kotlinx.coroutines.withContext
  *
  * All feedback options are entirely optional, i.e. [Playback] implementations are not required to
  * provide any feedback.
+ *
+ * The feedback channel is strongly coupled to a player implementation and is injected by getting
+ * [Player.playbackFeedbackChannel].
  */
 interface PlaybackFeedbackChannel {
-
     /**
      * Notify the listener of a playback [state] change.
      *
@@ -50,10 +53,12 @@ enum class PlaybackState {
      * The Playback is playing.
      */
     PLAY,
+
     /**
      * The playback is paused, but not stopped, finished, or broken.
      */
     PAUSE,
+
     /**
      * The playback is broken and won't be able to continue playing.
      *
