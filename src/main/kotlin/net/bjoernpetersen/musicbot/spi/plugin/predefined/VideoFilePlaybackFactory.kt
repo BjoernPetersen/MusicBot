@@ -3,13 +3,6 @@ package net.bjoernpetersen.musicbot.spi.plugin.predefined
 import net.bjoernpetersen.musicbot.api.plugin.Base
 
 /**
- * Marks all video-playback-related interfaces as experimental.
- */
-@Experimental(Experimental.Level.WARNING)
-@Deprecated("No longer experimental", ReplaceWith(""))
-annotation class ExperimentalVideoFilePlayback
-
-/**
  * PlaybackFactory capable of playing `.avi` files.
  */
 @Base

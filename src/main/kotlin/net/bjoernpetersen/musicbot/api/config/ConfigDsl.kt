@@ -5,16 +5,6 @@ import kotlin.reflect.KProperty
 import net.bjoernpetersen.musicbot.spi.config.ConfigChecker
 
 /**
- * Marks all parts of the Config DSL as experimental.
- *
- * Although it is unlikely to drastically change, there might be breaking changes without
- * preceding deprecation.
- */
-@Experimental
-@Deprecated("No longer experimental", ReplaceWith(""))
-annotation class ExperimentalConfigDsl
-
-/**
  * An object used for configuration of a String config entry.
  *
  * ### Required
