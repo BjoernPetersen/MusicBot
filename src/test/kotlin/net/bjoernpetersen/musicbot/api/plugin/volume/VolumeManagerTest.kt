@@ -7,7 +7,7 @@ import com.google.inject.Provides
 import javax.inject.Singleton
 import kotlinx.coroutines.runBlocking
 import net.bjoernpetersen.musicbot.api.config.Config
-import net.bjoernpetersen.musicbot.spi.plugin.management.InitStateWriter
+import net.bjoernpetersen.musicbot.spi.plugin.management.ProgressUpdater
 import net.bjoernpetersen.musicbot.spi.plugin.volume.VolumeHandler
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertDoesNotThrow
@@ -132,7 +132,7 @@ private class TestHandler : VolumeHandler {
         TODO("not implemented")
     }
 
-    override suspend fun initialize(initStateWriter: InitStateWriter) {
+    override suspend fun initialize(progressUpdater: ProgressUpdater) {
         TODO("not implemented")
     }
 

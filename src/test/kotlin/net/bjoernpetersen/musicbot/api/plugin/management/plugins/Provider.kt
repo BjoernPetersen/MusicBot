@@ -7,7 +7,7 @@ import net.bjoernpetersen.musicbot.api.plugin.IdBase
 import net.bjoernpetersen.musicbot.spi.loader.Resource
 import net.bjoernpetersen.musicbot.spi.plugin.Playback
 import net.bjoernpetersen.musicbot.spi.plugin.Provider
-import net.bjoernpetersen.musicbot.spi.plugin.management.InitStateWriter
+import net.bjoernpetersen.musicbot.spi.plugin.management.ProgressUpdater
 
 @IdBase("Self ID")
 class SelfIdProvider : Provider by TodoProvider("self")
@@ -54,7 +54,7 @@ private class TodoProvider(override val name: String) : Provider {
         TODO("not implemented")
     }
 
-    override suspend fun initialize(initStateWriter: InitStateWriter) {
+    override suspend fun initialize(progressUpdater: ProgressUpdater) {
         TODO("not implemented")
     }
 

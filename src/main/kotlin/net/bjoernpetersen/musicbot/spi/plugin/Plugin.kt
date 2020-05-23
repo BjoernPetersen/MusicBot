@@ -3,7 +3,7 @@ package net.bjoernpetersen.musicbot.spi.plugin
 import javax.inject.Inject
 import net.bjoernpetersen.musicbot.api.config.Config
 import net.bjoernpetersen.musicbot.api.plugin.InitializationException
-import net.bjoernpetersen.musicbot.spi.plugin.management.InitStateWriter
+import net.bjoernpetersen.musicbot.spi.plugin.management.ProgressUpdater
 
 /**
  * Base interface for plugins. This interface isn't meant to be directly implemented, but to be
@@ -114,11 +114,11 @@ interface Plugin {
      * Initialize and allocate resources.
      * After this method is called, the plugin is deemed active until [close] is called.
      *
-     * @param initStateWriter a writer to tell the user what you're doing
+     * @param progressUpdater a writer to tell the user what you're doing
      * @throws InitializationException if any problems occurs during initialization
      */
     @Throws(InitializationException::class)
-    suspend fun initialize(initStateWriter: InitStateWriter)
+    suspend fun initialize(progressUpdater: ProgressUpdater)
 
     /**
      * Close whatever resources have been allocated in [initialize].

@@ -5,7 +5,7 @@ import net.bjoernpetersen.musicbot.api.config.Config
 import net.bjoernpetersen.musicbot.api.player.Song
 import net.bjoernpetersen.musicbot.api.plugin.IdBase
 import net.bjoernpetersen.musicbot.spi.plugin.Suggester
-import net.bjoernpetersen.musicbot.spi.plugin.management.InitStateWriter
+import net.bjoernpetersen.musicbot.spi.plugin.management.ProgressUpdater
 
 @IdBase("Authed")
 class AuthMySuggester : Suggester by TodoSuggester("AuthMy") {
@@ -42,7 +42,7 @@ private class TodoSuggester(override val name: String) : Suggester {
         TODO("not implemented")
     }
 
-    override suspend fun initialize(initStateWriter: InitStateWriter) {
+    override suspend fun initialize(progressUpdater: ProgressUpdater) {
         TODO("not implemented")
     }
 

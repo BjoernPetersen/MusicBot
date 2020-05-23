@@ -5,7 +5,7 @@ import net.bjoernpetersen.musicbot.api.plugin.ActiveBase
 import net.bjoernpetersen.musicbot.api.plugin.Base
 import net.bjoernpetersen.musicbot.api.plugin.IdBase
 import net.bjoernpetersen.musicbot.spi.plugin.GenericPlugin
-import net.bjoernpetersen.musicbot.spi.plugin.management.InitStateWriter
+import net.bjoernpetersen.musicbot.spi.plugin.management.ProgressUpdater
 
 @IdBase("Self ID")
 @ActiveBase
@@ -48,7 +48,7 @@ private class TodoGeneric(override val name: String) : GenericPlugin {
         TODO("not implemented")
     }
 
-    override suspend fun initialize(initStateWriter: InitStateWriter) {
+    override suspend fun initialize(progressUpdater: ProgressUpdater) {
         TODO("not implemented")
     }
 

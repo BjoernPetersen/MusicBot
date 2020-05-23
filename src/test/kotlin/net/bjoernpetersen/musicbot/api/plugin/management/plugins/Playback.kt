@@ -3,7 +3,7 @@ package net.bjoernpetersen.musicbot.api.plugin.management.plugins
 import net.bjoernpetersen.musicbot.api.config.Config
 import net.bjoernpetersen.musicbot.api.plugin.Base
 import net.bjoernpetersen.musicbot.spi.plugin.PlaybackFactory
-import net.bjoernpetersen.musicbot.spi.plugin.management.InitStateWriter
+import net.bjoernpetersen.musicbot.spi.plugin.management.ProgressUpdater
 
 @Base
 class SelfBasePlayback : PlaybackFactory by TodoPlaybackFactory("self")
@@ -39,7 +39,7 @@ private class TodoPlaybackFactory(override val name: String) : PlaybackFactory {
         TODO("not implemented")
     }
 
-    override suspend fun initialize(initStateWriter: InitStateWriter) {
+    override suspend fun initialize(progressUpdater: ProgressUpdater) {
         TODO("not implemented")
     }
 
