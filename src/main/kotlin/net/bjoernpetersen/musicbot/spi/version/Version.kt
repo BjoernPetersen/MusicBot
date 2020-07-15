@@ -17,9 +17,9 @@ data class Version(
 /**
  * Implementation information about the MusicBot
  *
- * @param projectInfo The name of the server implementation.
- * @param name The version of the implementation.
- * @param version URL to the project website.
+ * @param projectInfo URL to the project website.
+ * @param name The name of the server implementation.
+ * @param version The version of the implementation.
  */
 data class ImplementationInfo(
     val projectInfo: String,
