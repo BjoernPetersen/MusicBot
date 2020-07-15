@@ -1,7 +1,7 @@
 package net.bjoernpetersen.musicbot.spi.domain
 
 /**
- * Keeps track of Ip Addresses and domains the MusicBot is accessible by.
+ * Keeps track of IP addresses and domains the MusicBot is accessible by.
  */
 interface DomainHandler {
     /**
