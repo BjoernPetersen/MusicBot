@@ -29,7 +29,7 @@ import net.bjoernpetersen.musicbot.spi.plugin.Playback
 import net.bjoernpetersen.musicbot.spi.plugin.Plugin
 import net.bjoernpetersen.musicbot.spi.plugin.PluginLookup
 import net.bjoernpetersen.musicbot.spi.plugin.Provider
-import net.bjoernpetersen.musicbot.spi.plugin.management.ProgressUpdater
+import net.bjoernpetersen.musicbot.spi.plugin.management.ProgressFeedback
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -266,7 +266,7 @@ private object DummyProvider : Provider, CoroutineScope {
         TODO("not implemented")
     }
 
-    override suspend fun initialize(progressUpdater: ProgressUpdater) {
+    override suspend fun initialize(progressFeedback: ProgressFeedback) {
         job = Job()
     }
 

@@ -6,7 +6,7 @@ import net.bjoernpetersen.musicbot.api.plugin.IdBase
 import net.bjoernpetersen.musicbot.api.plugin.bases
 import net.bjoernpetersen.musicbot.api.plugin.id
 import net.bjoernpetersen.musicbot.spi.loader.Resource
-import net.bjoernpetersen.musicbot.spi.plugin.management.ProgressUpdater
+import net.bjoernpetersen.musicbot.spi.plugin.management.ProgressFeedback
 import org.junit.jupiter.api.Assertions.assertDoesNotThrow
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -48,7 +48,7 @@ private class TestProvider : TestProviderBase {
         TODO("not implemented")
     }
 
-    override suspend fun initialize(progressUpdater: ProgressUpdater) {
+    override suspend fun initialize(progressFeedback: ProgressFeedback) {
         TODO("not implemented")
     }
 

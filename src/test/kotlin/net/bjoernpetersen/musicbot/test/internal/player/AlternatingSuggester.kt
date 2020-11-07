@@ -6,7 +6,7 @@ import net.bjoernpetersen.musicbot.api.player.Song
 import net.bjoernpetersen.musicbot.api.plugin.IdBase
 import net.bjoernpetersen.musicbot.spi.plugin.BrokenSuggesterException
 import net.bjoernpetersen.musicbot.spi.plugin.Suggester
-import net.bjoernpetersen.musicbot.spi.plugin.management.ProgressUpdater
+import net.bjoernpetersen.musicbot.spi.plugin.management.ProgressFeedback
 
 @IdBase("Alternating")
 class AlternatingSuggester(private val provider: DummyProvider) :
@@ -47,7 +47,7 @@ class AlternatingSuggester(private val provider: DummyProvider) :
     override fun createConfigEntries(config: Config): List<Config.Entry<*>> = emptyList()
     override fun createSecretEntries(secrets: Config): List<Config.Entry<*>> = emptyList()
     override fun createStateEntries(state: Config) = Unit
-    override suspend fun initialize(progressUpdater: ProgressUpdater) = Unit
+    override suspend fun initialize(progressFeedback: ProgressFeedback) = Unit
     override suspend fun close() {
         isBroken = true
     }

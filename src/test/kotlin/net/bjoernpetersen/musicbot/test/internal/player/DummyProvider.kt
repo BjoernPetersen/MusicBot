@@ -12,7 +12,7 @@ import net.bjoernpetersen.musicbot.spi.plugin.AbstractPlayback
 import net.bjoernpetersen.musicbot.spi.plugin.NoSuchSongException
 import net.bjoernpetersen.musicbot.spi.plugin.Playback
 import net.bjoernpetersen.musicbot.spi.plugin.Provider
-import net.bjoernpetersen.musicbot.spi.plugin.management.ProgressUpdater
+import net.bjoernpetersen.musicbot.spi.plugin.management.ProgressFeedback
 import java.time.Duration
 
 @IdBase("Dummy")
@@ -57,7 +57,7 @@ class DummyProvider : Provider {
     override fun createConfigEntries(config: Config): List<Config.Entry<*>> = emptyList()
     override fun createSecretEntries(secrets: Config): List<Config.Entry<*>> = emptyList()
     override fun createStateEntries(state: Config) = Unit
-    override suspend fun initialize(progressUpdater: ProgressUpdater) = Unit
+    override suspend fun initialize(progressFeedback: ProgressFeedback) = Unit
     override suspend fun close() = Unit
 
     private fun createSong(id: String): Song = song(id) {

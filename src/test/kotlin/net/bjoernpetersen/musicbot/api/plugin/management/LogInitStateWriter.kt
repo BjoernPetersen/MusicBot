@@ -1,9 +1,9 @@
 package net.bjoernpetersen.musicbot.api.plugin.management
 
 import mu.KotlinLogging
-import net.bjoernpetersen.musicbot.spi.plugin.management.ProgressUpdater
+import net.bjoernpetersen.musicbot.spi.plugin.management.ProgressFeedback
 
-class LogInitStateWriter : ProgressUpdater {
+class LogInitStateWriter : ProgressFeedback {
     private val logger = KotlinLogging.logger { }
     override fun state(state: String) {
         logger.debug { state }

@@ -6,7 +6,7 @@ import net.bjoernpetersen.musicbot.api.plugin.IdBase
 import net.bjoernpetersen.musicbot.spi.loader.Resource
 import net.bjoernpetersen.musicbot.spi.plugin.Playback
 import net.bjoernpetersen.musicbot.spi.plugin.Provider
-import net.bjoernpetersen.musicbot.spi.plugin.management.ProgressUpdater
+import net.bjoernpetersen.musicbot.spi.plugin.management.ProgressFeedback
 import javax.inject.Inject
 
 @IdBase("Self ID")
@@ -54,7 +54,7 @@ private class TodoProvider(override val name: String) : Provider {
         TODO("not implemented")
     }
 
-    override suspend fun initialize(progressUpdater: ProgressUpdater) {
+    override suspend fun initialize(progressFeedback: ProgressFeedback) {
         TODO("not implemented")
     }
 

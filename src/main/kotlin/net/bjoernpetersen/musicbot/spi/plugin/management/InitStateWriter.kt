@@ -5,7 +5,7 @@ import net.bjoernpetersen.musicbot.spi.plugin.Plugin
 /**
  * Feedback object for plugins to use while they are [initializing][Plugin.initialize].
  */
-interface ProgressUpdater {
+interface ProgressFeedback {
     /**
      * Tell the user about what you're currently doing.
      */
@@ -18,7 +18,7 @@ interface ProgressUpdater {
 }
 
 @Deprecated(
-    "Use ProgressUpdater instead",
-    replaceWith = ReplaceWith("ProgressUpdater")
+    "Use ProgressFeedback instead",
+    replaceWith = ReplaceWith("ProgressFeedback")
 )
-typealias InitStateWriter = ProgressUpdater
+typealias InitStateWriter = ProgressFeedback

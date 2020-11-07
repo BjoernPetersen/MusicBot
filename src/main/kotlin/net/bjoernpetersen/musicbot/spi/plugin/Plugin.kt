@@ -2,7 +2,7 @@ package net.bjoernpetersen.musicbot.spi.plugin
 
 import net.bjoernpetersen.musicbot.api.config.Config
 import net.bjoernpetersen.musicbot.api.plugin.InitializationException
-import net.bjoernpetersen.musicbot.spi.plugin.management.ProgressUpdater
+import net.bjoernpetersen.musicbot.spi.plugin.management.ProgressFeedback
 import javax.inject.Inject
 
 /**
@@ -114,11 +114,11 @@ interface Plugin {
      * Initialize and allocate resources.
      * After this method is called, the plugin is deemed active until [close] is called.
      *
-     * @param progressUpdater a writer to tell the user what you're doing
+     * @param progressFeedback a writer to tell the user what you're doing
      * @throws InitializationException if any problems occurs during initialization
      */
     @Throws(InitializationException::class)
-    suspend fun initialize(progressUpdater: ProgressUpdater)
+    suspend fun initialize(progressFeedback: ProgressFeedback)
 
     /**
      * Close whatever resources have been allocated in [initialize].
