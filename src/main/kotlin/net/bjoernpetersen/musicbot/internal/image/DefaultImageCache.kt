@@ -3,10 +3,6 @@ package net.bjoernpetersen.musicbot.internal.image
 import com.google.common.cache.CacheBuilder
 import com.google.common.cache.CacheLoader
 import com.google.common.cache.LoadingCache
-import java.io.IOException
-import java.util.concurrent.ExecutionException
-import java.util.concurrent.TimeUnit
-import javax.inject.Inject
 import mu.KotlinLogging
 import net.bjoernpetersen.musicbot.spi.image.AlbumArtSupplier
 import net.bjoernpetersen.musicbot.spi.image.ImageCache
@@ -14,6 +10,10 @@ import net.bjoernpetersen.musicbot.spi.image.ImageData
 import net.bjoernpetersen.musicbot.spi.image.ImageLoader
 import net.bjoernpetersen.musicbot.spi.plugin.PluginLookup
 import net.bjoernpetersen.musicbot.spi.plugin.Provider
+import java.io.IOException
+import java.util.concurrent.ExecutionException
+import java.util.concurrent.TimeUnit
+import javax.inject.Inject
 
 private const val CACHE_EXPIRATION_MINUTES = 10L
 private const val CACHE_SIZE = 256L

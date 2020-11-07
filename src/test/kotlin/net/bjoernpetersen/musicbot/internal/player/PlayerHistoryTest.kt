@@ -1,7 +1,6 @@
 package net.bjoernpetersen.musicbot.internal.player
 
 import com.google.inject.Injector
-import java.time.Duration
 import kotlinx.coroutines.runBlocking
 import name.falgout.jeffrey.testing.junit.guice.GuiceExtension
 import name.falgout.jeffrey.testing.junit.guice.IncludeModule
@@ -26,6 +25,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
+import java.time.Duration
 
 @ExtendWith(GuiceExtension::class)
 @IncludeModule(DefaultQueueModule::class, DummyResourceCache.Companion::class)
@@ -64,7 +64,8 @@ class PlayerHistoryTest {
 
             assertEquals(
                 listOf(provider.component1(), provider.component2()),
-                entries.map { it.song })
+                entries.map { it.song }
+            )
         }
     }
 

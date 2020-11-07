@@ -41,7 +41,8 @@ class DependencyManagerTest {
         genericPlugins,
         playbackFactories,
         providers,
-        suggesters)
+        suggesters
+    )
 
     private fun GenericPlugin.managed(config: Config): Pair<GenericPlugin, DependencyManager> {
         return this to manager(config, genericPlugins = listOf(this))
@@ -58,7 +59,8 @@ class DependencyManagerTest {
     @TestFactory
     fun activePluginsAreActive(config: Config) = listOf(
         SelfIdActiveGeneric().managed(config),
-        SelfIdProvider().managed(config))
+        SelfIdProvider().managed(config)
+    )
         .map { (plugin, manager) ->
             dynamicTest("${plugin.category.simpleName}: ${plugin.name}") {
                 assertFalse(manager.isEnabled(plugin))
@@ -71,7 +73,8 @@ class DependencyManagerTest {
     fun inactivePluginsAreInactive(config: Config) = listOf(
         SelfBaseGeneric().managed(config),
         DumbAuthImpl().managed(config),
-        SelfBasePlayback().managed(config))
+        SelfBasePlayback().managed(config)
+    )
         .map { (plugin, manager) ->
             dynamicTest("${plugin.category.simpleName}: ${plugin.name}") {
                 assertFalse(manager.isEnabled(plugin))
@@ -87,7 +90,8 @@ class DependencyManagerTest {
         val manager = manager(
             config,
             genericPlugins = listOf(auth),
-            providers = listOf(provider))
+            providers = listOf(provider)
+        )
 
         assertFalse(manager.isEnabled(provider))
         manager.setDefault(provider, provider.id.type)
@@ -108,7 +112,8 @@ class DependencyManagerTest {
             config,
             genericPlugins = listOf(auth),
             providers = listOf(authedProvider, unauthedProvider),
-            suggesters = listOf(suggester))
+            suggesters = listOf(suggester)
+        )
 
         assertFalse(manager.isEnabled(auth))
         manager.setDefault(auth, DumbAuth::class)

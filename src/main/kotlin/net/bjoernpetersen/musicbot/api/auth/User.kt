@@ -1,9 +1,9 @@
 package net.bjoernpetersen.musicbot.api.auth
 
-import java.util.Locale
 import net.bjoernpetersen.musicbot.api.auth.BotUser.hasPassword
 import net.bjoernpetersen.musicbot.api.player.QueueEntry
 import org.mindrot.jbcrypt.BCrypt
+import java.util.Locale
 
 /**
  * Represents a user of the MusicBot.

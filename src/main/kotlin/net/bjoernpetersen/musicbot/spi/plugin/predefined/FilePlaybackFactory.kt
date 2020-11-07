@@ -1,9 +1,9 @@
 package net.bjoernpetersen.musicbot.spi.plugin.predefined
 
-import java.io.File
-import java.io.IOException
 import net.bjoernpetersen.musicbot.spi.plugin.Playback
 import net.bjoernpetersen.musicbot.spi.plugin.PlaybackFactory
+import java.io.File
+import java.io.IOException
 
 /**
  * An extension of the [PlaybackFactory] interface which accepts input files.

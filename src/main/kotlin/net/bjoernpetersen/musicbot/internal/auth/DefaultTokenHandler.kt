@@ -5,10 +5,6 @@ import com.auth0.jwt.algorithms.Algorithm
 import com.auth0.jwt.exceptions.JWTVerificationException
 import com.auth0.jwt.exceptions.SignatureVerificationException
 import com.auth0.jwt.interfaces.DecodedJWT
-import java.time.Duration
-import java.time.Instant
-import java.util.Date
-import javax.inject.Inject
 import mu.KotlinLogging
 import net.bjoernpetersen.musicbot.api.auth.Crypto
 import net.bjoernpetersen.musicbot.api.auth.FullUser
@@ -25,6 +21,10 @@ import net.bjoernpetersen.musicbot.api.config.ConfigManager
 import net.bjoernpetersen.musicbot.api.config.GenericConfigScope
 import net.bjoernpetersen.musicbot.api.config.serialized
 import net.bjoernpetersen.musicbot.spi.auth.TokenHandler
+import java.time.Duration
+import java.time.Instant
+import java.util.Date
+import javax.inject.Inject
 
 private const val ACCESS_TOKEN_TTL_MINUTES = 10L
 private const val REFRESH_TOKEN_TTL_DAYS = 6L * 30

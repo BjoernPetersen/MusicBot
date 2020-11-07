@@ -1,7 +1,5 @@
 package net.bjoernpetersen.musicbot.internal.loader
 
-import javax.inject.Inject
-import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -12,6 +10,8 @@ import net.bjoernpetersen.musicbot.api.player.Song
 import net.bjoernpetersen.musicbot.spi.loader.Resource
 import net.bjoernpetersen.musicbot.spi.loader.SongLoader
 import net.bjoernpetersen.musicbot.spi.plugin.Provider
+import javax.inject.Inject
+import kotlin.coroutines.CoroutineContext
 
 internal class DefaultSongLoader @Inject private constructor() : SongLoader, CoroutineScope {
     private val job = Job()

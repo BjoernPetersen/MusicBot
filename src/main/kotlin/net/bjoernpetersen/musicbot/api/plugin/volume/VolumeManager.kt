@@ -2,9 +2,9 @@ package net.bjoernpetersen.musicbot.api.plugin.volume
 
 import com.google.inject.ConfigurationException
 import com.google.inject.Injector
+import net.bjoernpetersen.musicbot.spi.plugin.volume.VolumeHandler
 import javax.inject.Inject
 import javax.inject.Singleton
-import net.bjoernpetersen.musicbot.spi.plugin.volume.VolumeHandler
 
 /**
  * Allows to get and set volume. Uses the configured [VolumeHandler] instance for that.

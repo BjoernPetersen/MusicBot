@@ -1,8 +1,8 @@
 package net.bjoernpetersen.musicbot.api.auth
 
+import org.mindrot.jbcrypt.BCrypt
 import java.security.SecureRandom
 import java.util.Random
-import org.mindrot.jbcrypt.BCrypt
 
 /**
  * Provides basic crypto features.

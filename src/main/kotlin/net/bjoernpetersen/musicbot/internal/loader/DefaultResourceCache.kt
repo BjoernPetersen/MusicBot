@@ -2,10 +2,6 @@ package net.bjoernpetersen.musicbot.internal.loader
 
 import com.google.common.cache.CacheBuilder
 import com.google.common.cache.CacheLoader
-import java.time.Duration
-import java.util.concurrent.TimeUnit
-import javax.inject.Inject
-import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
@@ -26,6 +22,10 @@ import net.bjoernpetersen.musicbot.spi.loader.Resource
 import net.bjoernpetersen.musicbot.spi.loader.ResourceCache
 import net.bjoernpetersen.musicbot.spi.loader.SongLoader
 import net.bjoernpetersen.musicbot.spi.plugin.PluginLookup
+import java.time.Duration
+import java.util.concurrent.TimeUnit
+import javax.inject.Inject
+import kotlin.coroutines.CoroutineContext
 
 private const val CACHE_SIZE = 128L
 private const val CACHE_EXPIRATION_HOURS = 1L
@@ -44,9 +44,11 @@ internal class DefaultResourceCache @Inject private constructor(
 
     private val cleanupJob = SupervisorJob(job)
     private val cleanupScope =
-        CoroutineScope(coroutineContext + cleanupJob + CoroutineExceptionHandler { _, throwable ->
-            logger.error(throwable) { "Exception during cleanup" }
-        })
+        CoroutineScope(
+            coroutineContext + cleanupJob + CoroutineExceptionHandler { _, throwable ->
+                logger.error(throwable) { "Exception during cleanup" }
+            }
+        )
 
     @OptIn(ExperimentalCoroutinesApi::class)
     private val cache = CacheBuilder.newBuilder()

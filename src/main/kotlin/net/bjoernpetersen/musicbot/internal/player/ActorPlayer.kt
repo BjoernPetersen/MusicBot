@@ -1,8 +1,5 @@
 package net.bjoernpetersen.musicbot.internal.player
 
-import java.time.Duration
-import javax.inject.Inject
-import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
@@ -37,6 +34,9 @@ import net.bjoernpetersen.musicbot.spi.plugin.PlaybackFeedbackChannel
 import net.bjoernpetersen.musicbot.spi.plugin.PlaybackState
 import net.bjoernpetersen.musicbot.spi.plugin.PluginLookup
 import net.bjoernpetersen.musicbot.spi.plugin.Suggester
+import java.time.Duration
+import javax.inject.Inject
+import kotlin.coroutines.CoroutineContext
 
 private sealed class PlayerMessage
 private sealed class FeedbackPlayerMessage<T>(val response: CompletableDeferred<T>) :

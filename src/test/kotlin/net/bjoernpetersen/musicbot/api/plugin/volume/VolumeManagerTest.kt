@@ -4,7 +4,6 @@ import com.google.inject.AbstractModule
 import com.google.inject.Guice
 import com.google.inject.Injector
 import com.google.inject.Provides
-import javax.inject.Singleton
 import kotlinx.coroutines.runBlocking
 import net.bjoernpetersen.musicbot.api.config.Config
 import net.bjoernpetersen.musicbot.spi.plugin.management.ProgressUpdater
@@ -19,6 +18,7 @@ import org.junit.jupiter.api.DynamicTest.dynamicTest
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestFactory
 import org.junit.jupiter.api.assertThrows
+import javax.inject.Singleton
 
 class VolumeManagerTest {
 

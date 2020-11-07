@@ -23,7 +23,8 @@ class ConfigTest {
                 ::baseDescriptor
             ) {
                 true
-            })
+            }
+        )
     }
 
     @Test
@@ -41,7 +42,8 @@ class ConfigTest {
                 ::baseDescriptor
             ) {
                 true
-            })
+            }
+        )
     }
 
     @Test

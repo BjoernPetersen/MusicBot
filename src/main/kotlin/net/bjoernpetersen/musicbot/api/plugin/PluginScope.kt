@@ -1,11 +1,11 @@
 package net.bjoernpetersen.musicbot.api.plugin
 
 import com.google.common.annotations.Beta
-import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlin.coroutines.CoroutineContext
 
 /**
  * Defines a standard scope which plugins can use for delegation.

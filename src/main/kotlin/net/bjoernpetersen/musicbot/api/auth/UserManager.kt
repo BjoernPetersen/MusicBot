@@ -1,10 +1,10 @@
 package net.bjoernpetersen.musicbot.api.auth
 
-import javax.inject.Inject
-import javax.inject.Singleton
 import mu.KotlinLogging
 import net.bjoernpetersen.musicbot.internal.auth.TempUserDatabase
 import net.bjoernpetersen.musicbot.spi.auth.UserDatabase
+import javax.inject.Inject
+import javax.inject.Singleton
 
 /**
  * Manages all users (guest and full) and creates/verifies their tokens.

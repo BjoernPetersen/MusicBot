@@ -2,14 +2,14 @@ package net.bjoernpetersen.musicbot.test.spi.plugin
 
 import com.google.inject.AbstractModule
 import com.google.inject.Module
-import javax.inject.Inject
-import kotlin.reflect.KClass
-import kotlin.reflect.full.cast
 import mu.KotlinLogging
 import net.bjoernpetersen.musicbot.api.plugin.id
 import net.bjoernpetersen.musicbot.spi.plugin.Plugin
 import net.bjoernpetersen.musicbot.spi.plugin.PluginLookup
 import net.bjoernpetersen.musicbot.spi.plugin.Provider
+import javax.inject.Inject
+import kotlin.reflect.KClass
+import kotlin.reflect.full.cast
 
 class DummyPluginLookup private constructor(private val provider: Provider?) : PluginLookup {
     private val logger = KotlinLogging.logger { }

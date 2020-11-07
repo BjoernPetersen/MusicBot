@@ -1,11 +1,11 @@
 package net.bjoernpetersen.musicbot.internal.player
 
-import java.util.LinkedList
-import javax.inject.Inject
 import net.bjoernpetersen.musicbot.api.player.PlayState
 import net.bjoernpetersen.musicbot.api.player.SongEntry
 import net.bjoernpetersen.musicbot.spi.player.Player
 import net.bjoernpetersen.musicbot.spi.player.PlayerHistory
+import java.util.LinkedList
+import javax.inject.Inject
 
 internal class PlayerHistoryImpl @Inject private constructor(player: Player) : PlayerHistory {
 

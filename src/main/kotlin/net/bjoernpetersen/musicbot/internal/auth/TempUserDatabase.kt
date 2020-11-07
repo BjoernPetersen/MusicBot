@@ -1,10 +1,10 @@
 package net.bjoernpetersen.musicbot.internal.auth
 
-import java.util.HashMap
 import net.bjoernpetersen.musicbot.api.auth.DuplicateUserException
 import net.bjoernpetersen.musicbot.api.auth.GuestUser
 import net.bjoernpetersen.musicbot.api.auth.User
 import net.bjoernpetersen.musicbot.api.auth.toId
+import java.util.HashMap
 
 private const val TEMPORARY_USER_CAPACITY = 32
 

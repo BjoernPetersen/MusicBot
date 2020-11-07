@@ -1,8 +1,6 @@
 package net.bjoernpetersen.musicbot.api.config
 
 import io.mockk.mockk
-import java.io.File
-import java.nio.file.Path
 import kotlinx.coroutines.runBlocking
 import net.bjoernpetersen.musicbot.test.api.config.ConfigExtension
 import net.bjoernpetersen.musicbot.test.asInstanceOf
@@ -14,6 +12,8 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
+import java.io.File
+import java.nio.file.Path
 
 @ExtendWith(ConfigExtension::class)
 class ConfigUiDslTest {

@@ -17,7 +17,8 @@ class QueueEntryTest {
         "songTitle",
         "songDescription",
         60,
-        null)
+        null
+    )
 
     @Test
     fun shallowEqual() {

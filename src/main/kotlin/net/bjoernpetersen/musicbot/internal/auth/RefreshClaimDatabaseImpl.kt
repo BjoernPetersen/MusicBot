@@ -1,9 +1,9 @@
 package net.bjoernpetersen.musicbot.internal.auth
 
-import java.sql.Connection
-import javax.inject.Inject
 import net.bjoernpetersen.musicbot.api.auth.Crypto
 import net.bjoernpetersen.musicbot.api.config.ByteArraySerializer
+import java.sql.Connection
+import javax.inject.Inject
 
 private const val REFRESH_CLAIM_LENGTH = 128
 

@@ -127,12 +127,12 @@ private class ListSerializer<T>(
  * A serializer for a list of strings.
  */
 object StringListSerializer : ConfigSerializer<List<String>> by ListSerializer(
-    serialization {
-        serialize { it }
-        deserialize { it }
-    },
-    ","
-)
+        serialization {
+            serialize { it }
+            deserialize { it }
+        },
+        ","
+    )
 
 /**
  * Creates a List serializer which delegates the serialization of the items to the serializer this
@@ -164,12 +164,12 @@ private class SetSerializer<T>(
  * A serializer for a set of strings.
  */
 object StringSetSerializer : ConfigSerializer<Set<String>> by SetSerializer(
-    serialization {
-        serialize { it }
-        deserialize { it }
-    },
-    ","
-)
+        serialization {
+            serialize { it }
+            deserialize { it }
+        },
+        ","
+    )
 
 /**
  * Creates a Set serializer which delegates the serialization of the items to the serializer this

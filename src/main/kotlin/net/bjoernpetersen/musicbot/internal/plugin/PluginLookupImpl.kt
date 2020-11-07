@@ -1,13 +1,13 @@
 package net.bjoernpetersen.musicbot.internal.plugin
 
-import javax.inject.Inject
-import javax.inject.Named
-import kotlin.reflect.KClass
 import net.bjoernpetersen.musicbot.api.plugin.NamedPlugin
 import net.bjoernpetersen.musicbot.api.plugin.management.PluginFinder
 import net.bjoernpetersen.musicbot.spi.plugin.Plugin
 import net.bjoernpetersen.musicbot.spi.plugin.PluginLookup
 import net.bjoernpetersen.musicbot.spi.plugin.UserFacing
+import javax.inject.Inject
+import javax.inject.Named
+import kotlin.reflect.KClass
 
 internal class PluginLookupImpl @Inject private constructor(
     @Named("PluginClassLoader")

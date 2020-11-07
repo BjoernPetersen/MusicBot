@@ -2,8 +2,8 @@ package net.bjoernpetersen.musicbot.api.module
 
 import com.google.inject.AbstractModule
 import com.google.inject.Provides
-import javax.inject.Singleton
 import net.bjoernpetersen.musicbot.api.config.ConfigManager
+import javax.inject.Singleton
 
 /**
  * Guice module which binds an instance of [ConfigManager].

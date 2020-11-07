@@ -1,10 +1,10 @@
 package net.bjoernpetersen.musicbot.api.config
 
-import java.security.SecureRandom
 import net.bjoernpetersen.musicbot.api.auth.Crypto
 import org.junit.jupiter.api.Assertions.assertArrayEquals
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
+import java.security.SecureRandom
 
 class ByteArraySerializerTest {
     private val serializer: ConfigSerializer<ByteArray> = ByteArraySerializer

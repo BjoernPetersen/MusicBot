@@ -18,7 +18,8 @@ class NonnullConfigCheckerTest {
                 override fun serialize(obj: Any): String = obj.toString()
                 override fun deserialize(string: String): Any = string
             },
-            NonnullConfigChecker)
+            NonnullConfigChecker
+        )
     }
 
     @Test
@@ -26,7 +27,8 @@ class NonnullConfigCheckerTest {
         config.StringEntry(
             "key",
             "TestEntry",
-            NonnullConfigChecker)
+            NonnullConfigChecker
+        )
     }
 
     @Test

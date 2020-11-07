@@ -1,7 +1,6 @@
 package net.bjoernpetersen.musicbot.spi.plugin.management
 
 import com.google.common.annotations.Beta
-import kotlin.reflect.KClass
 import net.bjoernpetersen.musicbot.api.plugin.ActiveBase
 import net.bjoernpetersen.musicbot.api.plugin.DeclarationException
 import net.bjoernpetersen.musicbot.api.plugin.PluginId
@@ -14,6 +13,7 @@ import net.bjoernpetersen.musicbot.spi.plugin.PlaybackFactory
 import net.bjoernpetersen.musicbot.spi.plugin.Plugin
 import net.bjoernpetersen.musicbot.spi.plugin.Provider
 import net.bjoernpetersen.musicbot.spi.plugin.Suggester
+import kotlin.reflect.KClass
 
 /**
  * Manages dependency configuration before injection.

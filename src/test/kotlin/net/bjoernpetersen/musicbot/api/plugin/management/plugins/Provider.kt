@@ -1,6 +1,5 @@
 package net.bjoernpetersen.musicbot.api.plugin.management.plugins
 
-import javax.inject.Inject
 import net.bjoernpetersen.musicbot.api.config.Config
 import net.bjoernpetersen.musicbot.api.player.Song
 import net.bjoernpetersen.musicbot.api.plugin.IdBase
@@ -8,6 +7,7 @@ import net.bjoernpetersen.musicbot.spi.loader.Resource
 import net.bjoernpetersen.musicbot.spi.plugin.Playback
 import net.bjoernpetersen.musicbot.spi.plugin.Provider
 import net.bjoernpetersen.musicbot.spi.plugin.management.ProgressUpdater
+import javax.inject.Inject
 
 @IdBase("Self ID")
 class SelfIdProvider : Provider by TodoProvider("self")

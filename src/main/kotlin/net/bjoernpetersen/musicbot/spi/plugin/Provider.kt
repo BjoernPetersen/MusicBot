@@ -1,12 +1,12 @@
 package net.bjoernpetersen.musicbot.spi.plugin
 
-import kotlin.reflect.KClass
 import mu.KotlinLogging
 import net.bjoernpetersen.musicbot.api.loader.NoResource
 import net.bjoernpetersen.musicbot.api.loader.SongLoadingException
 import net.bjoernpetersen.musicbot.api.player.Song
 import net.bjoernpetersen.musicbot.api.plugin.ActiveBase
 import net.bjoernpetersen.musicbot.spi.loader.Resource
+import kotlin.reflect.KClass
 
 /**
  * A plugin that provides songs from somewhere. That may be an external service, local files, or
