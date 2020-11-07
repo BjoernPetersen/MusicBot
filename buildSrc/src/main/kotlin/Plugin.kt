@@ -7,5 +7,5 @@ object Plugin {
     const val VERSIONS = "0.34.0"
 
     const val KOTLIN = "1.4.10"
-    const val DOKKA = "0.10.1"
+    const val DOKKA = "1.4.10.2"
 }

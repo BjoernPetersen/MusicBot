@@ -1,5 +1,4 @@
 import com.diffplug.spotless.LineEnding
-import org.jetbrains.dokka.gradle.DokkaTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -69,22 +68,10 @@ jacoco {
 }
 
 tasks {
-    "dokka"(DokkaTask::class) {
-        outputFormat = "html"
-        outputDirectory = "$buildDir/kdoc"
-    }
-
-    @Suppress("UNUSED_VARIABLE")
-    val dokkaJavadoc by creating(DokkaTask::class) {
-        outputFormat = "javadoc"
-        outputDirectory = "$buildDir/javadoc"
-    }
-
-    @Suppress("UNUSED_VARIABLE")
-    val javadocJar by creating(Jar::class) {
+    create<Jar>("javadocJar") {
         dependsOn("dokkaJavadoc")
         archiveClassifier.set("javadoc")
-        from("$buildDir/javadoc")
+        from("$buildDir/dokka/javadoc")
     }
 
     "processResources"(ProcessResources::class) {
