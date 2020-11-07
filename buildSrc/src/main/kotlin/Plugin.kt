@@ -1,5 +1,6 @@
 object Plugin {
     const val SPOTLESS = "3.27.2"
+    const val KTLINT = "0.39.0"
     const val DETEKT = "1.6.0"
     const val JACOCO = "0.8.4"
 
