@@ -6,6 +6,6 @@ package net.bjoernpetersen.musicbot.spi.plugin.management
         "ProgressFeedback",
         "net.bjoernpetersen.musicbot.spi.plugin.management.ProgressFeedback"
     ),
-    level = DeprecationLevel.ERROR,
+    level = DeprecationLevel.WARNING,
 )
 interface InitStateWriter : ProgressFeedback
