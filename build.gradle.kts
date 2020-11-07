@@ -3,7 +3,7 @@ import org.jetbrains.dokka.gradle.DokkaTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    id("com.diffplug.gradle.spotless") version Plugin.SPOTLESS
+    id("com.diffplug.spotless") version Plugin.SPOTLESS
     id("io.gitlab.arturbosch.detekt") version Plugin.DETEKT
     jacoco
 
