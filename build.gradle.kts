@@ -145,7 +145,7 @@ dependencies {
     api(kotlin("reflect"))
     api(
         group = "io.github.microutils",
-        name = "kotlin-logging",
+        name = "kotlin-logging-jvm",
         version = Lib.KOTLIN_LOGGING
     )
 
