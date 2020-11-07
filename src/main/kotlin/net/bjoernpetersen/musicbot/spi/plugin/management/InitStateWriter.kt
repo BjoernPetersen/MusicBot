@@ -16,9 +16,3 @@ interface ProgressFeedback {
      */
     fun warning(warning: String)
 }
-
-@Deprecated(
-    "Use ProgressFeedback instead",
-    replaceWith = ReplaceWith("ProgressFeedback")
-)
-typealias InitStateWriter = ProgressFeedback
