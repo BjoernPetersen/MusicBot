@@ -11,6 +11,8 @@ object Lib {
     const val JJWT = "3.11.0"
     const val JAVA_SEMVER = "0.9.0"
 
+    const val KTOR = "1.4.1"
+
     const val JUNIT = "5.7.0"
     const val JUNIT_GUICE = "1.2.1"
     const val MOCK_K = "1.10.2"

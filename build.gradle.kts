@@ -161,6 +161,29 @@ dependencies {
         version = Lib.JJWT
     )
 
+    // Ktor for any HTTP stuff
+    api(
+        group = "io.ktor",
+        name = "ktor-client-core",
+        version = Lib.KTOR
+    )
+    api(
+        group = "io.ktor",
+        name = "ktor-client-json",
+        version = Lib.KTOR
+    )
+    api(
+        group = "io.ktor",
+        name = "ktor-server-core",
+        version = Lib.KTOR
+    )
+    // I'd be happier if this could be engine agnostic, like the client
+    api(
+        group = "io.ktor",
+        name = "ktor-server-netty",
+        version = Lib.KTOR
+    )
+
     api(
         group = "com.github.zafarkhaja",
         name = "java-semver",
