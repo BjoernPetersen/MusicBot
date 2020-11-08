@@ -47,7 +47,7 @@ object CheckBox : UiNode<Boolean>()
  *
  * @param label the label to display on the button
  * @param descriptor a function that converts the entry value to a human-readable form
- * @param action an action to perform when the button is clicked
+ * @param action an action to perform when the button is clicked, returns true on success
  */
 data class ActionButton<T>(
     val label: String,
