@@ -1,19 +1,17 @@
-@file:Suppress("UnstableApiUsage")
-
 import com.diffplug.spotless.LineEnding
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    id("com.diffplug.spotless") version Plugin.SPOTLESS
-    id("io.gitlab.arturbosch.detekt") version Plugin.DETEKT
+    id("com.diffplug.spotless") version "5.7.0"
+    id("io.gitlab.arturbosch.detekt") version "1.14.2"
     jacoco
 
-    id("com.github.ben-manes.versions") version Plugin.VERSIONS
+    id("com.github.ben-manes.versions") version "0.34.0"
 
-    kotlin("jvm") version Plugin.KOTLIN
+    kotlin("jvm") version "1.4.10"
     `java-library`
 
-    id("org.jetbrains.dokka") version Plugin.DOKKA
+    id("org.jetbrains.dokka") version "1.4.10.2"
     idea
 
     signing
@@ -27,6 +25,11 @@ fun isSnapshot() = version.toString().endsWith("SNAPSHOT")
 
 repositories {
     mavenCentral()
+    maven(url = "https://maven.pkg.jetbrains.space/public/p/kotlinx-html/maven") {
+        content {
+            includeModule("org.jetbrains.kotlinx", "kotlinx-html-jvm")
+        }
+    }
 }
 
 idea {
@@ -44,12 +47,12 @@ java {
 
 spotless {
     kotlin {
-        ktlint(Plugin.KTLINT)
+        ktlint(libs.versions.ktlint.get())
         lineEndings = LineEnding.UNIX
         endWithNewline()
     }
     kotlinGradle {
-        ktlint(Plugin.KTLINT)
+        ktlint(libs.versions.ktlint.get())
         lineEndings = LineEnding.UNIX
         endWithNewline()
     }
@@ -61,13 +64,13 @@ spotless {
 }
 
 detekt {
-    toolVersion = Plugin.DETEKT
+    toolVersion = libs.versions.detekt.get()
     config = files("$rootDir/buildConfig/detekt.yml")
     buildUponDefaultConfig = true
 }
 
 jacoco {
-    toolVersion = Plugin.JACOCO
+    toolVersion = libs.versions.jacoco.get()
 }
 
 tasks {
@@ -77,6 +80,7 @@ tasks {
         from("$buildDir/dokka/javadoc")
     }
 
+    @Suppress("UnstableApiUsage")
     "processResources"(ProcessResources::class) {
         filesMatching("**/version.properties") {
             filter {
@@ -132,88 +136,38 @@ tasks {
 
 dependencies {
     api(kotlin("stdlib-jdk8"))
-    api(
-        group = "org.jetbrains.kotlinx",
-        name = "kotlinx-coroutines-core",
-        version = Lib.KOTLIN_COROUTINES
-    )
-    implementation(
-        group = "org.jetbrains.kotlinx",
-        name = "kotlinx-coroutines-jdk8",
-        version = Lib.KOTLIN_COROUTINES
-    )
+    api(libs.coroutines.core)
+    implementation(libs.coroutines.jdk8)
     api(kotlin("reflect"))
+
+    api(libs.logging.slf4j.api)
+    api(libs.logging.kotlin)
+
+    api(libs.guava)
     api(
-        group = "io.github.microutils",
-        name = "kotlin-logging-jvm",
-        version = Lib.KOTLIN_LOGGING
+        group = "com.google.inject",
+        name = "guice",
+        version = libs.versions.guice.get(),
+        classifier = "no_aop",
     )
 
-    api(group = "org.slf4j", name = "slf4j-api", version = Lib.SLF4J)
-    api(group = "com.google.guava", name = "guava", version = Lib.GUAVA)
-    api(group = "com.google.inject", name = "guice", version = Lib.GUICE, classifier = "no_aop")
+    implementation(libs.jbcrypt)
 
-    implementation(group = "org.mindrot", name = "jbcrypt", version = Lib.JBCRYPT)
-
-    implementation(
-        group = "com.auth0",
-        name = "java-jwt",
-        version = Lib.JJWT
-    )
+    implementation(libs.jwt)
 
     // Ktor for any HTTP stuff
-    api(
-        group = "io.ktor",
-        name = "ktor-client-core",
-        version = Lib.KTOR
-    )
-    api(
-        group = "io.ktor",
-        name = "ktor-client-json",
-        version = Lib.KTOR
-    )
-    api(
-        group = "io.ktor",
-        name = "ktor-server-core",
-        version = Lib.KTOR
-    )
-    // I'd be happier if this could be engine agnostic, like the client
-    api(
-        group = "io.ktor",
-        name = "ktor-server-netty",
-        version = Lib.KTOR
-    )
+    api(libs.bundles.ktor)
 
-    api(
-        group = "com.github.zafarkhaja",
-        name = "java-semver",
-        version = Lib.JAVA_SEMVER
-    )
+    api(libs.semver)
 
-    testRuntimeOnly(group = "org.slf4j", name = "slf4j-simple", version = Lib.SLF4J)
-    testRuntimeOnly(group = "org.xerial", name = "sqlite-jdbc", version = Lib.SQLITE)
-    testRuntimeOnly(
-        group = "org.junit.jupiter",
-        name = "junit-jupiter-engine",
-        version = Lib.JUNIT
-    )
-    testImplementation(
-        group = "org.junit.jupiter",
-        name = "junit-jupiter-api",
-        version = Lib.JUNIT
-    )
-    testImplementation(
-        group = "name.falgout.jeffrey.testing.junit5",
-        name = "guice-extension",
-        version = Lib.JUNIT_GUICE
-    )
-    testImplementation(group = "io.mockk", name = "mockk", version = Lib.MOCK_K)
-    testImplementation(group = "org.assertj", name = "assertj-core", version = Lib.ASSERT_J)
-    testImplementation(
-        group = "nl.jqno.equalsverifier",
-        name = "equalsverifier",
-        version = Lib.EQUALSVERIFIER
-    )
+    testRuntimeOnly(libs.logging.slf4j.simple)
+    testRuntimeOnly(libs.sqlite)
+    testRuntimeOnly(libs.junit.engine)
+    testImplementation(libs.junit.api)
+    testImplementation(libs.junit.guice)
+    testImplementation(libs.mockk)
+    testImplementation(libs.assertj)
+    testImplementation(libs.equalsverifier)
 }
 
 publishing {
@@ -255,7 +209,6 @@ publishing {
             maven {
                 val releasesRepoUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2"
                 val snapshotsRepoUrl = "https://oss.sonatype.org/content/repositories/snapshots"
-                // change to point to your repo, e.g. http://my.org/repo
                 url = uri(
                     if (isSnapshot()) snapshotsRepoUrl
                     else releasesRepoUrl
@@ -271,4 +224,20 @@ publishing {
 
 signing {
     sign(publishing.publications.getByName("Maven"))
+}
+
+fun isUnstable(version: String, currentVersion: String): Boolean {
+    val lowerVersion = version.toLowerCase()
+    val lowerCurrentVersion = currentVersion.toLowerCase()
+    return listOf(
+        "alpha",
+        "beta",
+        "rc",
+        "m",
+        "eap"
+    ).any { it in lowerVersion && it !in lowerCurrentVersion }
+}
+
+fun isWrongPlatform(version: String, currentVersion: String): Boolean {
+    return "android" in currentVersion && "android" !in version
 }
