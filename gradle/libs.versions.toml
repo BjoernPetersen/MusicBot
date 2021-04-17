@@ -6,6 +6,10 @@ ktor.strictly = "[1.4, 1.5)"
 
 junit = "5.7.0"
 
+# Plugins
+ktlint = "0.41.0"
+jacoco = "0.8.6"
+
 
 [libraries]
 

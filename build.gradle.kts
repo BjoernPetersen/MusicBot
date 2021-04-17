@@ -2,11 +2,11 @@ import com.diffplug.spotless.LineEnding
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    id("com.diffplug.spotless") version "5.7.0"
-    id("io.gitlab.arturbosch.detekt") version "1.14.2"
+    id("com.diffplug.spotless") version "5.12.1"
+    id("io.gitlab.arturbosch.detekt") version "1.16.0"
     jacoco
 
-    id("com.github.ben-manes.versions") version "0.34.0"
+    id("com.github.ben-manes.versions") version "0.38.0"
 
     kotlin("jvm") version "1.4.10"
     `java-library`
@@ -64,7 +64,6 @@ spotless {
 }
 
 detekt {
-    toolVersion = libs.versions.detekt.get()
     config = files("$rootDir/buildConfig/detekt.yml")
     buildUponDefaultConfig = true
 }
