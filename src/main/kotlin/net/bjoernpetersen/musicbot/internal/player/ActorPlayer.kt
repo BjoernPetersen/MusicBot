@@ -190,7 +190,7 @@ private class SyncPlayer @Inject private constructor(
         val nextEntry: SongEntry = nextQueueEntry ?: try {
             SuggestedSongEntry(suggester!!.suggestNext())
         } catch (e: BrokenSuggesterException) {
-            logger.warn("Default suggester could not suggest anything. Stopping.")
+            logger.warn(e) { "Default suggester could not suggest anything. Stopping." }
             playback = CompletablePlayback()
             state = ErrorState
             return

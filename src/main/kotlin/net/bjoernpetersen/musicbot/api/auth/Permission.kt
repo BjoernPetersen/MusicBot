@@ -87,7 +87,7 @@ enum class Permission(val label: String) {
             return try {
                 matchByLabel(string)
             } catch (e: IllegalArgumentException) {
-                throw DeserializationException()
+                throw DeserializationException(e)
             }
         }
     }

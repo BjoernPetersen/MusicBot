@@ -1,5 +1,6 @@
 package net.bjoernpetersen.musicbot.api.plugin
 
+import mu.KotlinLogging
 import net.bjoernpetersen.musicbot.api.config.ConfigSerializer
 import net.bjoernpetersen.musicbot.api.config.DeserializationException
 import net.bjoernpetersen.musicbot.spi.plugin.Plugin
@@ -50,6 +51,8 @@ class PluginId(type: KClass<*>, val displayName: String) {
     }
 
     companion object {
+        private val logger = KotlinLogging.logger {}
+
         /**
          * Automatically retrieves the [displayName] by looking through the [idClass]'s annotations.
          *
@@ -60,6 +63,7 @@ class PluginId(type: KClass<*>, val displayName: String) {
             idClass.findAnnotation<IdBase>()
                 ?.let { PluginId(idClass, it.displayName) }
         } catch (e: DeclarationException) {
+            logger.trace(e) { "Ignored DeclarationException" }
             null
         }
     }
@@ -75,7 +79,7 @@ class PluginId(type: KClass<*>, val displayName: String) {
             val type = try {
                 classLoader.loadClass(qualifiedName).kotlin
             } catch (e: ClassNotFoundException) {
-                throw DeserializationException()
+                throw DeserializationException(e)
             }
             return PluginId(type, displayName)
         }

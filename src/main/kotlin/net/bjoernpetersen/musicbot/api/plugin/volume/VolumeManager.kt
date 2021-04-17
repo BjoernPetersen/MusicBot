@@ -2,6 +2,7 @@ package net.bjoernpetersen.musicbot.api.plugin.volume
 
 import com.google.inject.ConfigurationException
 import com.google.inject.Injector
+import mu.KotlinLogging
 import net.bjoernpetersen.musicbot.spi.plugin.volume.VolumeHandler
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -18,6 +19,7 @@ class VolumeManager @Inject private constructor(injector: Injector) {
         try {
             injector.getInstance(VolumeHandler::class.java)
         } catch (e: ConfigurationException) {
+            logger.trace(e) { "Ignored ConfigurationException" }
             null
         }
     }
@@ -41,5 +43,9 @@ class VolumeManager @Inject private constructor(injector: Injector) {
         if (volume < Volume.MIN || volume > Volume.MAX)
             throw IllegalArgumentException("Volume is not between 0 and 100")
         handler?.setVolume(volume)
+    }
+
+    private companion object {
+        private val logger = KotlinLogging.logger { }
     }
 }

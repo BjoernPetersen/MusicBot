@@ -110,6 +110,7 @@ internal class DefaultTokenHandler @Inject private constructor(
     }
 
     private fun decodeToken(token: String): DecodedToken {
+        @Suppress("SwallowedException")
         return try {
             val decoded = decodeToken(token, getSignatureKey())
             DecodedToken(decoded, false)
@@ -129,7 +130,7 @@ internal class DefaultTokenHandler @Inject private constructor(
                 .verify(token)
         } catch (e: SignatureVerificationException) {
             // This one should be propagated
-            throw InvalidSignatureException()
+            throw InvalidSignatureException(e)
         } catch (e: JWTVerificationException) {
             throw InvalidTokenException(e)
         }
@@ -144,6 +145,7 @@ internal class DefaultTokenHandler @Inject private constructor(
         } else {
             val permissions: Set<Permission> = permissionClaim.asList(String::class.java)
                 .mapNotNull {
+                    @Suppress("SwallowedException")
                     try {
                         Permission.matchByLabel(it)
                     } catch (e: IllegalArgumentException) {

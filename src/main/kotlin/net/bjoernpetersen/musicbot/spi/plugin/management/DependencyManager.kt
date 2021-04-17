@@ -1,6 +1,7 @@
 package net.bjoernpetersen.musicbot.spi.plugin.management
 
 import com.google.common.annotations.Beta
+import mu.KotlinLogging
 import net.bjoernpetersen.musicbot.api.plugin.ActiveBase
 import net.bjoernpetersen.musicbot.api.plugin.DeclarationException
 import net.bjoernpetersen.musicbot.api.plugin.PluginId
@@ -96,6 +97,7 @@ interface DependencyManager {
         val id = try {
             plugin.id
         } catch (e: DeclarationException) {
+            logger.trace(e) { "Ignored DeclarationException" }
             null
         }
         if (id != null && isDefault(plugin, id.type)) return true
@@ -204,9 +206,16 @@ interface DependencyManager {
         providerOrder: List<PluginId>,
         suggesterOrder: List<PluginId>
     ): PluginFinder
+
+    private companion object {
+        private val logger = KotlinLogging.logger { }
+    }
 }
 
 /**
  * Thrown if there is a problem with the current plugin configuration (e.g. missing dependencies).
  */
-class DependencyConfigurationException(message: String) : Exception(message)
+class DependencyConfigurationException(
+    message: String,
+    cause: Throwable? = null,
+) : Exception(message, cause)

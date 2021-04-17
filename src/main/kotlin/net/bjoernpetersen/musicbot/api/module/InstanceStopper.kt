@@ -37,23 +37,18 @@ class InstanceStopper(private val injector: Injector) {
         return action()
     }
 
-    private fun <T : Any> KClass<T>.lookup(): T = try {
+    private fun <T : Any> KClass<T>.lookup(): T? = try {
         injector.getInstance(this.java)
     } catch (e: ConfigurationException) {
         logger.error(e) { "Could not find ${this.qualifiedName}" }
-        throw IllegalStateException(e)
+        null
     } catch (e: ProvisionException) {
         logger.error(e) { "Could not provide instance of ${this.qualifiedName}" }
-        throw IllegalStateException(e)
+        null
     }
 
     private suspend fun <T : Any> KClass<T>.withLookup(action: suspend (T) -> Unit) {
-        val instance = try {
-            this.lookup()
-        } catch (e: IllegalStateException) {
-            // The lookup method already logged the exception
-            return
-        }
+        val instance = this.lookup() ?: return
         action(instance)
     }
 

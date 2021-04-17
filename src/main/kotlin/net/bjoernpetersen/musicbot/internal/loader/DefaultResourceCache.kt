@@ -97,7 +97,7 @@ internal class DefaultResourceCache @Inject private constructor(
                     try {
                         cleanupJob.children.forEach { it.join() }
                     } catch (e: TimeoutCancellationException) {
-                        logger.warn { "Resource cache clean up timed out after one minute." }
+                        logger.warn(e) { "Resource cache clean up timed out after one minute." }
                     }
                 }
             }

@@ -120,10 +120,15 @@ class DefaultDependencyManager(
         val defaultByBase = findEnabledDependencies()
             .associateWithTo(HashMap()) { base ->
                 val plugin = try {
-                    getDefault(base)
+                    getDefault(base) ?: throw DependencyConfigurationException(
+                        "No default: ${base.qualifiedName}"
+                    )
                 } catch (e: DeserializationException) {
-                    null
-                } ?: throw DependencyConfigurationException("No default: ${base.qualifiedName}")
+                    throw DependencyConfigurationException(
+                        "Could not deserialize default: ${base.qualifiedName}",
+                        e,
+                    )
+                }
                 plugin
             }
 
@@ -133,7 +138,7 @@ class DefaultDependencyManager(
                 try {
                     defaultByBase[it.id.type] = it
                 } catch (e: DeclarationException) {
-                    // ignore
+                    logger.trace(e) { "Ignored declaration exception" }
                 }
             }
 

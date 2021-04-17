@@ -45,6 +45,7 @@ internal class DefaultImageCache @Inject private constructor(
         return try {
             cache[url]
         } catch (e: ExecutionException) {
+            logger.debug(e) { "Ignored ExecutionException" }
             null
         }
     }

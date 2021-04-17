@@ -13,4 +13,7 @@ open class InvalidTokenException : Exception {
 /**
  * Thrown if the token is invalid because its signature didn't match.
  */
-class InvalidSignatureException : InvalidTokenException()
+class InvalidSignatureException : InvalidTokenException {
+    constructor() : super()
+    constructor(cause: Throwable) : super(cause)
+}

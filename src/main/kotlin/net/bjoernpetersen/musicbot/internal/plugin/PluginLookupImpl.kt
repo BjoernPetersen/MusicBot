@@ -1,5 +1,6 @@
 package net.bjoernpetersen.musicbot.internal.plugin
 
+import mu.KotlinLogging
 import net.bjoernpetersen.musicbot.api.plugin.NamedPlugin
 import net.bjoernpetersen.musicbot.api.plugin.management.PluginFinder
 import net.bjoernpetersen.musicbot.spi.plugin.Plugin
@@ -28,10 +29,16 @@ internal class PluginLookupImpl @Inject private constructor(
             @Suppress("UNCHECKED_CAST")
             classLoader.loadClass(id).kotlin as KClass<T>
         } catch (e: ClassNotFoundException) {
+            logger.trace(e) { "Ignored ClassNotFoundException" }
             null
         } catch (e: ClassCastException) {
+            logger.trace(e) { "Ignored ClassCastException" }
             null
         }
         return base?.let(::lookup)
+    }
+
+    private companion object {
+        private val logger = KotlinLogging.logger { }
     }
 }
