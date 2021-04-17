@@ -3,7 +3,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("com.diffplug.spotless") version "5.12.1"
-    id("io.gitlab.arturbosch.detekt") version "1.16.0"
+    id("io.gitlab.arturbosch.detekt") version "1.14.1"
     jacoco
 
     id("com.github.ben-manes.versions") version "0.38.0"
