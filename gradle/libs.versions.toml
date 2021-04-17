@@ -122,7 +122,6 @@ version = "3.5.5"
 
 
 [bundles]
-coroutines = ["coroutines-core", "coroutines-jdk8"]
 ktor = [
     "ktor-client-core",
     "ktor-client-json",
