@@ -4,7 +4,7 @@ slf4j = "1.8.0-beta4"
 guice = "4.2.3"
 ktor.strictly = "[1.4, 1.5)"
 
-junit = "5.7.0"
+junit.strictly = "[5.7, 5.8)"
 
 # Plugins
 ktlint = "0.41.0"
@@ -43,7 +43,7 @@ version.ref = "slf4j"
 [libraries.guava]
 group = "com.google.guava"
 name = "guava"
-version = "30.0-android"
+version = "30.1.1-android"
 
 [libraries.jbcrypt]
 group = "org.mindrot"
@@ -86,7 +86,7 @@ version = "0.9.0"
 [libraries.sqlite]
 group = "org.xerial"
 name = "sqlite-jdbc"
-version= "3.30.1"
+version= "3.34.0"
 
 
 [libraries.junit-api]
@@ -108,17 +108,17 @@ version = "1.2.1"
 [libraries.mockk]
 group = "io.mockk"
 name = "mockk"
-version = "1.10.2"
+version = "1.11.0"
 
 [libraries.assertj]
 group = "org.assertj"
 name = "assertj-core"
-version ="3.18.0"
+version ="3.19.0"
 
 [libraries.equalsverifier]
 group = "nl.jqno.equalsverifier"
 name = "equalsverifier"
-version = "3.5"
+version = "3.5.5"
 
 
 [bundles]
