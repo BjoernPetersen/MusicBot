@@ -8,7 +8,7 @@ plugins {
 
     id("com.github.ben-manes.versions") version "0.38.0"
 
-    kotlin("jvm") version "1.4.10"
+    kotlin("jvm") version "1.4.32"
     `java-library`
 
     id("org.jetbrains.dokka") version "1.4.10.2"
