@@ -6,11 +6,6 @@ ktor.strictly = "[1.4, 1.5)"
 
 junit = "5.7.0"
 
-# Plugins
-ktlint = "0.39.0"
-detekt = "1.14.2"
-jacoco = "0.8.6"
-
 
 [libraries]
 
@@ -54,7 +49,7 @@ version = "0.4"
 [libraries.jwt]
 group = "com.auth0"
 name = "java-jwt"
-version = "3.11.0"
+version.strictly = "[3, 4)"
 
 
 [libraries.ktor-client-core]
