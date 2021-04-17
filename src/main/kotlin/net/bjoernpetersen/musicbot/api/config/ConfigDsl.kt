@@ -113,7 +113,7 @@ class BooleanConfiguration(val key: String) {
      * A default value.
      */
     var default: Boolean = false
-        get() = if (defaultSet) field else throw IllegalStateException()
+        get() = if (defaultSet) field else throw IllegalStateException("Already set default")
         set(value) {
             defaultSet = true
             field = value

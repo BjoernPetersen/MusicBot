@@ -73,7 +73,7 @@ enum class Permission(val label: String) {
         @JvmStatic
         fun matchByLabel(label: String): Permission = Permission.values()
             .firstOrNull { it.label == label }
-            ?: throw IllegalArgumentException()
+            ?: throw IllegalArgumentException("Unknown permission label: $label")
 
         /**
          * Gets the standard set of default permissions.

@@ -85,8 +85,9 @@ class DefaultDependencyManager(
     )
 
     override fun getDefaults(plugin: Plugin): Sequence<KClass<out Plugin>> {
-        return basesByPlugin[plugin]?.asSequence()?.filter { defaultByBase[it]?.get() == plugin }
-            ?: throw IllegalStateException()
+        val bases = basesByPlugin[plugin]
+            ?: throw IllegalStateException("No bases for plugin $plugin found")
+        return bases.asSequence().filter { defaultByBase[it]?.get() == plugin }
     }
 
     override fun <B : Plugin> getDefault(base: KClass<out B>): B? {

@@ -69,7 +69,7 @@ class UserManager @Inject private constructor(
     @Suppress("unused")
     fun updateUser(user: User, password: String): FullUser {
         if (password.isEmpty()) {
-            throw IllegalArgumentException()
+            throw IllegalArgumentException("Empty password")
         }
 
         val hash = Crypto.hash(password)
@@ -97,7 +97,7 @@ class UserManager @Inject private constructor(
      */
     fun updatePermissions(user: User, permissions: Set<Permission>): FullUser {
         if (user !is FullUser) {
-            throw IllegalArgumentException()
+            throw IllegalArgumentException("Can't set permissions for guest user")
         }
         userDatabase.updatePermissions(user.name, permissions)
         return userDatabase.findUser(user.name)
