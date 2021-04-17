@@ -26,7 +26,7 @@ version = "0.26.0-SNAPSHOT"
 fun isSnapshot() = version.toString().endsWith("SNAPSHOT")
 
 repositories {
-    jcenter()
+    mavenCentral()
 }
 
 idea {
