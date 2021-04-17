@@ -11,7 +11,7 @@ plugins {
     kotlin("jvm") version "1.4.32"
     `java-library`
 
-    id("org.jetbrains.dokka") version "1.4.10.2"
+    id("org.jetbrains.dokka") version "1.4.30"
     idea
 
     signing
